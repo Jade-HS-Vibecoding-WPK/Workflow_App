@@ -5,10 +5,27 @@
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
 - ✅ GitHub-Repo verbunden, `CLAUDE.md` und `PLAN.md` angelegt
-- ⏳ Kategorien im Detail klären, angefangen mit den festen wöchentlichen Terminen
+- ✅ Feste wiederkehrende Termine grundsätzlich geklärt (siehe „Entscheidungen“)
+- ⏳ Zwei Detailfragen zu festen Terminen und Sperrzeiten, danach die restlichen Kategorien
+
+## Entscheidungen
+
+### Feste wiederkehrende Termine (z. B. Arbeit, Uni)
+- **Wiederholung:** wöchentlich, alle 2 Wochen oder monatlich
+- **Zeitraum:** optionales Start- und Enddatum, z. B. „bis Semesterende“
+- **Ausnahmen:** Einzelne Termine lassen sich spontan absagen („fällt heute aus“), ohne die Serie zu ändern. Das Zeitfenster gilt danach als frei.
+- **Details:** Titel, Ort/Raum, Notiz, Farbe, **Priorität**
+- **Freie Zeit:** Feste Termine zählen als „belegt“, die App plant Aufgaben nur in freie Lücken ein.
+
+### Sperrzeiten (neu)
+- Man kann Zeiten für sich blockieren, z. B. Freizeit, oder als Regel „keine Termine nach 20 Uhr“.
+- Sperrzeiten zählen bei der Berechnung freier Zeit als „nicht verfügbar“.
+
+### Rahmen
+- Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feste wöchentliche Termine klären: Regelmäßigkeit, Zeitraum, Ausnahmen, Details, Rolle bei freier Zeit
+1. Klären: Wie genau soll „monatlich“ funktionieren, und sind Sperrzeiten eine harte Sperre oder nur eine Warnung?
 2. Restliche Kategorien klären: flexible Termine, Aufgaben, einmalige Termine, Ziele
 3. Ansichten (Tag, Woche, Aufgabenliste, „Heute“) und Kernfunktionen festlegen
 4. MoSCoW-Liste unten füllen
@@ -30,10 +47,12 @@
 | Fr 20.11. | Präsentation, Abgabe bis 16 Uhr | – |
 
 ## Offene Fragen
-- [ ] Allein oder im Team?
+- [x] Allein oder im Team? → allein
+- [x] Feste Termine: Regelmäßigkeit, Ausnahmen, Details, Rolle bei freier Zeit → siehe „Entscheidungen“
+- [ ] Monatlich: an einem festen Datum (jeden 15.) oder an einem Wochentag (jeden 1. Montag)?
+- [ ] Sperrzeiten: harte Sperre oder nur Warnung, wenn man trotzdem etwas einträgt?
 - [ ] Kategorien fest vorgegeben oder von Nutzern anpassbar?
 - [ ] Freigabe-Stufe „Nur frei/belegt“ übernehmen?
-- [ ] Feste Termine: Regelmäßigkeit, Ausnahmen, Details, Rolle bei freier Zeit
 - [ ] Was bedeutet „flexibel“ bei flexiblen Terminen genau?
 
 ## Ausblick Version 2
