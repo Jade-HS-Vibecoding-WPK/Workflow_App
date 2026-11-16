@@ -9,7 +9,7 @@
 - ✅ Sperrzeiten geklärt
 - ✅ Einmalige Termine grundsätzlich geklärt (Details später), Kategorien-Überblick steht
 - ✅ Aufgaben komplett geklärt
-- ⏳ Ziele: eine weitere Funktion kommt noch dazu
+- ⏳ Ziele: Kritischer Pfad (Abhängigkeiten zwischen Unterzielen) wird besprochen
 
 ## Entscheidungen
 
@@ -66,6 +66,12 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - **Warnung**, wenn die freie Zeit bis zur Deadline nicht reicht, z. B. „Du brauchst noch 12 Std., hast aber nur 8 Std. frei.“
 - **Allgemeine Einschätzung** zum Stand, z. B. „Du bist gut im Plan, weiter so!“ oder „Du hängst hinterher, investier mehr Zeit und lass etwas anderes ausfallen.“
 
+### Kritischer Pfad bei Zielen (in Besprechung)
+- Unterziele können **Abhängigkeiten** haben: Ein Unterziel kann erst starten, wenn andere fertig sind.
+- Daraus berechnet die App den **kritischen Pfad**, also die Kette von Unterzielen, bei der jede Verzögerung die Deadline des ganzen Ziels verschiebt.
+- Damit soll die App auch für **Projektplanung wie im Baumanagement** nutzbar sein.
+- Details werden gerade besprochen.
+
 ### Erledigtes
 - Wird **abgehakt und ausgeblendet**, aber in einem Ordner **„Erledigt“** aufbewahrt.
 - Einträge im Ordner „Erledigt“ werden **nach 6 Monaten automatisch gelöscht**.
@@ -74,7 +80,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Weitere Funktion für Ziele besprechen
+1. Kritischer Pfad bei Zielen ausführlich besprechen
 2. Details der einmaligen Termine besprechen
 3. Ansichten (Tag, Woche, Aufgabenliste, „Heute“) und Kernfunktionen festlegen
 4. MoSCoW-Liste unten füllen
@@ -109,7 +115,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Ziele: Reihenfolge, Warnung → siehe „Ziele“
 - [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
 - [x] Ziele: eigene Zwischen-Deadlines für Unterziele? → ja
-- [ ] Ziele: weitere Funktion, die du noch beschreiben willst
+- [ ] Kritischer Pfad: Arten von Abhängigkeiten, Wartezeiten, Aufwand vs. Dauer, Darstellung, Reaktion der App auf Verzögerungen
 - [x] Wiederkehrende Aufgaben nötig? → ja
 - [x] Einplanen automatisch oder per Hand? → die App plant, ich bestätige
 - [x] Aufgaben aufteilen? → ja
