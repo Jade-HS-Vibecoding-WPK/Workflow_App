@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Wunsch 2 erledigt („kritisch“ nur noch bei echter Enge, längste Kette heißt „Hauptpfad“). **Weitere Änderungswünsche von Niklas besprechen** (Freeze Do 12 Uhr beachten).
+Alle Must-Punkte + kritischer Pfad sind fertig. **Jetzt: Ideenliste gemeinsam besprechen** → [`docs/Ideenliste.md`](docs/Ideenliste.md) (Leitlinien gegen Überladung, beschlossene offene Punkte A1–A12, neue Ideen B1–B9, Brainstorming-Fragen). Ergebnis = neue Reihenfolge bis zum Freeze (Do 12 Uhr).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -37,7 +37,7 @@ Wunsch 2 erledigt („kritisch“ nur noch bei echter Enge, längste Kette heiß
 - ✅ Feature 10: Test auf dem Handy (Niklas, Mo 16.11.): alles läuft
 - ✅ Wunsch: Auf „Heute“ zwischen Tagen wischen (links = nächster Tag, rechts = vorheriger), zusätzlich ‹ › und „Heute“-Knopf. Titel/erste Kachel zeigen den Tag („Morgen“, „Mittwoch“ …), Jetzt-Linie nur heute, „+“ legt für den angezeigten Tag an, Scrollposition bleibt beim Blättern. Adresse `#heute/<Datum>`.
 - ✅ Wunsch: „kritisch“ nur bei echter Enge. **Auslastung** = nötige Stunden (Unterziel + alle Vorgänger) ÷ freie Stunden bis zu seinem spätesten Ende. Unter 50 % kein Hinweis, **50–80 % „eng“** (orange), **ab 80 % oder wenn es nicht reicht „kritisch“** (rot). Die längste Kette heißt jetzt **„Hauptpfad“** (grau, unabhängig von Deadlines berechnet). Ziel-Status: im Plan / eng / kritisch / hängt hinterher (= reicht nicht); Hinweistext nennt die engen Unterziele.
-- ⏳ Weitere Änderungswünsche von Niklas
+- ⏳ Ideenliste besprechen (`docs/Ideenliste.md`), danach Reihenfolge bis zum Freeze festlegen
 
 ## Entscheidungen
 
