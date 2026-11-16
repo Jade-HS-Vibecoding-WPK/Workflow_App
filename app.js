@@ -16,6 +16,8 @@ const VIEWS = {
   einstellungen:{ title: "Einstellungen",text: "Hier stellst du z. B. Schriftgröße und Baumanagement-Modus ein.", feature: "später" },
   daten:        { title: "Daten",        text: "Hier sicherst du deine Daten als Datei oder spielst sie zurück.", feature: "später (Should)" },
   erledigt:     { title: "Erledigt",     text: "Hier landen abgehakte Aufgaben und Ziele.",                    feature: "später (Should)" },
+  // Detailseite eines Ziels: Adresse #ziel/<id>, in der Leiste bleibt "Ziele" markiert
+  ziel:         { title: "Ziel",         text: "", feature: "", tab: "ziele" },
 };
 const DEFAULT_VIEW = "heute";
 
@@ -24,9 +26,13 @@ const titleEl = document.getElementById("topbar-title");
 const dateEl = document.getElementById("topbar-date");
 
 // ---------- Ansicht anzeigen ----------
+// Adresse aufteilen: "#ziel/abc" → Ansicht "ziel", Zusatz "abc"
+function currentRoute() {
+  const [name, param = null] = location.hash.replace("#", "").split("/");
+  return VIEWS[name] ? { name, param: param && decodeURIComponent(param) } : { name: DEFAULT_VIEW, param: null };
+}
 function currentViewName() {
-  const name = location.hash.replace("#", "");
-  return VIEWS[name] ? name : DEFAULT_VIEW;
+  return currentRoute().name;
 }
 
 // Ansichten, die schon gebaut sind (der Rest zeigt einen Platzhalter)
@@ -34,15 +40,19 @@ const RENDERERS = {
   heute: HeuteView,
   aufgaben: AufgabenView,
   erledigt: ErledigtView,
+  ziele: ZieleView,
+  ziel: ZielDetailView,
 };
 let lastView = null;
 
 async function render() {
-  const name = currentViewName();
+  const { name, param } = currentRoute();
   const view = VIEWS[name];
-  const isNavigation = name !== lastView; // neue Ansicht oder nur Daten geändert?
-  if (lastView && RENDERERS[lastView] && isNavigation) RENDERERS[lastView].leave();
-  lastView = name;
+  const routeKey = name + "/" + (param || "");
+  const isNavigation = routeKey !== lastView; // neue Ansicht oder nur Daten geändert?
+  const lastName = lastView && lastView.split("/")[0];
+  if (lastName && RENDERERS[lastName] && isNavigation) RENDERERS[lastName].leave();
+  lastView = routeKey;
 
   titleEl.textContent = view.title;
   document.title = view.title + " · Workflow";
@@ -53,14 +63,14 @@ async function render() {
 
   // Aktiven Knopf in der Leiste unten markieren
   document.querySelectorAll(".tab").forEach((tab) => {
-    if (tab.dataset.view === name) tab.setAttribute("aria-current", "page");
+    if (tab.dataset.view === (view.tab || name)) tab.setAttribute("aria-current", "page");
     else tab.removeAttribute("aria-current");
   });
   closeMenu();
 
   if (RENDERERS[name]) {
     if (isNavigation) window.scrollTo(0, 0);
-    await RENDERERS[name].render(viewEl, { scrollToNow: isNavigation });
+    await RENDERERS[name].render(viewEl, { scrollToNow: isNavigation, param, setTitle: (t) => { titleEl.textContent = t; } });
     return;
   }
 
@@ -97,7 +107,10 @@ menuBtn.addEventListener("click", openMenu);
 // "+"-Knopf: neuen Eintrag für heute anlegen
 document.getElementById("add-btn").addEventListener("click", () => {
   // In der Aufgaben-Ansicht direkt eine Aufgabe anlegen, sonst Auswahl zeigen
-  if (currentViewName() === "aufgaben") Editor.newTask();
+  const { name, param } = currentRoute();
+  if (name === "aufgaben") Editor.newTask();
+  else if (name === "ziele") Goals.newGoal();
+  else if (name === "ziel" && param) Goals.newSubgoal(param);
   else Editor.chooseNew(new Date());
 });
 document.getElementById("menu-close").addEventListener("click", closeMenu);

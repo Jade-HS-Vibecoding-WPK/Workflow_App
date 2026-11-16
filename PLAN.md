@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 5 ist fertig (Aufgaben + Ordner „Erledigt“). **Als Nächstes: Feature 6: Ziele + Unterziele + Abhaken mit Std./%.**
+Feature 6 ist fertig (Ziele + Unterziele + Fortschritt). **Als Nächstes: Feature 7: Woche als Stundenplan** (7 Spalten). Danach Feature 8 (Feiertage laden) und Feature 9 (Abhängigkeiten + kritischer Pfad).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -22,7 +22,8 @@ Feature 5 ist fertig (Aufgaben + Ordner „Erledigt“). **Als Nächstes: Featur
 - ✅ Feature 3: Heute-Ansicht: 4 Kacheln mit Zählern, Tagesplan 0–24 Uhr mit roter Jetzt-Linie (springt beim Öffnen zur aktuellen Uhrzeit), Blöcke in Kategorie-Farben, Überschneidungen nebeneinander, Optionen gestrichelt, Sperrzeiten schraffiert, Puffer, Tagesnotizen und ganztägige Termine oben. Zeitplan-Logik in `schedule.js` (Wiederholungen, abgesagte Tage). „Hängt hinterher“ zählt vorerst überfällige Ziele/Unterziele, CPM kommt in Feature 9.
 - ✅ Feature 4: Termine anlegen: „+“-Knopf → Auswahl → Formular (Blatt von unten). Feste Termine mit Wochentagen, jede Woche / alle 2 Wochen / monatlich (Datum oder Wochentag), Zeitraum ab/bis. Einmalige Termine mit Datum, ganztägig/mehrtägig. Beginn, Ende, Ort, Puffer, Priorität 1–5, Notiz. Prüfung der Eingaben. Antippen im Plan öffnet zum Bearbeiten; „Nur heute absagen“ (bleibt blass sichtbar, Zeit ist frei) und Löschen.
 - ✅ Feature 5: Aufgaben: Liste wie Erinnerungen (Abhak-Kreise in Aufgabenfarbe), Gruppen nach Deadline (Überfällig/Heute/Diese Woche/Später/Ohne), Sortierung umschaltbar (Deadline/Priorität/Farbe, wird gemerkt). Formular: Titel, Notiz, optionale Deadline, Wiederholung (einmalig/wöchentlich/alle 2 Wochen/monatlich, abgeleitet aus der Deadline), Dauer, Priorität, 8 Farben. Abhaken mit „Rückgängig“; wiederkehrende Aufgaben rücken auf den nächsten Termin. Ordner „Erledigt“ mit Wiederherstellen, automatisches Löschen nach 6 Monaten.
-- ⏳ Feature 6: Ziele + Unterziele
+- ✅ Feature 6: Ziele: Liste mit Fortschrittsbalken, Deadline, „noch X Tage“, Unterziel-Zähler und Restarbeit. Detailseite (#ziel/<id>) mit Kennzahlen, Unterzielen in Reihenfolge (nach oben/unten verschiebbar), Aufwand (Std.) oder Dauer (Tage), Zwischen-Deadline (geprüft gegen Ziel-Deadline). Kreis antippen = Fortschritt eintragen (Std. heute + % gesamt, Live-Vorschau der Restzeit); 100 % = erledigt. Gesamtfortschritt gewichtet (Dauer: 1 Tag ≈ 8 Std.). „Ziel abschließen“ → Ordner Erledigt. Anzeige „wartet auf: …“ ist vorbereitet (Abhängigkeiten anlegen kommt in Feature 9).
+- ⏳ Feature 7: Woche als Stundenplan
 
 ## Entscheidungen
 
@@ -145,8 +146,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 6: Ziele + Unterziele + Abhaken mit Std./%
-2. Feature 7: Woche als Stundenplan
+1. Feature 7: Woche als Stundenplan
+2. Feature 8: Feiertage laden (Daten von außen)
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -154,10 +155,10 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 **Must: ohne das gibt es keine App**
 - [x] PWA-Grundgerüst: installierbar, online über GitHub Pages
 - [x] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
-- [~] Anlegen/Bearbeiten/Löschen: feste Termine ✅, einmalige Termine ✅, Aufgaben ✅, Ziele mit Unterzielen
+- [~] Anlegen/Bearbeiten/Löschen: feste Termine ✅, einmalige Termine ✅, Aufgaben ✅, Ziele mit Unterzielen ✅
 - [x] Priorität (5 Stufen) und Kategorie-Farben
 - [~] Heute-Ansicht (Kacheln + Tagesplan) ✅, Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
-- [ ] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
+- [x] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
 - [ ] Daten von außen: Feiertage automatisch laden
 
 **Should: das Highlight, wenn der Kern steht**

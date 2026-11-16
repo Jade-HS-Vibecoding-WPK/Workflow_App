@@ -81,16 +81,20 @@ const Editor = (() => {
             <span class="choice__dot" style="background:#ba7517"></span>
             <span class="choice__text"><b>Aufgabe</b><small>einmal erledigen, z. B. Reisepass beantragen</small></span>
           </button>
-          <div class="choice choice--soon">
+          <button class="choice" data-new="${T.ZIEL}">
             <span class="choice__dot" style="background:#7f77dd"></span>
-            <span class="choice__text"><b>Ziel</b><small>kommt in Feature 6</small></span>
-          </div>
+            <span class="choice__text"><b>Ziel</b><small>mit Deadline und Unterzielen, z. B. Uni-Abgabe</small></span>
+          </button>
         </div>
       </div>`);
 
     layer.querySelector("[data-close]").onclick = close;
     layer.querySelectorAll("[data-new]").forEach((btn) => {
       btn.onclick = () => {
+        if (btn.dataset.new === T.ZIEL) {
+          Goals.newGoal();
+          return;
+        }
         if (btn.dataset.new === T.AUFGABE) {
           openTaskForm(Model.neueAufgabe(), { isNew: true });
           return;
@@ -109,6 +113,7 @@ const Editor = (() => {
     const entry = await Store.get(id);
     if (!entry) return;
     if (entry.type === T.AUFGABE) { openTaskForm(entry, { isNew: false }); return; }
+    if (entry.type === T.ZIEL) { location.hash = "#ziel/" + encodeURIComponent(entry.id); return; }
     if (entry.type !== T.FEST && entry.type !== T.EINMALIG) return; // andere Arten folgen in späteren Features
     openForm(entry, { isNew: false, date: dateIso });
   }
@@ -483,5 +488,6 @@ const Editor = (() => {
 
   const newTask = () => openTaskForm(Model.neueAufgabe(), { isNew: true });
 
-  return { chooseNew, edit, close, newTask };
+  // show/close/esc/TASK_COLORS werden auch von ziele.js benutzt
+  return { chooseNew, edit, close, newTask, show, esc, TASK_COLORS, sheetForm: () => layer && layer.querySelector("form") };
 })();
