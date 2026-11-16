@@ -84,6 +84,8 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(
 
 // ---------- Start ----------
 window.addEventListener("hashchange", render);
+// Wenn sich Daten ändern (Speicher-Baustein meldet sich), Ansicht neu zeichnen
+Store.subscribe(() => render());
 render();
 
 // ---------- Offline-Speicher (Service Worker) ----------

@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 1 ist fertig und online: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ (auf dem Handy installiert und getestet). **Nächste Sitzung: Feature 2: Speicher-Baustein + Datenmodell.**
+Feature 2 ist fertig (Speicher-Baustein + Datenmodell, getestet). **Als Nächstes: Feature 3: Heute-Ansicht mit Kacheln und Tagesplan.**
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -18,7 +18,8 @@ Feature 1 ist fertig und online: https://jade-hs-vibecoding-wpk.github.io/Workfl
 - ✅ MoSCoW-Liste und Etappen festgelegt
 - ✅ Feature 1: PWA-Grundgerüst gebaut (Leiste unten, Menü, Platzhalter-Ansichten, Hell/Dunkel, Icons, offline-fähig), lokal getestet
 - ✅ Online über GitHub Pages, auf dem Handy installiert und getestet
-- ⏳ Feature 2: Speicher-Baustein + Datenmodell
+- ✅ Feature 2: Speicher-Baustein (`store.js`) + Datenmodell (`model.js`), getestet: Speichern, Ändern, Löschen, Neuladen, Export/Import
+- ⏳ Feature 3: Heute-Ansicht mit Kacheln und Tagesplan
 
 ## Entscheidungen
 
@@ -141,15 +142,15 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 2: Speicher-Baustein + Datenmodell
-2. Feature 3: Heute-Ansicht mit Tagesplan
+1. Feature 3: Heute-Ansicht mit Kacheln und Tagesplan
+2. Feature 4: Feste und einmalige Termine anlegen
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
 
 **Must: ohne das gibt es keine App**
 - [x] PWA-Grundgerüst: installierbar, online über GitHub Pages
-- [ ] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
+- [x] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
 - [ ] Anlegen/Bearbeiten/Löschen: feste Termine (wöchentlich), einmalige Termine, Aufgaben, Ziele mit Unterzielen
 - [ ] Priorität (5 Stufen) und Kategorie-Farben
 - [ ] Heute-Ansicht (Kacheln + Tagesplan), Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
