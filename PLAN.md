@@ -3,8 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Offen zu den **einmaligen Terminen**:
-- Vorschläge für weitere Details (Fahrzeit, Erinnerung vorher, Status „unsicher“) annehmen?
+Alle Kategorien sind geklärt. Als Nächstes kommen die **Ansichten** (Tag, Woche, „Heute“, Aufgabenliste, Netzplan), danach die MoSCoW-Liste.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -14,7 +13,8 @@ Offen zu den **einmaligen Terminen**:
 - ✅ Einmalige Termine grundsätzlich geklärt (Details später), Kategorien-Überblick steht
 - ✅ Aufgaben komplett geklärt
 - ✅ Ziele inklusive kritischem Pfad geklärt
-- ⏳ Details der einmaligen Termine, danach Ansichten und MoSCoW
+- ✅ Einmalige Termine komplett geklärt
+- ⏳ Ansichten festlegen, danach MoSCoW
 
 ## Entscheidungen
 
@@ -45,7 +45,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Die **Priorität** regelt das Verhalten: hoch (z. B. Arzt) wird nie verschoben, niedrig (z. B. Zocken) darf weichen.
 - Sie zählen als **belegt**. Besteht aber Zeitdruck, darf die App dort **priorisierte Aufgaben vorschlagen**.
 - Kommt etwas Wichtiges dazwischen, schlägt die App vor, den Termin zu verschieben, aber **nur abhängig von der Priorität**.
-- **Details:** Titel, Ort/Raum, Notiz, Farbe, Priorität (Erweiterungen, siehe offene Fragen).
+- **Details:** Titel, Ort/Raum, Notiz, Farbe, Priorität und ein **Puffer** (Zeit vor/nach dem Termin, die ebenfalls belegt ist).
+- **Nicht nötig:** Fahrzeit (der Puffer reicht), Erinnerungen, Status „unsicher“.
 - **Ganztägige Termine** gibt es, z. B. Urlaub über mehrere Tage. Geburtstage gehören **nicht** in den Kalender, der Fokus liegt auf dem Workflow.
 
 ### Tagesnotizen (neu)
@@ -104,14 +105,17 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Wird **abgehakt und ausgeblendet**, aber in einem Ordner **„Erledigt“** aufbewahrt.
 - Einträge im Ordner „Erledigt“ werden **nach 6 Monaten automatisch gelöscht**.
 
+### Grundprinzip: Plan zum Abarbeiten
+- Der Plan soll den **Workflow optimieren**, man **arbeitet ihn ab**. Er ist kein reiner Kalender.
+- Ändert sich etwas, z. B. eine Zeit wird anders genutzt oder ein Termin kommt dazu, **passt sich der gesamte Zeitplan an**, nach der Logik des kritischen Pfads (CPM). Die App rechnet neu und schlägt den neuen Plan vor, **ich bestätige**.
+
 ### Rahmen
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Details der einmaligen Termine besprechen (kurz)
-2. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
-3. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
-4. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
+1. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
+2. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
+3. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
 
 ## MoSCoW (bis Fr 20.11.)
 - **Must:** *(noch offen)*
