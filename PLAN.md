@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Etappe Dienstag ist fertig (Feature 1–4). **Als Nächstes: Feature 5: Aufgaben** (Liste wie in Erinnerungen, Deadline, Dauer, Farbe, Abhaken).
+Feature 5 ist fertig (Aufgaben + Ordner „Erledigt“). **Als Nächstes: Feature 6: Ziele + Unterziele + Abhaken mit Std./%.**
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -21,7 +21,8 @@ Etappe Dienstag ist fertig (Feature 1–4). **Als Nächstes: Feature 5: Aufgaben
 - ✅ Feature 2: Speicher-Baustein (`store.js`) + Datenmodell (`model.js`), getestet: Speichern, Ändern, Löschen, Neuladen, Export/Import
 - ✅ Feature 3: Heute-Ansicht: 4 Kacheln mit Zählern, Tagesplan 0–24 Uhr mit roter Jetzt-Linie (springt beim Öffnen zur aktuellen Uhrzeit), Blöcke in Kategorie-Farben, Überschneidungen nebeneinander, Optionen gestrichelt, Sperrzeiten schraffiert, Puffer, Tagesnotizen und ganztägige Termine oben. Zeitplan-Logik in `schedule.js` (Wiederholungen, abgesagte Tage). „Hängt hinterher“ zählt vorerst überfällige Ziele/Unterziele, CPM kommt in Feature 9.
 - ✅ Feature 4: Termine anlegen: „+“-Knopf → Auswahl → Formular (Blatt von unten). Feste Termine mit Wochentagen, jede Woche / alle 2 Wochen / monatlich (Datum oder Wochentag), Zeitraum ab/bis. Einmalige Termine mit Datum, ganztägig/mehrtägig. Beginn, Ende, Ort, Puffer, Priorität 1–5, Notiz. Prüfung der Eingaben. Antippen im Plan öffnet zum Bearbeiten; „Nur heute absagen“ (bleibt blass sichtbar, Zeit ist frei) und Löschen.
-- ⏳ Feature 5: Aufgaben
+- ✅ Feature 5: Aufgaben: Liste wie Erinnerungen (Abhak-Kreise in Aufgabenfarbe), Gruppen nach Deadline (Überfällig/Heute/Diese Woche/Später/Ohne), Sortierung umschaltbar (Deadline/Priorität/Farbe, wird gemerkt). Formular: Titel, Notiz, optionale Deadline, Wiederholung (einmalig/wöchentlich/alle 2 Wochen/monatlich, abgeleitet aus der Deadline), Dauer, Priorität, 8 Farben. Abhaken mit „Rückgängig“; wiederkehrende Aufgaben rücken auf den nächsten Termin. Ordner „Erledigt“ mit Wiederherstellen, automatisches Löschen nach 6 Monaten.
+- ⏳ Feature 6: Ziele + Unterziele
 
 ## Entscheidungen
 
@@ -144,8 +145,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 5: Aufgaben
-2. Feature 6: Ziele + Unterziele + Abhaken mit Std./%
+1. Feature 6: Ziele + Unterziele + Abhaken mit Std./%
+2. Feature 7: Woche als Stundenplan
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -153,7 +154,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 **Must: ohne das gibt es keine App**
 - [x] PWA-Grundgerüst: installierbar, online über GitHub Pages
 - [x] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
-- [~] Anlegen/Bearbeiten/Löschen: feste Termine ✅, einmalige Termine ✅, Aufgaben, Ziele mit Unterzielen
+- [~] Anlegen/Bearbeiten/Löschen: feste Termine ✅, einmalige Termine ✅, Aufgaben ✅, Ziele mit Unterzielen
 - [x] Priorität (5 Stufen) und Kategorie-Farben
 - [~] Heute-Ansicht (Kacheln + Tagesplan) ✅, Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
 - [ ] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
@@ -165,14 +166,14 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [ ] Vorschläge in freie Zeit als gestrichelte Option zum Bestätigen
 - [ ] Sperrzeiten
 - [x] Wiederholung alle 2 Wochen / monatlich, Zeitraum, einzelnen Termin absagen (vorgezogen in Feature 4)
-- [ ] Dunkelmodus ✅ (im Grundgerüst), Ordner „Erledigt“, Daten sichern/wiederherstellen
+- [ ] Dunkelmodus ✅ (im Grundgerüst), Ordner „Erledigt“ ✅, Daten sichern/wiederherstellen
 
 **Could: wenn noch Zeit ist**
 - [ ] Netzplan-Ansicht und Balkenplan
 - [ ] Weitere Abhängigkeitsarten, Wartezeiten (auch negativ), Baumanagement-Modus, Dauer in Tagen
 - [ ] Automatisches Umplanen des ganzen Plans nach CPM
 - [ ] Aufgaben aufteilen, Woche als Abarbeitungsliste, Monatskalender
-- [ ] Tagesnotizen, ganztägige Termine, Schriftgröße, umschaltbare Sortierung, Einschätzungstexte, Löschen nach 6 Monaten
+- [ ] Tagesnotizen, ganztägige Termine ✅, Schriftgröße, umschaltbare Sortierung ✅, Einschätzungstexte, Löschen nach 6 Monaten ✅
 
 **Won't (diese Woche):** Accounts, Server, Zusammenarbeit, Push-Nachrichten. Diese Punkte stehen auf dem Poster unter „Ausblick“.
 

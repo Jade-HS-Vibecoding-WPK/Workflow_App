@@ -206,5 +206,29 @@ const Schedule = (() => {
     return blocks;
   }
 
-  return { isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns };
+  // ---------- Wiederkehrende Aufgaben: nächster Termin ----------
+  // Sucht den nächsten Tag NACH "afterIso", an dem die Wiederholung greift.
+  function nextOccurrence(rec, afterIso) {
+    let d = addDays(parseDate(afterIso), 1);
+    for (let i = 0; i < 400; i++, d = addDays(d, 1)) {
+      if (recursOn(rec, d, afterIso)) return isoDate(d);
+    }
+    return null;
+  }
+
+  // Deadline als kurzer Text: "Überfällig", "Heute", "Morgen", "Do", "24.12."
+  function deadlineLabel(iso, today = new Date()) {
+    if (!iso) return "";
+    const t = isoDate(today);
+    const diff = Math.round((parseDate(iso) - parseDate(t)) / 86400000);
+    const d = parseDate(iso);
+    const short = d.toLocaleDateString("de-DE", { day: "numeric", month: "numeric" });
+    if (diff < 0) return "Überfällig · " + short;
+    if (diff === 0) return "Heute";
+    if (diff === 1) return "Morgen";
+    if (diff < 7) return d.toLocaleDateString("de-DE", { weekday: "long" });
+    return d.toLocaleDateString("de-DE", { weekday: "short" }) + " " + short;
+  }
+
+  return { isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel };
 })();

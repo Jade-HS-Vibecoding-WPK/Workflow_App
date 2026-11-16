@@ -32,6 +32,8 @@ function currentViewName() {
 // Ansichten, die schon gebaut sind (der Rest zeigt einen Platzhalter)
 const RENDERERS = {
   heute: HeuteView,
+  aufgaben: AufgabenView,
+  erledigt: ErledigtView,
 };
 let lastView = null;
 
@@ -93,7 +95,11 @@ function closeMenu() {
 
 menuBtn.addEventListener("click", openMenu);
 // "+"-Knopf: neuen Eintrag für heute anlegen
-document.getElementById("add-btn").addEventListener("click", () => Editor.chooseNew(new Date()));
+document.getElementById("add-btn").addEventListener("click", () => {
+  // In der Aufgaben-Ansicht direkt eine Aufgabe anlegen, sonst Auswahl zeigen
+  if (currentViewName() === "aufgaben") Editor.newTask();
+  else Editor.chooseNew(new Date());
+});
 document.getElementById("menu-close").addEventListener("click", closeMenu);
 backdrop.addEventListener("click", closeMenu);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
@@ -103,6 +109,8 @@ window.addEventListener("hashchange", render);
 // Wenn sich Daten ändern (Speicher-Baustein meldet sich), Ansicht neu zeichnen
 Store.subscribe(() => render());
 render();
+// Alte Einträge im Ordner "Erledigt" (älter als 6 Monate) aufräumen
+ErledigtView.cleanup();
 
 // ---------- Offline-Speicher (Service Worker) ----------
 // Sorgt dafür, dass die App installierbar ist und auch ohne Internet startet.

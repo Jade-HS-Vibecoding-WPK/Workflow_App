@@ -77,10 +77,10 @@ const Editor = (() => {
             <span class="choice__dot" style="background:var(--cat-einmalig)"></span>
             <span class="choice__text"><b>Einmaliger Termin</b><small>z. B. Arzt, Verabredung, Urlaub</small></span>
           </button>
-          <div class="choice choice--soon">
+          <button class="choice" data-new="${T.AUFGABE}">
             <span class="choice__dot" style="background:#ba7517"></span>
-            <span class="choice__text"><b>Aufgabe</b><small>kommt in Feature 5</small></span>
-          </div>
+            <span class="choice__text"><b>Aufgabe</b><small>einmal erledigen, z. B. Reisepass beantragen</small></span>
+          </button>
           <div class="choice choice--soon">
             <span class="choice__dot" style="background:#7f77dd"></span>
             <span class="choice__text"><b>Ziel</b><small>kommt in Feature 6</small></span>
@@ -91,6 +91,10 @@ const Editor = (() => {
     layer.querySelector("[data-close]").onclick = close;
     layer.querySelectorAll("[data-new]").forEach((btn) => {
       btn.onclick = () => {
+        if (btn.dataset.new === T.AUFGABE) {
+          openTaskForm(Model.neueAufgabe(), { isNew: true });
+          return;
+        }
         const times = defaultTimes();
         const entry = btn.dataset.new === T.FEST
           ? Model.neuerFesterTermin({ ...times, recurrence: { ...Model.neuerFesterTermin().recurrence, weekdays: [date.getDay()] } })
@@ -104,6 +108,7 @@ const Editor = (() => {
   async function edit(id, dateIso) {
     const entry = await Store.get(id);
     if (!entry) return;
+    if (entry.type === T.AUFGABE) { openTaskForm(entry, { isNew: false }); return; }
     if (entry.type !== T.FEST && entry.type !== T.EINMALIG) return; // andere Arten folgen in späteren Features
     openForm(entry, { isNew: false, date: dateIso });
   }
@@ -330,5 +335,153 @@ const Editor = (() => {
     return { entry: out };
   }
 
-  return { chooseNew, edit, close };
+  // ============================================================
+  // Aufgaben-Formular
+  // ============================================================
+  // Frei wählbare Farben für Aufgaben und Ziele (nicht Blau/Grün:
+  // die gehören den Termin-Kategorien)
+  const TASK_COLORS = ["#ba7517", "#d85a30", "#e24b4a", "#d4537e", "#af52de", "#7f77dd", "#a2845e", "#636366"];
+  const DURATIONS = [10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 480];
+  const fmtDuration = (m) => (m < 60 ? `${m} Min.` : `${m / 60} Std.`.replace(".5 Std.", ",5 Std."));
+
+  function openTaskForm(entry, { isNew }) {
+    const rec = entry.recurrence || { freq: "einmalig" };
+    const prio = [1, 2, 3, 4, 5].map((p) => `
+      <label class="seg"><input type="radio" name="priority" value="${p}" ${entry.priority === p ? "checked" : ""}><span>${p}</span></label>`).join("");
+    const colors = TASK_COLORS.map((c) => `
+      <label class="swatch" style="--c:${c}"><input type="radio" name="color" value="${c}" ${entry.color === c ? "checked" : ""} aria-label="Farbe ${c}"><span></span></label>`).join("");
+    const durations = DURATIONS.includes(entry.durationMin) ? DURATIONS : [...DURATIONS, entry.durationMin].sort((a, b) => a - b);
+
+    show(`
+      <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" novalidate>
+        <div class="sheet__head">
+          <button type="button" class="link-btn" data-close>Abbrechen</button>
+          <h2 id="sheet-title"><span class="choice__dot" style="background:${entry.color}" data-title-dot></span>${isNew ? "Aufgabe" : "Bearbeiten"}</h2>
+          <button type="submit" class="link-btn link-btn--strong">Sichern</button>
+        </div>
+
+        <div class="form-group">
+          <input class="title-input" name="title" placeholder="Titel, z. B. Reisepass beantragen" value="${esc(entry.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
+          <textarea name="notes" rows="2" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="row"><span>Deadline</span><input type="date" name="deadline" value="${esc(entry.deadline || "")}"></label>
+          <label class="row"><span>Wiederholung</span>
+            <select name="freq">
+              <option value="einmalig" ${rec.freq === "einmalig" ? "selected" : ""}>einmalig</option>
+              <option value="woechentlich" ${rec.freq === "woechentlich" ? "selected" : ""}>jede Woche</option>
+              <option value="zweiwoechentlich" ${rec.freq === "zweiwoechentlich" ? "selected" : ""}>alle 2 Wochen</option>
+              <option value="monatlich" ${rec.freq === "monatlich" ? "selected" : ""}>jeden Monat</option>
+            </select>
+          </label>
+          <p class="hint" data-repeat-hint></p>
+        </div>
+
+        <div class="form-group">
+          <label class="row"><span>Dauer (geschätzt)</span>
+            <select name="durationMin">${durations.map((d) => `<option value="${d}" ${entry.durationMin === d ? "selected" : ""}>${fmtDuration(d)}</option>`).join("")}</select>
+          </label>
+          <div class="row row--stack">
+            <span>Priorität <small class="muted">1 = kann warten · 5 = sehr wichtig</small></span>
+            <div class="segmented">${prio}</div>
+          </div>
+          <div class="row row--stack">
+            <span>Farbe</span>
+            <div class="swatches">${colors}</div>
+          </div>
+        </div>
+
+        <p class="form-error" role="alert" hidden></p>
+        ${isNew ? "" : `
+        <div class="form-group form-actions">
+          <button type="button" class="action" data-action="done">${entry.done ? "Als offen markieren" : "Als erledigt abhaken"}</button>
+          <button type="button" class="action action--danger" data-action="delete">Aufgabe löschen</button>
+        </div>`}
+      </form>`);
+
+    const form = layer.querySelector("form");
+    const errorEl = form.querySelector(".form-error");
+    const hint = form.querySelector("[data-repeat-hint]");
+
+    function update() {
+      const freq = form.elements.freq.value;
+      const dl = form.elements.deadline.value;
+      errorEl.hidden = true;
+      const dot = form.querySelector("[data-title-dot]");
+      const c = form.querySelector('[name="color"]:checked');
+      if (c) dot.style.background = c.value;
+      if (freq === "einmalig") { hint.hidden = true; return; }
+      hint.hidden = false;
+      if (!dl) { hint.textContent = "Wähle eine Deadline. Danach wiederholt sich die Aufgabe ab diesem Tag."; return; }
+      const d = S.parseDate(dl);
+      hint.textContent = {
+        woechentlich: `Jeden ${WD_LONG[d.getDay()]}.`,
+        zweiwoechentlich: `Jeden zweiten ${WD_LONG[d.getDay()]}.`,
+        monatlich: `Jeden ${d.getDate()}. des Monats.`,
+      }[freq] + " Beim Abhaken rückt die Deadline auf den nächsten Termin.";
+    }
+    form.addEventListener("change", update);
+    update();
+
+    form.querySelector("[data-close]").onclick = close;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const out = { ...entry };
+      out.title = form.elements.title.value.trim();
+      out.notes = form.elements.notes.value.trim();
+      out.deadline = form.elements.deadline.value || null;
+      out.durationMin = Number(form.elements.durationMin.value);
+      out.priority = Number((form.querySelector('[name="priority"]:checked') || {}).value || 3);
+      out.color = (form.querySelector('[name="color"]:checked') || {}).value || entry.color;
+      const freq = form.elements.freq.value;
+
+      let error = "", field = "";
+      if (!out.title) { error = "Bitte gib einen Titel ein."; field = "title"; }
+      else if (freq !== "einmalig" && !out.deadline) { error = "Eine wiederkehrende Aufgabe braucht eine Deadline."; field = "deadline"; }
+      if (error) {
+        errorEl.textContent = error;
+        errorEl.hidden = false;
+        if (field) form.elements[field].focus();
+        return;
+      }
+
+      // Wiederholung aus der Deadline ableiten (Wochentag bzw. Tag im Monat)
+      if (freq === "einmalig") {
+        out.recurrence = { ...Model.neueAufgabe().recurrence, freq: "einmalig" };
+      } else {
+        const d = S.parseDate(out.deadline);
+        out.recurrence = {
+          ...Model.neueAufgabe().recurrence,
+          freq, weekdays: [d.getDay()], monthlyMode: "datum", dayOfMonth: d.getDate(), from: out.deadline,
+        };
+      }
+      try {
+        await Store.save(out);
+        close();
+      } catch (err) {
+        errorEl.textContent = "Speichern hat nicht geklappt.";
+        errorEl.hidden = false;
+      }
+    });
+
+    form.querySelectorAll("[data-action]").forEach((btn) => {
+      btn.onclick = async () => {
+        if (btn.dataset.action === "delete") {
+          if (!confirm(`„${entry.title}“ löschen?`)) return;
+          await Store.remove(entry.id);
+          close();
+        }
+        if (btn.dataset.action === "done") {
+          close();
+          await Tasks.toggleDone(entry.id);
+        }
+      };
+    });
+  }
+
+  const newTask = () => openTaskForm(Model.neueAufgabe(), { isNew: true });
+
+  return { chooseNew, edit, close, newTask };
 })();
