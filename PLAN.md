@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 1 ist gebaut und lokal getestet. Offen: **GitHub Pages einschalten** (macht Niklas in den Repo-Einstellungen), dann den Link auf dem Handy testen und installieren. Danach **Feature 2: Speicher-Baustein + Datenmodell**.
+Feature 1 ist fertig und online: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ (auf dem Handy installiert und getestet). **Nächste Sitzung: Feature 2: Speicher-Baustein + Datenmodell.**
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -17,7 +17,8 @@ Feature 1 ist gebaut und lokal getestet. Offen: **GitHub Pages einschalten** (ma
 - ✅ Ansichten und Menü geklärt
 - ✅ MoSCoW-Liste und Etappen festgelegt
 - ✅ Feature 1: PWA-Grundgerüst gebaut (Leiste unten, Menü, Platzhalter-Ansichten, Hell/Dunkel, Icons, offline-fähig), lokal getestet
-- ⏳ GitHub Pages einschalten und auf dem Handy testen
+- ✅ Online über GitHub Pages, auf dem Handy installiert und getestet
+- ⏳ Feature 2: Speicher-Baustein + Datenmodell
 
 ## Entscheidungen
 
@@ -140,14 +141,14 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. GitHub Pages einschalten, Link auf dem Handy testen
-2. Feature 2: Speicher-Baustein + Datenmodell
+1. Feature 2: Speicher-Baustein + Datenmodell
+2. Feature 3: Heute-Ansicht mit Tagesplan
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
 
 **Must: ohne das gibt es keine App**
-- [~] PWA-Grundgerüst: installierbar, online über GitHub Pages (gebaut, Pages noch nicht eingeschaltet)
+- [x] PWA-Grundgerüst: installierbar, online über GitHub Pages
 - [ ] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
 - [ ] Anlegen/Bearbeiten/Löschen: feste Termine (wöchentlich), einmalige Termine, Aufgaben, Ziele mit Unterzielen
 - [ ] Priorität (5 Stufen) und Kategorie-Farben

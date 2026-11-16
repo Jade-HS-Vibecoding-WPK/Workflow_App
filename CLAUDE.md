@@ -21,6 +21,7 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
 - Die App startet mit einem leeren Plan.
 - Umsetzung: reines **HTML, CSS und JavaScript** ohne Build-Werkzeuge (`index.html`, `styles.css`, `app.js`). So läuft die App direkt auf GitHub Pages.
 - Arbeitsname der App: **„Workflow“** (änderbar).
+- Online-Adresse: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ (GitHub Pages, Branch `main`, Ordner root; jeder Push wird automatisch veröffentlicht).
 - `sw.js` (Service Worker) speichert die App für den Offline-Betrieb: **Bei jeder Änderung an App-Dateien die Versionsnummer `CACHE` in `sw.js` erhöhen** und neue Dateien in die Liste `FILES` eintragen.
 - Lokal testen: `python3 -m http.server 8765` im Projektordner, dann `http://localhost:8765` öffnen.
 - Architektur-Regeln für Version 2 (Kollaboration):
