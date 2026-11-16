@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Alle Kategorien sind geklärt. Als Nächstes kommen die **Ansichten** (Tag, Woche, „Heute“, Aufgabenliste, Netzplan), danach die MoSCoW-Liste.
+Wir besprechen gerade das **Design**: Stil wie Apples Erinnerungen, gemischt mit dem Kalender-Layout. Danach kommen die **Ansichten** (Startbildschirm, welche Ansichten, Abhaken) und die MoSCoW-Liste.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -13,7 +13,7 @@ Alle Kategorien sind geklärt. Als Nächstes kommen die **Ansichten** (Tag, Woch
 - ✅ Aufgaben komplett geklärt
 - ✅ Ziele inklusive kritischem Pfad geklärt
 - ✅ Einmalige Termine komplett geklärt, Kategorien-Überblick steht
-- ⏳ Ansichten festlegen, danach MoSCoW
+- ⏳ Design besprechen, danach Ansichten und MoSCoW
 
 ## Entscheidungen
 
@@ -112,9 +112,10 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
-2. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
-3. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
+1. Design festlegen (Stil: Erinnerungen + Kalender)
+2. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
+3. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
+4. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
 
 ## MoSCoW (bis Fr 20.11.)
 - **Must:** *(noch offen)*

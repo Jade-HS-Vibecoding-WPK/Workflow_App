@@ -28,4 +28,6 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
   6. Abhängigkeiten zwischen Unterzielen werden nur über deren IDs gespeichert (Art + optionale Wartezeit), nie über Namen oder die Position in einer Liste.
 
 ## Gestaltung
-Handy-Format zuerst. Weitere Regeln folgen am Di 17.11. (UI Design).
+Handy-Format zuerst.
+- **Stil-Richtung:** angelehnt an Apples Erinnerungen-App (klare Listen, runde Abhak-Kreise, farbige Listen) und gemischt mit dem Layout der Apple-Kalender-App (Tages-/Wochenraster). Das ist nur Inspiration: eigener Name, eigenes Icon, keine Apple-Logos oder kopierten Grafiken.
+- Weitere Details werden gerade besprochen (siehe `PLAN.md`).
