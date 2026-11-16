@@ -9,7 +9,8 @@
 - ✅ Sperrzeiten geklärt
 - ✅ Einmalige Termine grundsätzlich geklärt (Details später), Kategorien-Überblick steht
 - ✅ Aufgaben komplett geklärt
-- ⏳ Ziele: Kritischer Pfad (Abhängigkeiten zwischen Unterzielen) wird besprochen
+- ✅ Ziele inklusive kritischem Pfad geklärt
+- ⏳ Details der einmaligen Termine, danach Ansichten und MoSCoW
 
 ## Entscheidungen
 
@@ -66,7 +67,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - **Warnung**, wenn die freie Zeit bis zur Deadline nicht reicht, z. B. „Du brauchst noch 12 Std., hast aber nur 8 Std. frei.“
 - **Allgemeine Einschätzung** zum Stand, z. B. „Du bist gut im Plan, weiter so!“ oder „Du hängst hinterher, investier mehr Zeit und lass etwas anderes ausfallen.“
 
-### Kritischer Pfad bei Zielen (in Besprechung)
+### Kritischer Pfad bei Zielen
 - Unterziele können **Abhängigkeiten** haben: Ein Unterziel kann erst starten, wenn andere fertig sind.
 - Daraus berechnet die App den **kritischen Pfad**, also die Kette von Unterzielen, bei der jede Verzögerung die Deadline des ganzen Ziels verschiebt.
 - Damit soll die App auch für **Projektplanung wie im Baumanagement** nutzbar sein.
@@ -80,7 +81,10 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
   - Aufwand in Stunden (eigene Arbeitszeit, wird in freie Zeit eingeplant)
   - Dauer in Tagen (Kalenderzeit, z. B. „Rohbau 3 Wochen“)
 - **Wer arbeitet daran:** Diese Woche mache ich alles selbst. Im Datenmodell gibt es aber schon ein Feld **„zuständig“** für die spätere Zusammenarbeit (Version 2).
+- **Wartezeiten können negativ sein (Überlappung)**, z. B. „Putz darf 2 Tage vor Ende der Elektro starten“.
 - **Darstellung:** im **Kalender** und als **Netzplan** (Kästchen mit Pfeilen).
+  - Jedes Kästchen zeigt **Name, Dauer und Puffer**. Per Tippen öffnet sich alles: frühester/spätester Anfang, frühestes/spätestes Ende, Gesamtpuffer und freier Puffer.
+- **Abhängigkeiten anlegen:** im **Formular** des Unterziels („Startet nach: …“) **und** im Netzplan durch Ziehen eines Pfeils.
 - **Bei Verzögerung auf dem kritischen Pfad:** Die App **warnt** und **plant um**, sie zeigt also, welche Termine mit niedriger Priorität ausfallen könnten.
 
 ### Erledigtes
@@ -91,11 +95,10 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Kritischer Pfad bei Zielen ausführlich besprechen
-2. Details der einmaligen Termine besprechen
-3. Ansichten (Tag, Woche, Aufgabenliste, „Heute“) und Kernfunktionen festlegen
-4. MoSCoW-Liste unten füllen
-5. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
+1. Details der einmaligen Termine besprechen (kurz)
+2. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
+3. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
+4. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
 
 ## MoSCoW (bis Fr 20.11.)
 - **Must:** *(noch offen)*
@@ -127,7 +130,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
 - [x] Ziele: eigene Zwischen-Deadlines für Unterziele? → ja
 - [x] Kritischer Pfad: Abhängigkeiten, Wartezeiten, Aufwand/Dauer, Darstellung, Reaktion → siehe „Kritischer Pfad“
-- [ ] Kritischer Pfad: Wie legt man Abhängigkeiten an? Welche Werte zeigt der Netzplan? Überlappung (negative Wartezeit)?
+- [x] Kritischer Pfad: Anlegen, Netzplan-Werte, Überlappung → siehe „Kritischer Pfad“
 - [ ] Kritischer Pfad: Was davon ist bis Freitag Must, was kommt später?
 - [x] Wiederkehrende Aufgaben nötig? → ja
 - [x] Einplanen automatisch oder per Hand? → die App plant, ich bestätige
