@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Wir besprechen gerade das **Design**: Stil wie Apples Erinnerungen, gemischt mit dem Kalender-Layout. Danach kommen die **Ansichten** (Startbildschirm, welche Ansichten, Abhaken) und die MoSCoW-Liste.
+Design-Grundlagen stehen (siehe „Design“). Offen: Welche Kacheln oben auf dem Startbildschirm? Danach Entwurf ansehen, dann **Ansichten** und MoSCoW.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -31,7 +31,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - **Wiederholung:** wöchentlich, alle 2 Wochen oder monatlich. Bei monatlich wählt man frei: festes Datum (z. B. jeden 5.) oder Wochentag im Monat (z. B. jeden 1. Montag).
 - **Zeitraum:** optionales Start- und Enddatum, z. B. „bis Semesterende“
 - **Ausnahmen:** Einzelne Termine lassen sich spontan absagen („fällt heute aus“), ohne die Serie zu ändern. Das Zeitfenster gilt danach als frei.
-- **Details:** Titel, Ort/Raum, Notiz, Farbe, **Priorität**
+- **Details:** Titel, Ort/Raum, Notiz, **Priorität** (Farbe kommt von der Kategorie)
 - **Freie Zeit:** Feste Termine zählen als „belegt“, die App plant Aufgaben nur in freie Lücken ein.
 
 ### Sperrzeiten (neu)
@@ -44,7 +44,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Die **Priorität** regelt das Verhalten: hoch (z. B. Arzt) wird nie verschoben, niedrig (z. B. Zocken) darf weichen.
 - Sie zählen als **belegt**. Besteht aber Zeitdruck, darf die App dort **priorisierte Aufgaben vorschlagen**.
 - Kommt etwas Wichtiges dazwischen, schlägt die App vor, den Termin zu verschieben, aber **nur abhängig von der Priorität**.
-- **Details:** Titel, Ort/Raum, Notiz, Farbe, Priorität und ein **Puffer** (Zeit vor/nach dem Termin, die ebenfalls belegt ist).
+- **Details:** Titel, Ort/Raum, Notiz, Priorität und ein **Puffer**; Farbe kommt von der Kategorie (Zeit vor/nach dem Termin, die ebenfalls belegt ist).
 - **Nicht nötig:** Fahrzeit (der Puffer reicht), Erinnerungen, Status „unsicher“.
 - **Ganztägige Termine** gibt es, z. B. Urlaub über mehrere Tage. Geburtstage gehören **nicht** in den Kalender, der Fokus liegt auf dem Workflow.
 
@@ -107,6 +107,16 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 ### Grundprinzip: Plan zum Abarbeiten
 - Der Plan soll den **Workflow optimieren**, man **arbeitet ihn ab**. Er ist kein reiner Kalender.
 - Ändert sich etwas, z. B. eine Zeit wird anders genutzt oder ein Termin kommt dazu, **passt sich der gesamte Zeitplan an**, nach der Logik des kritischen Pfads (CPM). Die App rechnet neu und schlägt den neuen Plan vor, **ich bestätige**.
+
+### Design
+- **Stil:** angelehnt an Erinnerungen (Listen, Abhak-Kreise) + Kalender (Stundenraster). Nur Inspiration, eigener Name und eigenes Icon.
+- **Startbildschirm:** oben **Kacheln** für die wichtigsten Ansichten, darunter der **Tagesplan von heute** im Stundenraster.
+- **Hell- und Dunkelmodus**, folgt automatisch der Handy-Einstellung.
+- **Farben:**
+  - Feste Termine, einmalige Termine und Sperrzeiten haben **je eine feste Kategorie-Farbe**, nicht selbst wählbar.
+  - **Aufgaben und Ziele** bekommen **eigene, frei wählbare Farben**, damit man sie klar unterscheiden kann.
+- **Optionen (unbestätigte Vorschläge)** erscheinen im Kalender **gestrichelt und blass**.
+- **Leiste unten:** Heute · Woche · Kalender · Ziele · Aufgaben
 
 ### Rahmen
 - Ich arbeite **allein** an dem Projekt.

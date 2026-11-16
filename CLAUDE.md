@@ -30,4 +30,6 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
 ## Gestaltung
 Handy-Format zuerst.
 - **Stil-Richtung:** angelehnt an Apples Erinnerungen-App (klare Listen, runde Abhak-Kreise, farbige Listen) und gemischt mit dem Layout der Apple-Kalender-App (Tages-/Wochenraster). Das ist nur Inspiration: eigener Name, eigenes Icon, keine Apple-Logos oder kopierten Grafiken.
-- Weitere Details werden gerade besprochen (siehe `PLAN.md`).
+- Feste Kategorie-Farben für Termine und Sperrzeiten, frei wählbare Farben nur für Aufgaben und Ziele. Unbestätigte Vorschläge gestrichelt und blass.
+- Hell- und Dunkelmodus nach Handy-Einstellung. Leiste unten: Heute · Woche · Kalender · Ziele · Aufgaben.
+- Details siehe `PLAN.md` → „Design“.
