@@ -4,7 +4,6 @@
 
 ## Hier weitermachen
 Offen zu den **einmaligen Terminen**:
-- „Darf weichen“: automatisch über die Priorität oder zusätzlicher Schalter?
 - Vorschläge für weitere Details (Fahrzeit, Erinnerung vorher, Status „unsicher“) annehmen?
 
 ## Wo stehen wir?
@@ -55,6 +54,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 
 ### Priorität (gilt für alle Kategorien)
 - **5 Stufen**, damit es genauer wird (1 = sehr niedrig … 5 = sehr hoch).
+- **„Darf weichen“** legt die App automatisch über die Priorität fest. Bevor ein Termin wirklich verschoben wird oder ausfällt, **muss ich bestätigen**.
 
 ### Aufgaben
 - Etwas, das man **einmal erledigt und dann fertig** ist, z. B. „Reisepass beantragen“.
