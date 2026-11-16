@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 9 ist fertig (kritischer Pfad). **Als Nächstes: Feature 10: Test auf dem Handy, Fehler beheben, README** – danach Freeze (Do 12 Uhr) und Poster. Falls Zeit bleibt: Should „Vorschläge in freie Zeit“, „Sperrzeiten verwalten“, „Daten sichern“.
+README ist geschrieben. **Offen: Niklas testet die App auf dem Handy** (Checkliste im Chat), gefundene Fehler beheben. Danach Freeze (Do 12 Uhr) und Poster. Falls Zeit bleibt (Should): Vorschläge in freie Zeit, Sperrzeiten verwalten, Daten sichern/wiederherstellen.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -33,7 +33,8 @@ Feature 9 ist fertig (kritischer Pfad). **Als Nächstes: Feature 10: Test auf de
   - **Status + Einschätzung** auf der Zielseite: „gut im Plan“ / „knapp“ / „hängt hinterher“ mit Puffer, voraussichtlichem Ende und Termin-Vorschlägen mit Priorität 1–2, die ausfallen könnten. Chip in der Ziel-Liste. Kachel „Hängt hinterher“ zählt jetzt nach CPM.
   - **Baumanagement-Modus** (Einstellungen): Abhängigkeitsart + Wartezeit wählbar, sonst nur „startet nach“.
   - Hinweis: Die Puffer je Unterziel sind klassischer CPM (ohne Allein-Prüfung); der Gesamtstatus berücksichtigt beides.
-- ⏳ Feature 10: Test auf dem Handy, README
+- ✅ README für die Abgabe (Funktionen, CPM-Erklärung, Bedienung, Datenschutz, Technik, Quellen/Lizenzen, KI-Nutzung, Ausblick)
+- ⏳ Feature 10: Test auf dem Handy
 
 ## Entscheidungen
 
