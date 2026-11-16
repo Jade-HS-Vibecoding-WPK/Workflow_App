@@ -48,6 +48,9 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Die App macht **Vorschläge** in freier Zeit, z. B. „Du hast Dienstag Zeit, mach das doch da.“
 - **Optionale Deadline:** Je näher sie rückt, desto dringender schlägt die App die Aufgabe vor.
 - **Geschätzte Dauer**, z. B. 30 Min., damit der Vorschlag in die passende Lücke kommt.
+- **Die App plant selbst ein, aber ich bestätige am Ende.** Nichts landet ohne Bestätigung fest im Plan.
+- **Aufteilen:** Große Aufgaben, die sich über längere Zeit ziehen, können auf mehrere Blöcke verteilt werden.
+- **Wiederkehrende Aufgaben** gibt es auch, z. B. „jeden Sonntag Wäsche“.
 - Ein Vorschlag erscheint als **„Option“ in einer eigenen Farbe** im Kalender, nicht als fester Block. Am **Tag vorher** erinnert die App daran („Mach das doch morgen um …“). Diese Woche passiert das nur als Hinweis in der App, echte Push-Nachrichten bräuchten einen Server.
 
 ### Ziele
@@ -104,7 +107,11 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Ziele: Reihenfolge, Warnung → siehe „Ziele“
 - [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
 - [ ] Ziele: eigene Zwischen-Deadlines für Unterziele?
-- [ ] Wiederkehrende Aufgaben nötig (z. B. „jeden Sonntag Wäsche“)?
+- [x] Wiederkehrende Aufgaben nötig? → ja
+- [x] Einplanen automatisch oder per Hand? → die App plant, ich bestätige
+- [x] Aufgaben aufteilen? → ja
+- [ ] Was passiert mit einer Option nach der Bestätigung: wird sie zum festen Block?
+- [ ] Wiederkehrende Aufgaben: dieselben Wiederholungsarten wie bei festen Terminen?
 
 ## Ausblick Version 2
 Kollaboration mit Freigabe-Stufen (voller Zugriff, Projekt-Freigabe, evtl. nur frei/belegt). Dafür nötig: ein Backend (z. B. Supabase oder Firebase), Login und Synchronisation. Mehr dazu in `docs/Grundlagen.md`, Abschnitt 5.
