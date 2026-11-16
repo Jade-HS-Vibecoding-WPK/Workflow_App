@@ -3,7 +3,24 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Alle Must-Punkte + kritischer Pfad sind fertig. **Jetzt: Ideenliste gemeinsam besprechen** → [`docs/Ideenliste.md`](docs/Ideenliste.md) (Leitlinien gegen Überladung, beschlossene offene Punkte A1–A12, neue Ideen B1–B9, Brainstorming-Fragen). Ergebnis = neue Reihenfolge bis zum Freeze (Do 12 Uhr).
+*Stand: Mo 16.11.2026 abends. Neue Sitzung am Di 17.11.*
+
+**Alle Must-Punkte + kritischer Pfad sind fertig und online.** App: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/
+
+**Nächster Schritt: Ideenliste gemeinsam besprechen** → [`docs/Ideenliste.md`](docs/Ideenliste.md). Noch **nichts bauen**, erst besprechen und entscheiden.
+
+Ablauf der Besprechung:
+1. **Leitlinien gegen Überladung** (Abschnitt 0) bestätigen oder ändern – gerade offen. Dazu zwei Fragen an Niklas:
+   - Was soll die App am Freitag in der Präsentation **live** zeigen?
+   - Soll die App eher **anstupsen** (Hinweise, Vorschläge) oder eher **ruhig** sein?
+2. **Block A** durchgehen (beschlossen, noch nicht gebaut: A1–A12)
+3. **Block B** durchgehen (neue Ideen: B1–B9)
+4. **Freies Brainstorming** (Abschnitt C/D) – auch: Was ist gut, was ist schlecht, was weglassen?
+5. **Reihenfolge bis zum Freeze** festlegen (Abschnitt E) und hier in PLAN.md übernehmen
+
+Mein Vorschlag aus der Zusammenfassung (noch nicht entschieden): A1 Sperrzeiten + A2 Warnung → A3 Daten sichern → A4 Vorschläge in freie Zeit + B1 „Was mache ich jetzt?“ → A6 Netzplan → B2/B4 wenn Zeit.
+
+Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localhost:8765 öffnen (der Test-Server läuft nach dem Schließen der Sitzung nicht weiter).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
