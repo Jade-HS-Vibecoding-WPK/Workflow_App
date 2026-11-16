@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Design-Grundlagen stehen (siehe „Design“). Offen: Welche Kacheln oben auf dem Startbildschirm? Danach Entwurf ansehen, dann **Ansichten** und MoSCoW.
+Design-Grundlagen stehen. Als Nächstes kommen die **Ansichten**: Inhalt der einzelnen Ansichten (Woche, Kalender, Ziele, Aufgaben, Netzplan, Erledigt) und wie man abhakt. Danach die MoSCoW-Liste.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -13,7 +13,8 @@ Design-Grundlagen stehen (siehe „Design“). Offen: Welche Kacheln oben auf de
 - ✅ Aufgaben komplett geklärt
 - ✅ Ziele inklusive kritischem Pfad geklärt
 - ✅ Einmalige Termine komplett geklärt, Kategorien-Überblick steht
-- ⏳ Design besprechen, danach Ansichten und MoSCoW
+- ✅ Design-Grundlagen und Startbildschirm geklärt
+- ⏳ Ansichten festlegen, danach MoSCoW
 
 ## Entscheidungen
 
@@ -111,6 +112,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 ### Design
 - **Stil:** angelehnt an Erinnerungen (Listen, Abhak-Kreise) + Kalender (Stundenraster). Nur Inspiration, eigener Name und eigenes Icon.
 - **Startbildschirm:** oben **Kacheln** für die wichtigsten Ansichten, darunter der **Tagesplan von heute** im Stundenraster.
+  - 4 Kacheln mit Zähler: **Heute** · **Diese Woche fällig** · **Ziele & Aufgaben** (zusammen) · **Hängt hinterher** (Warnkachel: Ziele/Unterziele, die laut CPM hinter dem Plan liegen)
+  - Erster Entwurf wurde gezeigt, der Gesamteindruck passt.
 - **Hell- und Dunkelmodus**, folgt automatisch der Handy-Einstellung.
 - **Farben:**
   - Feste Termine, einmalige Termine und Sperrzeiten haben **je eine feste Kategorie-Farbe**, nicht selbst wählbar.
@@ -122,10 +125,9 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Design festlegen (Stil: Erinnerungen + Kalender)
-2. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
-3. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
-4. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
+1. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
+2. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
+3. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
 
 ## MoSCoW (bis Fr 20.11.)
 - **Must:** *(noch offen)*
