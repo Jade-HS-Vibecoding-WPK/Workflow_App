@@ -7,10 +7,20 @@
 - ✅ GitHub-Repo verbunden, `CLAUDE.md` und `PLAN.md` angelegt
 - ✅ Feste wiederkehrende Termine grundsätzlich geklärt (siehe „Entscheidungen“)
 - ✅ Sperrzeiten geklärt
-- ✅ Unregelmäßige Termine grundsätzlich geklärt (Details später)
-- ⏳ Abgrenzung zu einmaligen Terminen, danach Aufgaben und Ziele
+- ✅ Einmalige Termine grundsätzlich geklärt (Details später), Kategorien-Überblick steht
+- ⏳ Aufgaben klären, danach Ziele
 
 ## Entscheidungen
+
+### Kategorien (Überblick)
+| Kategorie | Beispiele | Kern |
+|---|---|---|
+| **Feste wiederkehrende Termine** | Arbeit, Uni | Wiederholung, feste Uhrzeit |
+| **Einmalige Termine** | Arzttermin, Verabredung, Zocken | einmal, feste Uhrzeit; die **Priorität** entscheidet, ob der Termin bei Zeitdruck weichen darf |
+| **Aufgaben** | Uni-Abgaben, Erledigungen | eigene Kategorie, Deadline statt Uhrzeit, optimieren den Workflow |
+| **Ziele** | langfristige Vorhaben, Uni-Projekt | eigene Kategorie, bestehen aus abhakbaren Unterzielen, optimieren den Workflow |
+
+Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die eigene Verfügbarkeit.
 
 ### Feste wiederkehrende Termine (z. B. Arbeit, Uni)
 - **Wiederholung:** wöchentlich, alle 2 Wochen oder monatlich. Bei monatlich wählt man frei: festes Datum (z. B. jeden 5.) oder Wochentag im Monat (z. B. jeden 1. Montag).
@@ -24,8 +34,9 @@
 - Sperrzeiten zählen bei der Berechnung freier Zeit als „nicht verfügbar“.
 - Sperrzeiten **warnen nur**: Trägt man trotzdem etwas ein, fragt die App „Liegt in deiner Sperrzeit, trotzdem eintragen?“.
 
-### Unregelmäßige Termine (vorher „flexible Termine“)
-- Gemeint sind **einmalige, private Termine**, z. B. „Samstag Verabredung“ oder „Donnerstagabend zocken / Freizeit“.
+### Einmalige Termine (zusammengelegt aus „unregelmäßige“ und „einmalige“ Termine)
+- Dazu gehören alle Termine, die nur einmal stattfinden: z. B. Arzttermin, „Samstag Verabredung“, „Donnerstagabend zocken / Freizeit“.
+- Die **Priorität** regelt das Verhalten: hoch (z. B. Arzt) wird nie verschoben, niedrig (z. B. Zocken) darf weichen.
 - Sie zählen als **belegt**. Besteht aber Zeitdruck, darf die App dort **priorisierte Aufgaben vorschlagen**.
 - Kommt etwas Wichtiges dazwischen, schlägt die App vor, den Termin zu verschieben, aber **nur abhängig von der Priorität**.
 - Details: werden besprochen, wenn alle Kategorien geklärt sind.
@@ -34,9 +45,9 @@
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Klären: unregelmäßige vs. einmalige Termine zusammenlegen oder trennen?
-2. Restliche Kategorien klären: Aufgaben, Ziele
-3. Danach: Details der unregelmäßigen Termine besprechen
+1. Aufgaben klären
+2. Ziele klären
+3. Danach: Details der einmaligen Termine besprechen
 3. Ansichten (Tag, Woche, Aufgabenliste, „Heute“) und Kernfunktionen festlegen
 4. MoSCoW-Liste unten füllen
 5. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
@@ -64,8 +75,8 @@
 - [ ] Kategorien fest vorgegeben oder von Nutzern anpassbar?
 - [ ] Freigabe-Stufe „Nur frei/belegt“ übernehmen?
 - [x] Was bedeutet „flexibel“? → gemeint sind unregelmäßige, einmalige private Termine
-- [ ] Unregelmäßige und einmalige Termine zusammenlegen oder getrennt lassen?
-- [ ] Details der unregelmäßigen Termine (nach den anderen Kategorien)
+- [x] Unregelmäßige und einmalige Termine zusammenlegen? → ja, die Priorität regelt das Verhalten
+- [ ] Details der einmaligen Termine (nach den anderen Kategorien)
 
 ## Ausblick Version 2
 Kollaboration mit Freigabe-Stufen (voller Zugriff, Projekt-Freigabe, evtl. nur frei/belegt). Dafür nötig: ein Backend (z. B. Supabase oder Firebase), Login und Synchronisation. Mehr dazu in `docs/Grundlagen.md`, Abschnitt 5.
