@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Ansichten fertig. Als Nächstes die **MoSCoW-Liste**: Ein Entwurf wurde vorgeschlagen und muss noch bestätigt werden.
+Planung ist fertig. **Nächste Sitzung (Di 17.11.): Feature 1:** PWA-Grundgerüst mit Leiste unten, online auf GitHub Pages.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -15,7 +15,8 @@ Ansichten fertig. Als Nächstes die **MoSCoW-Liste**: Ein Entwurf wurde vorgesch
 - ✅ Einmalige Termine komplett geklärt, Kategorien-Überblick steht
 - ✅ Design-Grundlagen und Startbildschirm geklärt
 - ✅ Ansichten und Menü geklärt
-- ⏳ MoSCoW-Liste festlegen
+- ✅ MoSCoW-Liste und Etappen festgelegt
+- ⏳ Bauen: Feature 1 (PWA-Grundgerüst)
 
 ## Entscheidungen
 
@@ -138,23 +139,48 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
-2. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
+1. Feature 1: PWA-Grundgerüst + Leiste unten + online auf GitHub Pages
+2. Feature 2: Speicher-Baustein + Datenmodell
+3. Weiter nach Etappen-Tabelle
 
-## MoSCoW (bis Fr 20.11.)
-- **Must:** *(noch offen)*
-- **Should:** *(noch offen)*
-- **Could:** *(noch offen)*
-- **Won't (diese Woche):** Accounts, Server, Kollaboration, echte Push-Benachrichtigungen
+## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
+
+**Must: ohne das gibt es keine App**
+- [ ] PWA-Grundgerüst: installierbar, online über GitHub Pages
+- [ ] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
+- [ ] Anlegen/Bearbeiten/Löschen: feste Termine (wöchentlich), einmalige Termine, Aufgaben, Ziele mit Unterzielen
+- [ ] Priorität (5 Stufen) und Kategorie-Farben
+- [ ] Heute-Ansicht (Kacheln + Tagesplan), Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
+- [ ] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
+- [ ] Daten von außen: Feiertage automatisch laden
+
+**Should: das Highlight, wenn der Kern steht**
+- [ ] Abhängigkeiten „Ende → Anfang“ + Berechnung des kritischen Pfads, Kennzeichnung im Plan
+- [ ] Kachel „Hängt hinterher“ + Warnung „Zeit reicht nicht“
+- [ ] Vorschläge in freie Zeit als gestrichelte Option zum Bestätigen
+- [ ] Sperrzeiten
+- [ ] Wiederholung alle 2 Wochen / monatlich, Zeitraum, einzelnen Termin absagen
+- [ ] Dunkelmodus, Ordner „Erledigt“, Daten sichern/wiederherstellen
+
+**Could: wenn noch Zeit ist**
+- [ ] Netzplan-Ansicht und Balkenplan
+- [ ] Weitere Abhängigkeitsarten, Wartezeiten (auch negativ), Baumanagement-Modus, Dauer in Tagen
+- [ ] Automatisches Umplanen des ganzen Plans nach CPM
+- [ ] Aufgaben aufteilen, Woche als Abarbeitungsliste, Monatskalender
+- [ ] Tagesnotizen, ganztägige Termine, Schriftgröße, umschaltbare Sortierung, Einschätzungstexte, Löschen nach 6 Monaten
+
+**Won't (diese Woche):** Accounts, Server, Zusammenarbeit, Push-Nachrichten. Diese Punkte stehen auf dem Poster unter „Ausblick“.
 
 ## Etappen
-| Tag | Etappe | Status |
-|---|---|---|
-| Mo 16.11. | Idee & Plan: `PLAN.md` steht | ⏳ |
-| Di 17.11. | Grundgerüst & Aussehen: Die App läuft | – |
-| Mi 18.11. | Daten von außen | – |
-| Do 19.11. | Fertig & veröffentlicht (Freeze besser 12 Uhr), danach Poster | – |
-| Fr 20.11. | Präsentation, Abgabe bis 16 Uhr | – |
+| Tag | Etappe | Features (je eine Sitzung) | Status |
+|---|---|---|---|
+| Mo 16.11. | Idee & Plan | `PLAN.md` und `CLAUDE.md` stehen | ✅ |
+| Di 17.11. | Grundgerüst & Aussehen: Die App läuft | 1. PWA-Gerüst + Leiste unten + online auf GitHub Pages · 2. Speicher-Baustein + Datenmodell · 3. Heute-Ansicht mit Tagesplan · 4. Feste und einmalige Termine anlegen | – |
+| Mi 18.11. | Daten von außen | 5. Aufgaben · 6. Ziele + Unterziele + Abhaken mit Std./% · 7. Woche als Stundenplan · 8. Feiertage laden | – |
+| Do 19.11. | Fertig & veröffentlicht | 9. Abhängigkeiten + kritischer Pfad + „Hängt hinterher“ · 10. Test auf dem Handy, Fehler beheben, README · **Freeze 12 Uhr**, danach Poster | – |
+| Fr 20.11. | Polieren und präsentieren | Präsentation, Abgabe bis 16 Uhr | – |
+
+Weitere Should-Punkte kommen dazwischen, wenn ein Feature schneller fertig ist.
 
 ## Offene Fragen
 - [x] Allein oder im Team? → allein
