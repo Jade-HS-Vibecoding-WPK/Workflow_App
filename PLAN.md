@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Ansichten fast fertig. Offen: Sortierung der Aufgabenliste und was außer „Erledigt“ ins Menü kommt. Danach die **MoSCoW-Liste**.
+Ansichten fertig. Als Nächstes die **MoSCoW-Liste**: Ein Entwurf wurde vorgeschlagen und muss noch bestätigt werden.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -14,7 +14,8 @@ Ansichten fast fertig. Offen: Sortierung der Aufgabenliste und was außer „Erl
 - ✅ Ziele inklusive kritischem Pfad geklärt
 - ✅ Einmalige Termine komplett geklärt, Kategorien-Überblick steht
 - ✅ Design-Grundlagen und Startbildschirm geklärt
-- ⏳ Ansichten festlegen, danach MoSCoW
+- ✅ Ansichten und Menü geklärt
+- ⏳ MoSCoW-Liste festlegen
 
 ## Entscheidungen
 
@@ -128,17 +129,17 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
   - **Abarbeitungsliste:** pro Tag eine Liste untereinander, zum Abarbeiten
 - **Kalender:** Monatsansicht mit Punkten für Termine und Markierungen für Deadlines, Urlaub und Tagesnotizen. Antippen eines Tages öffnet den Tagesplan.
 - **Ziele:** Liste der Ziele mit Farbe, Deadline und Fortschrittsbalken (%). Antippen öffnet die Unterziele, umschaltbar zwischen **Liste**, **Netzplan** und **Balkenplan**.
-- **Aufgaben:** Liste wie in Erinnerungen mit Abhak-Kreisen.
+- **Aufgaben:** Liste wie in Erinnerungen mit Abhak-Kreisen. Sortierung **umschaltbar**: nach Deadline, Priorität oder Farbe/Gruppe.
 - **Abhaken eines Ziel-Blocks:** Die App fragt direkt „Wie lange gearbeitet? Wie viel % geschafft?“, damit die CPM-Berechnung aktuell bleibt.
 - **Menü** (Symbol oben links oder rechts): öffnet alle Ansichten und Menüs. **Ganz unten** liegt der Sonderordner **„Erledigt“**.
+  - Inhalt: alle Ansichten, **Sperrzeiten**, **Tagesnotizen**, **Einstellungen** (Hell/Dunkel, Baumanagement-Modus, **Schriftgröße**), **Daten sichern / wiederherstellen** (Export/Import als Datei), ganz unten **„Erledigt“**.
 
 ### Rahmen
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Ansichten festlegen (Tag, Woche, Aufgabenliste, „Heute“, Netzplan)
-2. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
-3. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
+1. MoSCoW-Liste unten füllen: was bis Do 12 Uhr fertig sein muss
+2. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
 
 ## MoSCoW (bis Fr 20.11.)
 - **Must:** *(noch offen)*
