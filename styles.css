@@ -188,3 +188,154 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .menu__list--bottom { margin-top: auto; }
 .menu__list + .menu__list--bottom { margin-top: auto; padding-top: 0; }
 .menu > .menu__list:not(.menu__list--bottom):last-of-type { margin-bottom: 24px; }
+
+/* ============================================================
+   Ansicht "Heute"
+   ============================================================ */
+
+/* ---------- Kacheln ---------- */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  color: var(--text);
+  text-decoration: none;
+}
+.tile:active { background: var(--surface-2); }
+.tile__top { display: flex; align-items: center; justify-content: space-between; }
+.tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #fff;
+}
+.tile__icon svg { width: 18px; height: 18px; stroke-width: 2.2; }
+.tile__count { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+.tile__label { font-size: 0.9rem; font-weight: 600; color: var(--text-2); }
+
+/* ---------- Tagesnotizen und ganztägige Termine ---------- */
+.day-extras { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.daynote, .allday {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+.daynote::before { content: "Notiz · "; color: var(--text-2); }
+.allday {
+  background: color-mix(in srgb, var(--c) 18%, transparent);
+  border-left: 3px solid var(--c);
+  border-radius: 0 8px 8px 0;
+}
+.allday span { color: var(--text-2); font-size: 0.8rem; }
+.plan-hint { margin: 0 0 12px; color: var(--text-2); font-size: 0.9rem; text-align: center; }
+
+/* ---------- Tagesplan (Stundenraster) ---------- */
+.plan {
+  padding: 8px 8px 8px 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+.plan__grid { position: relative; }
+.hour { position: relative; border-top: 0.5px solid var(--line); }
+.hour:first-child { border-top-color: transparent; }
+.hour__label {
+  position: absolute;
+  top: -0.6em;
+  left: 0;
+  width: 48px;
+  padding-right: 6px;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--text-3);
+  background: var(--surface);
+}
+.hour:first-child .hour__label { top: 0; }
+.plan__blocks { position: absolute; top: 0; bottom: 0; left: 52px; right: 0; }
+
+/* ---------- Einträge im Plan ---------- */
+.block {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 4px 6px 4px 8px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c) 20%, var(--surface));
+  border-left: 3px solid var(--c);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.8rem;
+  line-height: 1.25;
+}
+.block__text { display: flex; flex-direction: column; min-width: 0; }
+.block__title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.block__sub { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.block--short { align-items: center; padding-top: 1px; padding-bottom: 1px; }
+.block__check {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  border: 1.5px solid var(--c);
+  border-radius: 50%;
+}
+/* Vorschlag der App, noch nicht bestätigt: gestrichelt und blass */
+.block--option {
+  background: transparent;
+  border: 1.5px dashed var(--c);
+  border-radius: 6px;
+  opacity: 0.7;
+}
+.block--done { opacity: 0.45; }
+.block--done .block__title { text-decoration: line-through; }
+.block--done .block__check { background: var(--c); }
+
+/* Puffer vor/nach einem Termin */
+.buffer {
+  position: absolute;
+  background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--c) 12%, transparent) 0 3px, transparent 3px 6px);
+  border-left: 3px solid color-mix(in srgb, var(--c) 40%, transparent);
+}
+
+/* Sperrzeit: schraffiert über die ganze Breite */
+.block--sperr {
+  left: 0;
+  right: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--text-2);
+  background: repeating-linear-gradient(45deg, var(--surface-2) 0 6px, transparent 6px 12px);
+}
+.block--sperr .block__title { font-weight: 500; }
+
+/* Rote Linie: aktuelle Uhrzeit */
+.now-line {
+  position: absolute;
+  left: 46px;
+  right: 0;
+  height: 0;
+  border-top: 2px solid #ff3b30;
+  z-index: 2;
+  pointer-events: none;
+}
+.now-line span {
+  position: absolute;
+  top: -6px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff3b30;
+}

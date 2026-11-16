@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 2 ist fertig (Speicher-Baustein + Datenmodell, getestet). **Als Nächstes: Feature 3: Heute-Ansicht mit Kacheln und Tagesplan.**
+Feature 3 ist fertig (Heute-Ansicht). **Als Nächstes: Feature 4: Feste und einmalige Termine anlegen** („+“-Knopf, Formular, Bearbeiten, Löschen).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -19,7 +19,8 @@ Feature 2 ist fertig (Speicher-Baustein + Datenmodell, getestet). **Als Nächste
 - ✅ Feature 1: PWA-Grundgerüst gebaut (Leiste unten, Menü, Platzhalter-Ansichten, Hell/Dunkel, Icons, offline-fähig), lokal getestet
 - ✅ Online über GitHub Pages, auf dem Handy installiert und getestet
 - ✅ Feature 2: Speicher-Baustein (`store.js`) + Datenmodell (`model.js`), getestet: Speichern, Ändern, Löschen, Neuladen, Export/Import
-- ⏳ Feature 3: Heute-Ansicht mit Kacheln und Tagesplan
+- ✅ Feature 3: Heute-Ansicht: 4 Kacheln mit Zählern, Tagesplan 0–24 Uhr mit roter Jetzt-Linie (springt beim Öffnen zur aktuellen Uhrzeit), Blöcke in Kategorie-Farben, Überschneidungen nebeneinander, Optionen gestrichelt, Sperrzeiten schraffiert, Puffer, Tagesnotizen und ganztägige Termine oben. Zeitplan-Logik in `schedule.js` (Wiederholungen, abgesagte Tage). „Hängt hinterher“ zählt vorerst überfällige Ziele/Unterziele, CPM kommt in Feature 9.
+- ⏳ Feature 4: Feste und einmalige Termine anlegen
 
 ## Entscheidungen
 
@@ -142,8 +143,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 3: Heute-Ansicht mit Kacheln und Tagesplan
-2. Feature 4: Feste und einmalige Termine anlegen
+1. Feature 4: Feste und einmalige Termine anlegen
+2. Feature 5: Aufgaben
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -153,7 +154,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
 - [ ] Anlegen/Bearbeiten/Löschen: feste Termine (wöchentlich), einmalige Termine, Aufgaben, Ziele mit Unterzielen
 - [ ] Priorität (5 Stufen) und Kategorie-Farben
-- [ ] Heute-Ansicht (Kacheln + Tagesplan), Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
+- [~] Heute-Ansicht (Kacheln + Tagesplan) ✅, Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
 - [ ] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
 - [ ] Daten von außen: Feiertage automatisch laden
 

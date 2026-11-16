@@ -29,9 +29,18 @@ function currentViewName() {
   return VIEWS[name] ? name : DEFAULT_VIEW;
 }
 
-function render() {
+// Ansichten, die schon gebaut sind (der Rest zeigt einen Platzhalter)
+const RENDERERS = {
+  heute: HeuteView,
+};
+let lastView = null;
+
+async function render() {
   const name = currentViewName();
   const view = VIEWS[name];
+  const isNavigation = name !== lastView; // neue Ansicht oder nur Daten geändert?
+  if (lastView && RENDERERS[lastView] && isNavigation) RENDERERS[lastView].leave();
+  lastView = name;
 
   titleEl.textContent = view.title;
   document.title = view.title + " · Workflow";
@@ -40,6 +49,19 @@ function render() {
     ? new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })
     : "";
 
+  // Aktiven Knopf in der Leiste unten markieren
+  document.querySelectorAll(".tab").forEach((tab) => {
+    if (tab.dataset.view === name) tab.setAttribute("aria-current", "page");
+    else tab.removeAttribute("aria-current");
+  });
+  closeMenu();
+
+  if (RENDERERS[name]) {
+    if (isNavigation) window.scrollTo(0, 0);
+    await RENDERERS[name].render(viewEl, { scrollToNow: isNavigation });
+    return;
+  }
+
   // Platzhalter, bis die Ansicht gebaut ist
   viewEl.innerHTML = `
     <section class="empty">
@@ -47,15 +69,7 @@ function render() {
       <p class="empty__text">${view.text}</p>
       <span class="empty__tag">kommt in ${view.feature}</span>
     </section>`;
-
-  // Aktiven Knopf in der Leiste unten markieren
-  document.querySelectorAll(".tab").forEach((tab) => {
-    if (tab.dataset.view === name) tab.setAttribute("aria-current", "page");
-    else tab.removeAttribute("aria-current");
-  });
-
-  closeMenu();
-  window.scrollTo(0, 0);
+  if (isNavigation) window.scrollTo(0, 0);
 }
 
 // ---------- Menü ----------
