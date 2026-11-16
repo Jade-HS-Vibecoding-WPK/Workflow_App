@@ -958,3 +958,4 @@ body.no-scroll { overflow: hidden; }
 @keyframes slide-in-left { from { transform: translateX(40px); opacity: 0.3; } to { transform: none; opacity: 1; } }
 @keyframes slide-in-right { from { transform: translateX(-40px); opacity: 0.3; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .plan--slide-left, .plan--slide-right { animation: none; } }
+.badge--main { background: var(--surface-2); color: var(--text-2); font-weight: 600; }

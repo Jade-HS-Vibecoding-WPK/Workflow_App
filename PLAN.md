@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Wunsch 1 erledigt (Tage wischen auf „Heute“). **Weitere Änderungswünsche von Niklas besprechen** (Freeze Do 12 Uhr beachten).
+Wunsch 2 erledigt („kritisch“ nur noch bei echter Enge, längste Kette heißt „Hauptpfad“). **Weitere Änderungswünsche von Niklas besprechen** (Freeze Do 12 Uhr beachten).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -36,6 +36,7 @@ Wunsch 1 erledigt (Tage wischen auf „Heute“). **Weitere Änderungswünsche v
 - ✅ README für die Abgabe (Funktionen, CPM-Erklärung, Bedienung, Datenschutz, Technik, Quellen/Lizenzen, KI-Nutzung, Ausblick)
 - ✅ Feature 10: Test auf dem Handy (Niklas, Mo 16.11.): alles läuft
 - ✅ Wunsch: Auf „Heute“ zwischen Tagen wischen (links = nächster Tag, rechts = vorheriger), zusätzlich ‹ › und „Heute“-Knopf. Titel/erste Kachel zeigen den Tag („Morgen“, „Mittwoch“ …), Jetzt-Linie nur heute, „+“ legt für den angezeigten Tag an, Scrollposition bleibt beim Blättern. Adresse `#heute/<Datum>`.
+- ✅ Wunsch: „kritisch“ nur bei echter Enge. **Auslastung** = nötige Stunden (Unterziel + alle Vorgänger) ÷ freie Stunden bis zu seinem spätesten Ende. Unter 50 % kein Hinweis, **50–80 % „eng“** (orange), **ab 80 % oder wenn es nicht reicht „kritisch“** (rot). Die längste Kette heißt jetzt **„Hauptpfad“** (grau, unabhängig von Deadlines berechnet). Ziel-Status: im Plan / eng / kritisch / hängt hinterher (= reicht nicht); Hinweistext nennt die engen Unterziele.
 - ⏳ Weitere Änderungswünsche von Niklas
 
 ## Entscheidungen

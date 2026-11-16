@@ -19,6 +19,10 @@ const CPM = (() => {
   const T = Model.TYPES;
   const DEP = Model.DEP_TYPES;
   const EPS = 0.05;
+  // Auslastung = nötige Stunden ÷ freie Stunden bis zum spätesten Ende
+  const ENG_AB = 0.5;       // ab 50 % → "eng"
+  const KRITISCH_AB = 0.8;  // ab 80 % (oder es reicht nicht) → "kritisch"
+  const levelOf = (u) => (u >= KRITISCH_AB ? "kritisch" : u >= ENG_AB ? "eng" : null);
 
   // ---------- Einstellungen ----------
   let cfg = makeCfg({});
@@ -155,9 +159,58 @@ const CPM = (() => {
       n.FF = Math.min(ff, n.TF);
     }
     const minTF = open.length ? Math.min(...open.map((n) => n.TF)) : 0;
+
+    // Freie Stunden pro Tag ab heute (einmal ausrechnen)
+    const horizon = Math.max(deadlineDays, ...Object.values(nodes).map((n) => Math.ceil(n.LF)), 0);
+    const freeByDay = [];
+    for (let i = 0; i < horizon; i++) freeByDay.push(freeHoursOn(entries, S.addDays(now, i), now));
+    const freeUntil = (days) => freeByDay.slice(0, Math.max(Math.ceil(days - 1e-9), 0)).reduce((a, b) => a + b, 0);
+
+    // Alle (auch indirekten) Vorgänger eines Unterziels
+    const ancestors = (id, seen = new Set()) => {
+      for (const d of nodes[id].preds) if (!seen.has(d.fromId)) { seen.add(d.fromId); ancestors(d.fromId, seen); }
+      return seen;
+    };
+    const restHours = (id) => {
+      const sg = byId[id];
+      return sg.done || sg.mode === "dauer" ? 0 : Model.restzeitStunden(sg);
+    };
+
+    // Hauptpfad = längste Kette (bestimmt, wann das Ziel frühestens fertig ist).
+    // Dafür eine zweite Rückwärtsrechnung ab dem frühesten Ende – ohne Deadlines.
+    const cpEnd = Math.max(0, ...Object.values(nodes).map((n) => n.EF));
+    const lf0 = {}, ls0 = {};
+    for (const id of [...order].reverse()) {
+      const n = nodes[id];
+      let lf = cpEnd;
+      for (const s2 of n.succs) {
+        const v = {
+          [DEP.EA]: ls0[s2.toId] - s2.lag, [DEP.AA]: ls0[s2.toId] - s2.lag + n.D,
+          [DEP.EE]: lf0[s2.toId] - s2.lag, [DEP.AE]: lf0[s2.toId] - s2.lag + n.D,
+        }[s2.type || DEP.EA];
+        lf = Math.min(lf, v);
+      }
+      lf0[id] = lf;
+      ls0[id] = lf - n.D;
+    }
+
     for (const n of Object.values(nodes)) {
-      n.critical = !n.done && n.TF <= minTF + EPS;
+      n.mainPath = !n.done && n.D > 0 && ls0[n.id] - n.ES <= EPS;
       n.behind = !n.done && n.TF < -EPS;
+      // Auslastung: dieses Unterziel + alles, was davor fertig sein muss,
+      // geteilt durch die freie Zeit bis zu seinem spätesten Ende
+      if (!n.done) {
+        const needed = restHours(n.id) + [...ancestors(n.id)].reduce((sum, id) => sum + restHours(id), 0);
+        const avail = freeUntil(n.LF);
+        n.neededHours = needed;
+        n.availableHours = avail;
+        n.utilization = needed <= 0 ? 0 : avail <= 0 ? Infinity : needed / avail;
+        n.level = n.behind ? "kritisch" : levelOf(n.utilization);
+      } else {
+        n.utilization = 0;
+        n.level = null;
+      }
+      n.critical = n.level === "kritisch";
       n.startDate = S.isoDate(S.addDays(now, Math.floor(n.ES + 1e-9)));
       n.endDate = S.isoDate(S.addDays(now, Math.max(Math.ceil(n.EF - 1e-9) - 1, 0)));
       n.latestStart = S.isoDate(S.addDays(now, Math.floor(n.LS + 1e-9)));
@@ -168,19 +221,23 @@ const CPM = (() => {
     // erledigst du in Wirklichkeit nacheinander. Deshalb zusätzlich prüfen,
     // ob die freie Zeit bis zur Deadline für ALLE Reststunden reicht.
     const neededHours = subs.filter((x) => !x.done && x.mode !== "dauer").reduce((sum, x) => sum + Model.restzeitStunden(x), 0);
-    let availableHours = 0;
-    for (let i = 0; i < Math.max(deadlineDays, 0); i++) availableHours += freeHoursOn(entries, S.addDays(now, i), now);
+    const availableHours = freeUntil(Math.max(deadlineDays, 0));
     const resourceSlack = (availableHours - neededHours) / cap; // in Tagen
     const slack = Math.min(minTF, resourceSlack);
     const end = Math.max(projectEnd, neededHours / cap);
 
+    // Gesamt-Auslastung des Ziels und Status
+    const utilization = neededHours <= 0 ? 0 : availableHours <= 0 ? Infinity : neededHours / availableHours;
+    const anyCritical = open.some((n) => n.level === "kritisch");
+    const anyEng = open.some((n) => n.level === "eng");
     let status = "ok";
     if (!open.length) status = "fertig";
-    else if (slack < -EPS || (goal.deadline && deadlineDays <= 0)) status = "hinterher";
-    else if (slack < 2) status = "knapp";
+    else if (slack < -EPS || (goal.deadline && deadlineDays <= 0)) status = "hinterher"; // reicht nicht
+    else if (utilization >= KRITISCH_AB || anyCritical) status = "kritisch";
+    else if (utilization >= ENG_AB || anyEng) status = "knapp";
 
     return {
-      cycle: false, cap, nodes, projectEnd: end, deadlineDays, minTF, slack, status,
+      cycle: false, cap, nodes, projectEnd: end, deadlineDays, minTF, slack, status, utilization,
       neededHours, availableHours, resourceLimited: resourceSlack < minTF - EPS,
       projectEndDate: S.isoDate(S.addDays(now, Math.max(Math.ceil(end - 1e-9) - 1, 0))),
     };

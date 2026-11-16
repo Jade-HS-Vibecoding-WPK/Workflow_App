@@ -192,7 +192,7 @@ const Goals = (() => {
     return `
       <div class="form-group">
         <div class="row row--stack">
-          <span>Kritischer Pfad ${n.critical ? '<b class="badge badge--crit">kritisch</b>' : ""}</span>
+          <span>Zeitplan ${levelBadges(n)}</span>
           <dl class="cpm-values">
             <dt>Dauer</dt><dd>${GoalMath.fmtDays(n.D)}</dd>
             <dt>Frühester Anfang (FAZ)</dt><dd>${d(n.startDate)}</dd>
@@ -200,10 +200,11 @@ const Goals = (() => {
             <dt>Spätester Anfang (SAZ)</dt><dd>${d(n.latestStart)}</dd>
             <dt>Spätestes Ende (SEZ)</dt><dd>${d(n.latestEnd)}</dd>
             <dt>Gesamtpuffer (GP)</dt><dd class="${n.TF < -0.05 ? "meta--warn" : ""}">${n.TF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.TF)}</dd>
+            <dt>Auslastung</dt><dd class="${n.level === "kritisch" ? "meta--warn" : ""}">${n.neededHours > 0 ? `${pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)` : "–"}</dd>
             <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.FF)}</dd>
           </dl>
         </div>
-        <p class="hint">Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.</p>
+        <p class="hint">Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.</p>
       </div>`;
   }
 
@@ -409,7 +410,8 @@ const ZieleView = (() => {
     const res = CPM.computeGoal(g, entries, new Date(), cap);
     const chip = res.cycle ? "" : {
       hinterher: '<span class="badge badge--crit">hängt hinterher</span>',
-      knapp: '<span class="badge badge--warn">knapp</span>',
+      kritisch: '<span class="badge badge--crit">kritisch</span>',
+      knapp: '<span class="badge badge--warn">eng</span>',
       ok: '<span class="badge badge--ok">im Plan</span>',
     }[res.status] || "";
     const p = GoalMath.progress(g);
@@ -457,6 +459,16 @@ const ZielDetailView = (() => {
   const S = Schedule;
   const esc = (s) => Editor.esc(s);
 
+  // Kennzeichnung eines Unterziels: kritisch (rot) / eng (orange) / Hauptpfad (grau)
+  const pct = (u) => (u === Infinity ? "über 100 %" : Math.round(u * 100) + " %");
+  function levelBadges(n) {
+    if (!n || n.done) return "";
+    const lvl = n.level === "kritisch" ? `<b class="badge badge--crit" title="${pct(n.utilization)} der freien Zeit nötig">kritisch</b>`
+      : n.level === "eng" ? `<b class="badge badge--warn" title="${pct(n.utilization)} der freien Zeit nötig">eng</b>` : "";
+    const main = n.mainPath ? `<span class="badge badge--main" title="Längste Kette: bestimmt, wann das Ziel frühestens fertig ist">Hauptpfad</span>` : "";
+    return lvl + main;
+  }
+
   // "Heute"/"Morgen" mitten im Satz klein schreiben
   const inline = (lbl) => (lbl === "Heute" || lbl === "Morgen" ? lbl.toLowerCase() : lbl);
 
@@ -476,8 +488,9 @@ const ZielDetailView = (() => {
       n && !sg.done ? (n.behind
         ? `<span class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</span>`
         : `<span>Puffer ${GoalMath.fmtDays(n.TF)}</span>`) : "",
+      n && !sg.done && n.neededHours > 0 && n.level ? `<span class="${n.level === "kritisch" ? "meta--warn" : ""}">${pct(n.utilization)} der freien Zeit</span>` : "",
     ].filter(Boolean).join("");
-    const badge = n && n.critical ? `<b class="badge badge--crit">kritisch</b>` : "";
+    const badge = levelBadges(n);
     return `
       <li class="task ${sg.done ? "task--done" : ""}" style="--c:${goal.color}">
         <button class="task__check" data-progress="${esc(sg.id)}" aria-label="${esc(sg.title)}: Fortschritt eintragen"></button>
@@ -499,10 +512,29 @@ const ZielDetailView = (() => {
         Mit Ø ${capTxt} freier Zeit pro Tag bist du voraussichtlich ${end} fertig. Puffer: ca. ${GoalMath.fmtDays(res.slack)}.
         <small class="advice__calc">${GoalMath.fmtHours(res.neededHours)} Arbeit übrig · ${GoalMath.fmtHours(res.availableHours)} frei bis zur Deadline</small></div>`;
     }
+    const calc = `<small class="advice__calc">${GoalMath.fmtHours(res.neededHours)} Arbeit übrig · ${GoalMath.fmtHours(res.availableHours)} frei bis zur Deadline · ${pct(res.utilization)} verplant</small>`;
+    // Welche Unterziele sind eng/kritisch? (z. B. wegen einer Zwischen-Deadline)
+    const tight = (lvl) => (goal.subgoals || [])
+      .filter((x) => res.nodes[x.id] && res.nodes[x.id].level === lvl)
+      .map((x) => `„${esc(x.title)}“ (${pct(res.nodes[x.id].utilization)} bis ${esc(inline(S.deadlineLabel(res.nodes[x.id].latestEnd)))})`);
     if (res.status === "knapp") {
-      return `<div class="advice advice--warn"><b>Es wird knapp.</b>
-        Voraussichtlich fertig ${end}, nur ca. ${GoalMath.fmtDays(Math.max(res.slack, 0))} Puffer. Bleib bei den kritischen Unterzielen dran.
-        <small class="advice__calc">${GoalMath.fmtHours(res.neededHours)} Arbeit übrig · ${GoalMath.fmtHours(res.availableHours)} frei bis zur Deadline</small></div>`;
+      const which = tight("eng");
+      return `<div class="advice advice--warn"><b>Es wird eng.</b>
+        ${res.utilization >= 0.5
+          ? "Mehr als die Hälfte deiner freien Zeit bis zur Deadline geht dafür drauf – bleib am Hauptpfad dran."
+          : `Eng wird es bei ${which.join(", ")} – dafür brauchst du einen großen Teil deiner freien Zeit.`}
+        Voraussichtlich fertig ${end}.
+        ${calc}</div>`;
+    }
+    if (res.status === "kritisch") {
+      const lowK = CPM.lowPriorityUntil(entries, goal.deadline).slice(0, 4);
+      const which = tight("kritisch");
+      return `<div class="advice advice--crit"><b>Es wird kritisch.</b>
+        ${res.utilization >= 0.8 ? "Fast deine ganze freie Zeit bis zur Deadline ist dafür nötig." : `Kritisch: ${which.join(", ")}.`}
+        Plane feste Arbeitsblöcke ein${lowK.length ? " oder lass etwas mit niedriger Priorität ausfallen:" : "."}
+        ${calc}
+        ${lowK.length ? `<ul class="advice__list">${lowK.map((e) => `<li><button class="link-btn" data-open="${esc(e.id)}" data-date="${esc(e.date)}">${esc(e.title)}</button> · ${esc(S.deadlineLabel(e.date))}${e.hours ? ` · ${GoalMath.fmtHours(e.hours)}` : ""}</li>`).join("")}</ul>` : ""}
+      </div>`;
     }
     const late = Math.max(-res.slack, 0);
     const low = CPM.lowPriorityUntil(entries, goal.deadline).slice(0, 4);
