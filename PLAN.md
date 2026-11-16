@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Design-Grundlagen stehen. Als Nächstes kommen die **Ansichten**: Inhalt der einzelnen Ansichten (Woche, Kalender, Ziele, Aufgaben, Netzplan, Erledigt) und wie man abhakt. Danach die MoSCoW-Liste.
+Ansichten fast fertig. Offen: Sortierung der Aufgabenliste und was außer „Erledigt“ ins Menü kommt. Danach die **MoSCoW-Liste**.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -120,6 +120,17 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
   - **Aufgaben und Ziele** bekommen **eigene, frei wählbare Farben**, damit man sie klar unterscheiden kann.
 - **Optionen (unbestätigte Vorschläge)** erscheinen im Kalender **gestrichelt und blass**.
 - **Leiste unten:** Heute · Woche · Kalender · Ziele · Aufgaben
+
+### Ansichten
+- **Heute:** Startbildschirm (Kacheln + Tagesplan), siehe „Design“.
+- **Woche**, umschaltbar zwischen zwei Formen:
+  - **Stundenplan:** 7 Spalten mit Stundenraster, alles drin
+  - **Abarbeitungsliste:** pro Tag eine Liste untereinander, zum Abarbeiten
+- **Kalender:** Monatsansicht mit Punkten für Termine und Markierungen für Deadlines, Urlaub und Tagesnotizen. Antippen eines Tages öffnet den Tagesplan.
+- **Ziele:** Liste der Ziele mit Farbe, Deadline und Fortschrittsbalken (%). Antippen öffnet die Unterziele, umschaltbar zwischen **Liste**, **Netzplan** und **Balkenplan**.
+- **Aufgaben:** Liste wie in Erinnerungen mit Abhak-Kreisen.
+- **Abhaken eines Ziel-Blocks:** Die App fragt direkt „Wie lange gearbeitet? Wie viel % geschafft?“, damit die CPM-Berechnung aktuell bleibt.
+- **Menü** (Symbol oben links oder rechts): öffnet alle Ansichten und Menüs. **Ganz unten** liegt der Sonderordner **„Erledigt“**.
 
 ### Rahmen
 - Ich arbeite **allein** an dem Projekt.
