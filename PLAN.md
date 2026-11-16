@@ -2,6 +2,13 @@
 
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
+## Hier weitermachen
+Pause am Mo 16.11. Offene Fragen zu den **einmaligen Terminen**:
+1. Details: reichen Titel, Ort/Raum, Notiz, Farbe, Priorität, oder braucht es mehr (z. B. „mit wem“, Link)?
+2. Ganztägige Termine (z. B. Geburtstag, Urlaub)?
+3. Prioritätsstufen: 3 oder 5? (gelten für alle Kategorien)
+4. Legt die Priorität automatisch fest, ob ein Termin weichen darf, oder gibt es zusätzlich einen Schalter?
+
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
 - ✅ GitHub-Repo verbunden, `CLAUDE.md` und `PLAN.md` angelegt
