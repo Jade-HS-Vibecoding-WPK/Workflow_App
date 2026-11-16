@@ -70,7 +70,18 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Unterziele können **Abhängigkeiten** haben: Ein Unterziel kann erst starten, wenn andere fertig sind.
 - Daraus berechnet die App den **kritischen Pfad**, also die Kette von Unterzielen, bei der jede Verzögerung die Deadline des ganzen Ziels verschiebt.
 - Damit soll die App auch für **Projektplanung wie im Baumanagement** nutzbar sein.
-- Details werden gerade besprochen.
+- **Arten von Abhängigkeiten**, alle vier:
+  - Ende → Anfang: erst fertig, dann starten (Standard)
+  - Anfang → Anfang: gleichzeitig starten
+  - Ende → Ende: gleichzeitig fertig
+  - Anfang → Ende: erst wenn A startet, darf B enden (selten)
+- **Wartezeiten** zwischen Unterzielen, z. B. „Estrich 7 Tage trocknen“. Das ist **optional zuschaltbar** (Baumanagement-Modus).
+- **Aufwand oder Dauer**, pro Unterziel wählbar:
+  - Aufwand in Stunden (eigene Arbeitszeit, wird in freie Zeit eingeplant)
+  - Dauer in Tagen (Kalenderzeit, z. B. „Rohbau 3 Wochen“)
+- **Wer arbeitet daran:** Diese Woche mache ich alles selbst. Im Datenmodell gibt es aber schon ein Feld **„zuständig“** für die spätere Zusammenarbeit (Version 2).
+- **Darstellung:** im **Kalender** und als **Netzplan** (Kästchen mit Pfeilen).
+- **Bei Verzögerung auf dem kritischen Pfad:** Die App **warnt** und **plant um**, sie zeigt also, welche Termine mit niedriger Priorität ausfallen könnten.
 
 ### Erledigtes
 - Wird **abgehakt und ausgeblendet**, aber in einem Ordner **„Erledigt“** aufbewahrt.
@@ -115,7 +126,9 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Ziele: Reihenfolge, Warnung → siehe „Ziele“
 - [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
 - [x] Ziele: eigene Zwischen-Deadlines für Unterziele? → ja
-- [ ] Kritischer Pfad: Arten von Abhängigkeiten, Wartezeiten, Aufwand vs. Dauer, Darstellung, Reaktion der App auf Verzögerungen
+- [x] Kritischer Pfad: Abhängigkeiten, Wartezeiten, Aufwand/Dauer, Darstellung, Reaktion → siehe „Kritischer Pfad“
+- [ ] Kritischer Pfad: Wie legt man Abhängigkeiten an? Welche Werte zeigt der Netzplan? Überlappung (negative Wartezeit)?
+- [ ] Kritischer Pfad: Was davon ist bis Freitag Must, was kommt später?
 - [x] Wiederkehrende Aufgaben nötig? → ja
 - [x] Einplanen automatisch oder per Hand? → die App plant, ich bestätige
 - [x] Aufgaben aufteilen? → ja

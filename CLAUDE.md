@@ -23,8 +23,9 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
   1. Jeder Eintrag hat eine eindeutige ID und einen Besitzer.
   2. Gespeichert wird nur über einen zentralen Speicher-Baustein.
   3. Ziele haben von Anfang an einzeln abhakbare Unterziele.
-  4. Freigabe-Felder sind im Datenmodell vorgesehen, aber noch nicht in der Oberfläche.
+  4. Freigabe-Felder und das Feld „zuständig“ bei Unterzielen sind im Datenmodell vorgesehen, aber noch nicht in der Oberfläche.
   5. Bei jeder größeren Entscheidung prüfen: „Verbaut das die Online-Funktion später?“
+  6. Abhängigkeiten zwischen Unterzielen werden nur über deren IDs gespeichert (Art + optionale Wartezeit), nie über Namen oder die Position in einer Liste.
 
 ## Gestaltung
 Handy-Format zuerst. Weitere Regeln folgen am Di 17.11. (UI Design).
