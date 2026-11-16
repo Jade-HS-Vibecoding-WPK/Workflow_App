@@ -3,11 +3,9 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Pause am Mo 16.11. Offene Fragen zu den **einmaligen Terminen**:
-1. Details: reichen Titel, Ort/Raum, Notiz, Farbe, Priorität, oder braucht es mehr (z. B. „mit wem“, Link)?
-2. Ganztägige Termine (z. B. Geburtstag, Urlaub)?
-3. Prioritätsstufen: 3 oder 5? (gelten für alle Kategorien)
-4. Legt die Priorität automatisch fest, ob ein Termin weichen darf, oder gibt es zusätzlich einen Schalter?
+Offen zu den **einmaligen Terminen**:
+- „Darf weichen“: automatisch über die Priorität oder zusätzlicher Schalter?
+- Vorschläge für weitere Details (Fahrzeit, Erinnerung vorher, Status „unsicher“) annehmen?
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -48,7 +46,15 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Die **Priorität** regelt das Verhalten: hoch (z. B. Arzt) wird nie verschoben, niedrig (z. B. Zocken) darf weichen.
 - Sie zählen als **belegt**. Besteht aber Zeitdruck, darf die App dort **priorisierte Aufgaben vorschlagen**.
 - Kommt etwas Wichtiges dazwischen, schlägt die App vor, den Termin zu verschieben, aber **nur abhängig von der Priorität**.
-- Details: werden besprochen, wenn alle Kategorien geklärt sind.
+- **Details:** Titel, Ort/Raum, Notiz, Farbe, Priorität (Erweiterungen, siehe offene Fragen).
+- **Ganztägige Termine** gibt es, z. B. Urlaub über mehrere Tage. Geburtstage gehören **nicht** in den Kalender, der Fokus liegt auf dem Workflow.
+
+### Tagesnotizen (neu)
+- An einem bestimmten Datum kann man eine **kurze Notiz** anheften, z. B. „Geburtstag Oma“ oder „Semesterstart“.
+- Sie blockiert **keine Zeit** und zählt nicht bei der freien Zeit.
+
+### Priorität (gilt für alle Kategorien)
+- **5 Stufen**, damit es genauer wird (1 = sehr niedrig … 5 = sehr hoch).
 
 ### Aufgaben
 - Etwas, das man **einmal erledigt und dann fertig** ist, z. B. „Reisepass beantragen“.
@@ -131,7 +137,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [ ] Freigabe-Stufe „Nur frei/belegt“ übernehmen?
 - [x] Was bedeutet „flexibel“? → gemeint sind unregelmäßige, einmalige private Termine
 - [x] Unregelmäßige und einmalige Termine zusammenlegen? → ja, die Priorität regelt das Verhalten
-- [ ] Details der einmaligen Termine (nach den anderen Kategorien)
+- [x] Details der einmaligen Termine → Grundfelder, ganztägig, 5 Prioritätsstufen, Tagesnotizen
 - [x] Aufgaben: Deadline, Dauer, Vorschlag → siehe „Aufgaben“
 - [x] Ziele: Reihenfolge, Warnung → siehe „Ziele“
 - [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
