@@ -1,0 +1,190 @@
+/* ============================================================
+   Farben und Grundwerte ("Design-Tokens")
+   Alle Farben stehen hier an einer Stelle. Im Dunkelmodus
+   werden sie unten automatisch ausgetauscht.
+   ============================================================ */
+:root {
+  --bg: #f2f2f7;            /* Seitenhintergrund (hellgrau wie in Erinnerungen) */
+  --surface: #ffffff;       /* Karten, Kopf- und Fußleiste */
+  --surface-2: #e9e9ee;     /* leicht abgesetzte Flächen */
+  --text: #1c1c1e;
+  --text-2: #6c6c70;        /* Nebentext */
+  --text-3: #a1a1a6;        /* Hinweise */
+  --line: rgba(60, 60, 67, 0.18);
+  --accent: #0a7aff;        /* aktive Auswahl */
+
+  /* Kategorie-Farben (fest, nicht wählbar) */
+  --cat-fest: #378add;      /* feste wiederkehrende Termine */
+  --cat-einmalig: #1d9e75;  /* einmalige Termine */
+  --cat-sperr: #8e8e93;     /* Sperrzeiten */
+  --warn: #d85a30;          /* "Hängt hinterher" */
+
+  --radius: 12px;
+  --tabbar-h: 56px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size: 16px;        /* später über Einstellungen änderbar */
+
+  color-scheme: light dark;
+}
+
+/* Dunkelmodus: folgt automatisch der Handy-Einstellung */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --text: #f2f2f7;
+    --text-2: #a1a1a6;
+    --text-3: #6c6c70;
+    --line: rgba(84, 84, 88, 0.6);
+    --accent: #0a84ff;
+  }
+}
+
+/* ============================================================
+   Grundaufbau
+   ============================================================ */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--font-size);
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100dvh;
+  /* Platz für die Leiste unten + iPhone-Home-Balken */
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+}
+
+svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Kopfzeile ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 10px;
+  background: var(--bg);
+}
+.topbar__date { font-size: 0.8rem; color: var(--text-2); min-height: 1.1em; }
+.topbar__title { margin: 0; font-size: 1.9rem; font-weight: 700; letter-spacing: -0.01em; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+.icon-btn:active { background: var(--surface-2); }
+
+/* ---------- Inhaltsbereich ---------- */
+.content { padding: 4px 16px 24px; outline: none; }
+
+.empty {
+  margin-top: 24px;
+  padding: 28px 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.empty__title { margin: 0 0 6px; font-size: 1.05rem; font-weight: 600; }
+.empty__text { margin: 0; color: var(--text-2); font-size: 0.95rem; }
+.empty__tag {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 0.8rem;
+}
+
+/* ---------- Leiste unten ---------- */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-top: 0.5px solid var(--line);
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text-3);
+  text-decoration: none;
+  font-size: 0.68rem;
+}
+.tab[aria-current="page"] { color: var(--accent); }
+
+/* ---------- Menü ---------- */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.35);
+}
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 31;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, 86vw);
+  padding: calc(12px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  overflow-y: auto;
+}
+.menu[hidden], .menu-backdrop[hidden] { display: none; }
+.menu__head { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 8px 16px; }
+.menu__head h2 { margin: 0; font-size: 1.4rem; }
+.menu__group-label { padding: 14px 32px 6px; font-size: 0.8rem; color: var(--text-2); }
+.menu__list {
+  list-style: none;
+  margin: 0 16px;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.menu__list li + li { border-top: 0.5px solid var(--line); }
+.menu__list a {
+  display: block;
+  padding: 13px 16px;
+  color: var(--text);
+  text-decoration: none;
+}
+.menu__list a:active { background: var(--surface-2); }
+/* "Erledigt" wird ganz nach unten geschoben */
+.menu__list--bottom { margin-top: auto; }
+.menu__list + .menu__list--bottom { margin-top: auto; padding-top: 0; }
+.menu > .menu__list:not(.menu__list--bottom):last-of-type { margin-bottom: 24px; }

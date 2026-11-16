@@ -19,6 +19,10 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
 ## Technik
 - PWA, veröffentlicht über GitHub Pages; Daten nur lokal auf dem Gerät, kein Login, kein Server.
 - Die App startet mit einem leeren Plan.
+- Umsetzung: reines **HTML, CSS und JavaScript** ohne Build-Werkzeuge (`index.html`, `styles.css`, `app.js`). So läuft die App direkt auf GitHub Pages.
+- Arbeitsname der App: **„Workflow“** (änderbar).
+- `sw.js` (Service Worker) speichert die App für den Offline-Betrieb: **Bei jeder Änderung an App-Dateien die Versionsnummer `CACHE` in `sw.js` erhöhen** und neue Dateien in die Liste `FILES` eintragen.
+- Lokal testen: `python3 -m http.server 8765` im Projektordner, dann `http://localhost:8765` öffnen.
 - Architektur-Regeln für Version 2 (Kollaboration):
   1. Jeder Eintrag hat eine eindeutige ID und einen Besitzer.
   2. Gespeichert wird nur über einen zentralen Speicher-Baustein.

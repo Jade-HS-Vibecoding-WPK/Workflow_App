@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Planung ist fertig. **Nächste Sitzung (Di 17.11.): Feature 1:** PWA-Grundgerüst mit Leiste unten, online auf GitHub Pages.
+Feature 1 ist gebaut und lokal getestet. Offen: **GitHub Pages einschalten** (macht Niklas in den Repo-Einstellungen), dann den Link auf dem Handy testen und installieren. Danach **Feature 2: Speicher-Baustein + Datenmodell**.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -16,7 +16,8 @@ Planung ist fertig. **Nächste Sitzung (Di 17.11.): Feature 1:** PWA-Grundgerüs
 - ✅ Design-Grundlagen und Startbildschirm geklärt
 - ✅ Ansichten und Menü geklärt
 - ✅ MoSCoW-Liste und Etappen festgelegt
-- ⏳ Bauen: Feature 1 (PWA-Grundgerüst)
+- ✅ Feature 1: PWA-Grundgerüst gebaut (Leiste unten, Menü, Platzhalter-Ansichten, Hell/Dunkel, Icons, offline-fähig), lokal getestet
+- ⏳ GitHub Pages einschalten und auf dem Handy testen
 
 ## Entscheidungen
 
@@ -139,14 +140,14 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 1: PWA-Grundgerüst + Leiste unten + online auf GitHub Pages
+1. GitHub Pages einschalten, Link auf dem Handy testen
 2. Feature 2: Speicher-Baustein + Datenmodell
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
 
 **Must: ohne das gibt es keine App**
-- [ ] PWA-Grundgerüst: installierbar, online über GitHub Pages
+- [~] PWA-Grundgerüst: installierbar, online über GitHub Pages (gebaut, Pages noch nicht eingeschaltet)
 - [ ] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
 - [ ] Anlegen/Bearbeiten/Löschen: feste Termine (wöchentlich), einmalige Termine, Aufgaben, Ziele mit Unterzielen
 - [ ] Priorität (5 Stufen) und Kategorie-Farben
@@ -160,7 +161,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [ ] Vorschläge in freie Zeit als gestrichelte Option zum Bestätigen
 - [ ] Sperrzeiten
 - [ ] Wiederholung alle 2 Wochen / monatlich, Zeitraum, einzelnen Termin absagen
-- [ ] Dunkelmodus, Ordner „Erledigt“, Daten sichern/wiederherstellen
+- [ ] Dunkelmodus ✅ (im Grundgerüst), Ordner „Erledigt“, Daten sichern/wiederherstellen
 
 **Could: wenn noch Zeit ist**
 - [ ] Netzplan-Ansicht und Balkenplan
