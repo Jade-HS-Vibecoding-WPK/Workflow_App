@@ -934,3 +934,27 @@ body.no-scroll { overflow: hidden; }
 .cpm-values dd { margin: 0; font-weight: 600; }
 
 .advice__calc { display: block; margin-top: 4px; color: var(--text-2); font-size: 0.8rem; }
+
+/* ============================================================
+   Heute: zwischen Tagen blättern / wischen
+   ============================================================ */
+.day-nav { display: flex; align-items: center; gap: 4px; margin: 0 0 10px; }
+.day-nav .icon-btn { font-size: 1.8rem; line-height: 1; text-decoration: none; }
+.day-nav__label { flex: 1; text-align: center; font-weight: 600; }
+.day-nav__today {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.day-nav__today--off { color: var(--text-3); }
+/* Plan beim Wischen herein gleiten lassen */
+.plan { touch-action: pan-y; }
+.plan--slide-left { animation: slide-in-left 0.22s ease-out; }
+.plan--slide-right { animation: slide-in-right 0.22s ease-out; }
+@keyframes slide-in-left { from { transform: translateX(40px); opacity: 0.3; } to { transform: none; opacity: 1; } }
+@keyframes slide-in-right { from { transform: translateX(-40px); opacity: 0.3; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .plan--slide-left, .plan--slide-right { animation: none; } }

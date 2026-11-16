@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Handy-Test durch Niklas: läuft. **Niklas hat noch Änderungs- und Erweiterungswünsche** – als Nächstes besprechen und einplanen (Freeze Do 12 Uhr beachten).
+Wunsch 1 erledigt (Tage wischen auf „Heute“). **Weitere Änderungswünsche von Niklas besprechen** (Freeze Do 12 Uhr beachten).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -35,7 +35,8 @@ Handy-Test durch Niklas: läuft. **Niklas hat noch Änderungs- und Erweiterungsw
   - Hinweis: Die Puffer je Unterziel sind klassischer CPM (ohne Allein-Prüfung); der Gesamtstatus berücksichtigt beides.
 - ✅ README für die Abgabe (Funktionen, CPM-Erklärung, Bedienung, Datenschutz, Technik, Quellen/Lizenzen, KI-Nutzung, Ausblick)
 - ✅ Feature 10: Test auf dem Handy (Niklas, Mo 16.11.): alles läuft
-- ⏳ Änderungswünsche von Niklas
+- ✅ Wunsch: Auf „Heute“ zwischen Tagen wischen (links = nächster Tag, rechts = vorheriger), zusätzlich ‹ › und „Heute“-Knopf. Titel/erste Kachel zeigen den Tag („Morgen“, „Mittwoch“ …), Jetzt-Linie nur heute, „+“ legt für den angezeigten Tag an, Scrollposition bleibt beim Blättern. Adresse `#heute/<Datum>`.
+- ⏳ Weitere Änderungswünsche von Niklas
 
 ## Entscheidungen
 

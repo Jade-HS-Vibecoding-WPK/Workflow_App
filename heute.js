@@ -89,11 +89,37 @@ const HeuteView = (() => {
     return ((d.getHours() + d.getMinutes() / 60) - START_H) * HOUR_PX;
   }
 
-  async function render(container, { scrollToNow = false } = {}) {
+  // Kurzer Name eines Tages relativ zu heute: "Heute", "Morgen", "Gestern", sonst Wochentag
+  function dayName(date, todayIso) {
+    const diff = Math.round((Schedule.parseDate(Schedule.isoDate(date)) - Schedule.parseDate(todayIso)) / 86400000);
+    if (diff === 0) return "Heute";
+    if (diff === 1) return "Morgen";
+    if (diff === -1) return "Gestern";
+    return date.toLocaleDateString("de-DE", { weekday: "long" });
+  }
+
+  // Angezeigter Tag (Adresse #heute/2026-11-17); ohne Zusatz = heute
+  let shownIso = null;
+  const shownDate = () => (shownIso ? Schedule.parseDate(shownIso) : new Date());
+
+  async function render(container, { scrollToNow = false, param = null, setTitle = () => {}, slide = null } = {}) {
     const entries = await Store.list();
-    const today = new Date();
-    const plan = Schedule.dayPlan(entries, today);
-    const c = Schedule.counts(entries, today);
+    const now = new Date();
+    const todayIso = Schedule.isoDate(now);
+    shownIso = param && /^\d{4}-\d{2}-\d{2}$/.test(param) && param !== todayIso ? param : null;
+    const day = shownIso ? Schedule.parseDate(shownIso) : now;
+    const isToday = !shownIso;
+    const dayIso = Schedule.isoDate(day);
+    const plan = Schedule.dayPlan(entries, day);
+    const c = Schedule.counts(entries, now);
+    // Erste Kachel zählt den angezeigten Tag
+    const dayCount = plan.timed.filter((b) => b.kind !== "sperr" && !b.cancelled).length + plan.allDay.filter((a) => a.kind !== "feiertag").length;
+    const name = dayName(day, todayIso);
+    setTitle(name);
+    const dateLine = document.getElementById("topbar-date");
+    if (dateLine) dateLine.textContent = day.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+    const prev = Schedule.isoDate(Schedule.addDays(day, -1));
+    const next = Schedule.isoDate(Schedule.addDays(day, 1));
 
     const sperr = plan.timed.filter((b) => b.kind === "sperr");
     const items = Schedule.layoutColumns(plan.timed.filter((b) => b.kind !== "sperr"));
@@ -116,26 +142,32 @@ const HeuteView = (() => {
 
     container.innerHTML = `
       <div class="tiles">
-        ${tile("heute", "Heute", c.today, "#378add", "#heute")}
+        ${tile("heute", name, dayCount, "#378add", "#heute")}
         ${tile("woche", "Diese Woche fällig", c.dueThisWeek, "#ba7517", "#aufgaben")}
         ${tile("ziele", "Ziele & Aufgaben", c.open, "#7f77dd", "#ziele")}
         ${tile("warn", "Hängt hinterher", c.behind, c.behind ? "var(--warn)" : "#8e8e93", "#ziele")}
       </div>
+      <div class="day-nav">
+        <a class="icon-btn" href="#heute/${prev}" aria-label="Vorheriger Tag">‹</a>
+        <span class="day-nav__label">${esc(day.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" }))}</span>
+        ${isToday ? '<span class="day-nav__today day-nav__today--off">Heute</span>' : '<a class="day-nav__today" href="#heute">Heute</a>'}
+        <a class="icon-btn" href="#heute/${next}" aria-label="Nächster Tag">›</a>
+      </div>
       ${extras ? `<div class="day-extras">${extras}</div>` : ""}
       ${emptyHint}
-      <section class="plan" aria-label="Tagesplan heute">
+      <section class="plan ${slide ? "plan--slide-" + slide : ""}" aria-label="Tagesplan ${esc(name)}">
         <div class="plan__grid" style="height:${(END_H - START_H) * HOUR_PX}px">
           ${hours}
           <div class="plan__blocks">
             ${sperr.map(blockHtml).join("")}
             ${items.map(blockHtml).join("")}
           </div>
-          <div class="now-line" id="now-line" style="top:${nowTop()}px"><span></span></div>
+          ${isToday ? `<div class="now-line" id="now-line" style="top:${nowTop()}px"><span></span></div>` : ""}
         </div>
       </section>`;
 
     // Antippen eines Eintrags öffnet ihn zum Bearbeiten
-    const isoToday = Schedule.isoDate(today);
+    const isoToday = dayIso; // der angezeigte Tag
     container.querySelectorAll(".block[data-id]").forEach((el) => {
       const open = () => Editor.edit(el.dataset.id, isoToday);
       el.addEventListener("click", open);
@@ -153,17 +185,46 @@ const HeuteView = (() => {
       else clearInterval(nowTimer);
     }, 60 * 1000);
 
-    // Beim Öffnen zur aktuellen Uhrzeit springen (etwas Luft darüber)
+    // Beim Öffnen: heute zur aktuellen Uhrzeit, andere Tage zu 7 Uhr springen
     if (scrollToNow) {
-      const line = document.getElementById("now-line");
-      const y = line.getBoundingClientRect().top + window.scrollY - window.innerHeight / 3;
+      const grid = container.querySelector(".plan__grid");
+      const target = isToday ? nowTop() : 7 * HOUR_PX;
+      const y = grid.getBoundingClientRect().top + window.scrollY + target - window.innerHeight / 3;
       window.scrollTo(0, Math.max(0, y));
     }
+
+    // Wischen: nach links = nächster Tag, nach rechts = vorheriger Tag
+    attachSwipe(container, prev, next);
   }
+
+  let swipeTarget = null;
+  function attachSwipe(container, prev, next) {
+    swipeTarget = { prev, next };
+    if (container.dataset.swipe) return; // nur einmal anmelden
+    container.dataset.swipe = "1";
+    let x0 = null, y0 = null, t0 = 0;
+    container.addEventListener("touchstart", (e) => {
+      if (!swipeTarget || e.touches.length !== 1) return;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+    }, { passive: true });
+    container.addEventListener("touchend", (e) => {
+      if (x0 === null || !swipeTarget) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      const dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      // Deutlich waagerecht und schnell genug, sonst ist es normales Scrollen
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || Date.now() - t0 > 800) return;
+      pendingSlide = dx < 0 ? "left" : "right";
+      location.hash = "#heute/" + (dx < 0 ? swipeTarget.next : swipeTarget.prev);
+    }, { passive: true });
+  }
+  let pendingSlide = null;
+  const takeSlide = () => { const s = pendingSlide; pendingSlide = null; return s; };
 
   function leave() {
     clearInterval(nowTimer);
+    swipeTarget = null;
   }
 
-  return { render, leave };
+  return { render, leave, shownDate, takeSlide };
 })();

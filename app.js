@@ -53,7 +53,9 @@ async function render() {
   const routeKey = name + "/" + (param || "");
   const isNavigation = routeKey !== lastView; // neue Ansicht oder nur Daten geändert?
   const lastName = lastView && lastView.split("/")[0];
-  if (lastName && RENDERERS[lastName] && isNavigation) RENDERERS[lastName].leave();
+  // Blättern zwischen Tagen auf "Heute": Ansicht bleibt, Scrollposition auch
+  const sameView = lastName === name && name === "heute";
+  if (lastName && RENDERERS[lastName] && isNavigation && !sameView) RENDERERS[lastName].leave();
   lastView = routeKey;
 
   titleEl.textContent = view.title;
@@ -71,8 +73,13 @@ async function render() {
   closeMenu();
 
   if (RENDERERS[name]) {
-    if (isNavigation) window.scrollTo(0, 0);
-    await RENDERERS[name].render(viewEl, { scrollToNow: isNavigation, param, setTitle: (t) => { titleEl.textContent = t; } });
+    if (isNavigation && !sameView) window.scrollTo(0, 0);
+    await RENDERERS[name].render(viewEl, {
+      scrollToNow: isNavigation && !sameView,
+      param,
+      setTitle: (t) => { titleEl.textContent = t; },
+      slide: sameView && isNavigation && HeuteView.takeSlide ? HeuteView.takeSlide() || (param > (lastView.split("/")[1] || "") ? "left" : "right") : null,
+    });
     return;
   }
 
@@ -113,6 +120,7 @@ document.getElementById("add-btn").addEventListener("click", () => {
   if (name === "aufgaben") Editor.newTask();
   else if (name === "ziele") Goals.newGoal();
   else if (name === "ziel" && param) Goals.newSubgoal(param);
+  else if (name === "heute") Editor.chooseNew(HeuteView.shownDate());
   else Editor.chooseNew(new Date());
 });
 document.getElementById("menu-close").addEventListener("click", closeMenu);
