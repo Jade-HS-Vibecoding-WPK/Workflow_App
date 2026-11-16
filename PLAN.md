@@ -46,6 +46,9 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Etwas, das man **einmal erledigt und dann fertig** ist, z. B. „Reisepass beantragen“.
 - **Keine feste Uhrzeit**, die Aufgabe dient als **Erinnerung**.
 - Die App macht **Vorschläge** in freier Zeit, z. B. „Du hast Dienstag Zeit, mach das doch da.“
+- **Optionale Deadline:** Je näher sie rückt, desto dringender schlägt die App die Aufgabe vor.
+- **Geschätzte Dauer**, z. B. 30 Min., damit der Vorschlag in die passende Lücke kommt.
+- Ein Vorschlag erscheint als **„Option“ in einer eigenen Farbe** im Kalender, nicht als fester Block. Am **Tag vorher** erinnert die App daran („Mach das doch morgen um …“). Diese Woche passiert das nur als Hinweis in der App, echte Push-Nachrichten bräuchten einen Server.
 
 ### Ziele
 - Größere Vorhaben **mit Deadline**, z. B. eine Uni-Abgabe.
@@ -54,6 +57,13 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
   - **geschätzter Zeitaufwand**, z. B. 10 Std.
   - **Fortschritt eintragen:** gearbeitete Zeit + Prozent, z. B. „heute 2 Std., 20 % geschafft“
 - Daraus **schätzt die App die Restzeit neu**, z. B. 2 Std. = 20 % → noch ca. 8 Std. Sie schlägt vor, **wann** man daran arbeiten soll, damit die Deadline klappt.
+- **Reihenfolge** der Unterziele: kann man festlegen und ändern, oder man sagt einfach „alle bis Datum X fertig“.
+- **Warnung**, wenn die freie Zeit bis zur Deadline nicht reicht, z. B. „Du brauchst noch 12 Std., hast aber nur 8 Std. frei.“
+- **Allgemeine Einschätzung** zum Stand, z. B. „Du bist gut im Plan, weiter so!“ oder „Du hängst hinterher, investier mehr Zeit und lass etwas anderes ausfallen.“
+
+### Erledigtes
+- Wird **abgehakt und ausgeblendet**, aber in einem Ordner **„Erledigt“** aufbewahrt.
+- Einträge im Ordner „Erledigt“ werden **nach 6 Monaten automatisch gelöscht**.
 
 ### Rahmen
 - Ich arbeite **allein** an dem Projekt.
@@ -90,9 +100,11 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Was bedeutet „flexibel“? → gemeint sind unregelmäßige, einmalige private Termine
 - [x] Unregelmäßige und einmalige Termine zusammenlegen? → ja, die Priorität regelt das Verhalten
 - [ ] Details der einmaligen Termine (nach den anderen Kategorien)
-- [ ] Aufgaben: optionale Deadline? Dauer schätzen? Was passiert beim Annehmen eines Vorschlags?
-- [ ] Ziele: Reihenfolge der Unterziele? Eigene Zwischen-Deadlines? Warnung, wenn die Zeit nicht reicht?
-- [ ] Erledigtes ausblenden oder im Rückblick sammeln? Wiederkehrende Aufgaben nötig?
+- [x] Aufgaben: Deadline, Dauer, Vorschlag → siehe „Aufgaben“
+- [x] Ziele: Reihenfolge, Warnung → siehe „Ziele“
+- [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
+- [ ] Ziele: eigene Zwischen-Deadlines für Unterziele?
+- [ ] Wiederkehrende Aufgaben nötig (z. B. „jeden Sonntag Wäsche“)?
 
 ## Ausblick Version 2
 Kollaboration mit Freigabe-Stufen (voller Zugriff, Projekt-Freigabe, evtl. nur frei/belegt). Dafür nötig: ein Backend (z. B. Supabase oder Firebase), Login und Synchronisation. Mehr dazu in `docs/Grundlagen.md`, Abschnitt 5.
