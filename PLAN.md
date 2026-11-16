@@ -7,7 +7,8 @@
 - ✅ GitHub-Repo verbunden, `CLAUDE.md` und `PLAN.md` angelegt
 - ✅ Feste wiederkehrende Termine grundsätzlich geklärt (siehe „Entscheidungen“)
 - ✅ Sperrzeiten geklärt
-- ⏳ Flexible Termine klären
+- ✅ Unregelmäßige Termine grundsätzlich geklärt (Details später)
+- ⏳ Abgrenzung zu einmaligen Terminen, danach Aufgaben und Ziele
 
 ## Entscheidungen
 
@@ -23,12 +24,19 @@
 - Sperrzeiten zählen bei der Berechnung freier Zeit als „nicht verfügbar“.
 - Sperrzeiten **warnen nur**: Trägt man trotzdem etwas ein, fragt die App „Liegt in deiner Sperrzeit, trotzdem eintragen?“.
 
+### Unregelmäßige Termine (vorher „flexible Termine“)
+- Gemeint sind **einmalige, private Termine**, z. B. „Samstag Verabredung“ oder „Donnerstagabend zocken / Freizeit“.
+- Sie zählen als **belegt**. Besteht aber Zeitdruck, darf die App dort **priorisierte Aufgaben vorschlagen**.
+- Kommt etwas Wichtiges dazwischen, schlägt die App vor, den Termin zu verschieben, aber **nur abhängig von der Priorität**.
+- Details: werden besprochen, wenn alle Kategorien geklärt sind.
+
 ### Rahmen
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Flexible Termine klären
-2. Restliche Kategorien klären: Aufgaben, einmalige Termine, Ziele
+1. Klären: unregelmäßige vs. einmalige Termine zusammenlegen oder trennen?
+2. Restliche Kategorien klären: Aufgaben, Ziele
+3. Danach: Details der unregelmäßigen Termine besprechen
 3. Ansichten (Tag, Woche, Aufgabenliste, „Heute“) und Kernfunktionen festlegen
 4. MoSCoW-Liste unten füllen
 5. Etappen Di–Do konkret planen, inklusive „Daten von außen“ am Mittwoch
@@ -55,7 +63,9 @@
 - [x] Sperrzeiten: harte Sperre oder Warnung? → nur Warnung
 - [ ] Kategorien fest vorgegeben oder von Nutzern anpassbar?
 - [ ] Freigabe-Stufe „Nur frei/belegt“ übernehmen?
-- [ ] Was bedeutet „flexibel“ bei flexiblen Terminen genau?
+- [x] Was bedeutet „flexibel“? → gemeint sind unregelmäßige, einmalige private Termine
+- [ ] Unregelmäßige und einmalige Termine zusammenlegen oder getrennt lassen?
+- [ ] Details der unregelmäßigen Termine (nach den anderen Kategorien)
 
 ## Ausblick Version 2
 Kollaboration mit Freigabe-Stufen (voller Zugriff, Projekt-Freigabe, evtl. nur frei/belegt). Dafür nötig: ein Backend (z. B. Supabase oder Firebase), Login und Synchronisation. Mehr dazu in `docs/Grundlagen.md`, Abschnitt 5.
