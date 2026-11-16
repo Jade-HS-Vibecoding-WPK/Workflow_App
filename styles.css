@@ -880,3 +880,57 @@ body.no-scroll { overflow: hidden; }
 .settings .row > span { flex: 1; }
 .settings .row--stack { gap: 4px; }
 .settings .link-btn { align-self: flex-start; }
+
+/* ============================================================
+   Kritischer Pfad
+   ============================================================ */
+.badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
+.badge--crit { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.badge--warn { background: color-mix(in srgb, #ba7517 18%, transparent); color: #ba7517; }
+.badge--ok { background: color-mix(in srgb, #34c759 18%, transparent); color: #248a3d; }
+@media (prefers-color-scheme: dark) { .badge--ok { color: #30d158; } .badge--warn { color: #ef9f27; } }
+
+.advice {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border-left: 4px solid var(--c);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.advice b { display: block; margin-bottom: 2px; font-size: 0.95rem; }
+.advice--ok { --c: #34c759; }
+.advice--warn { --c: #ba7517; }
+.advice--crit { --c: var(--warn); }
+.advice__list { margin: 6px 0 0; padding-left: 18px; }
+.advice__list .link-btn { padding: 0; font-weight: 600; }
+
+.dep-list { display: flex; flex-direction: column; gap: 8px; }
+.dep-row { display: flex; flex-direction: column; gap: 6px; }
+.dep-check { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.dep-check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.dep-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding-left: 30px; }
+.form-group .dep-extra select { text-align: left; font-size: 14px; max-width: 100%; }
+.form-group .dep-extra .unit-input input { width: 4em; }
+
+.cpm-values {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+.cpm-values dt { color: var(--text-2); }
+.cpm-values dd { margin: 0; font-weight: 600; }
+
+.advice__calc { display: block; margin-top: 4px; color: var(--text-2); font-size: 0.8rem; }

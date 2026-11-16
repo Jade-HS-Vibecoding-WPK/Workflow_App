@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 8 ist fertig (Feiertage = Daten von außen). **Alle Must-Punkte sind erledigt.** **Als Nächstes: Feature 9: Abhängigkeiten zwischen Unterzielen + kritischer Pfad + „Hängt hinterher“** (Should, das Highlight).
+Feature 9 ist fertig (kritischer Pfad). **Als Nächstes: Feature 10: Test auf dem Handy, Fehler beheben, README** – danach Freeze (Do 12 Uhr) und Poster. Falls Zeit bleibt: Should „Vorschläge in freie Zeit“, „Sperrzeiten verwalten“, „Daten sichern“.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -25,7 +25,15 @@ Feature 8 ist fertig (Feiertage = Daten von außen). **Alle Must-Punkte sind erl
 - ✅ Feature 6: Ziele: Liste mit Fortschrittsbalken, Deadline, „noch X Tage“, Unterziel-Zähler und Restarbeit. Detailseite (#ziel/<id>) mit Kennzahlen, Unterzielen in Reihenfolge (nach oben/unten verschiebbar), Aufwand (Std.) oder Dauer (Tage), Zwischen-Deadline (geprüft gegen Ziel-Deadline). Kreis antippen = Fortschritt eintragen (Std. heute + % gesamt, Live-Vorschau der Restzeit); 100 % = erledigt. Gesamtfortschritt gewichtet (Dauer: 1 Tag ≈ 8 Std.). „Ziel abschließen“ → Ordner Erledigt. Anzeige „wartet auf: …“ ist vorbereitet (Abhängigkeiten anlegen kommt in Feature 9).
 - ✅ Feature 7: Woche: umschaltbar **Stundenplan** (7 Spalten, Stundenraster, KW-Anzeige, vor/zurück blättern, heute rot markiert, Jetzt-Linie, Sperrzeiten schraffiert, ganztägige Termine und Tagesnotizen als Streifen oben, Kopfzeile bleibt beim Scrollen stehen) und **Liste** zum Abarbeiten (pro Tag, inkl. fälliger Aufgaben zum Abhaken und Ziel-Deadlines). Leere Stelle antippen = neuer Termin an diesem Tag/zu dieser Uhrzeit. Auswahl wird gemerkt.
 - ✅ Feature 8: Feiertage (Daten von außen): Quelle Nager.Date (date.nager.at, kostenlos, ohne Key, nur Jahr + Land werden abgefragt). Lädt aktuelles + nächstes Jahr im Hintergrund, Zwischenspeicher über `Store` (max. alle 30 Tage neu), funktioniert offline mit letztem Stand. Anzeige: Heute (oben), Woche (Kopf rot, Streifen, Liste). Einstellungen: Bundesland (Standard Niedersachsen), „Feste Termine fallen an Feiertagen aus“ (Standard aus), Jetzt neu laden, nächste Feiertage.
-- ⏳ Feature 9: Abhängigkeiten + kritischer Pfad
+- ✅ Feature 9: Kritischer Pfad (`cpm.js`):
+  - **Freie Zeit** pro Tag = Arbeitsfenster (Standard 8–22 Uhr) minus Termine inkl. Puffer und Sperrzeiten, höchstens „max. Std./Tag“ (Standard 6). Urlaub = 0. Einstellbar.
+  - **Dauer** je Unterziel: Aufwand → Reststunden ÷ Ø freie Zeit (nächste 4 Wochen); Dauer → restliche Kalendertage.
+  - **CPM**: Vorwärts-/Rückwärtsrechnung ab Deadline (Zwischen-Deadlines berücksichtigt), alle 4 Abhängigkeitsarten mit Wartezeit (auch negativ), FAZ/FEZ/SAZ/SEZ, Gesamt- und freier Puffer, kritische Unterziele markiert. Kreise werden verhindert (nur zulässige Vorgänger wählbar).
+  - **Allein-Prüfung**: Reicht die freie Zeit bis zur Deadline für alle Reststunden? Fließt in den Status ein.
+  - **Status + Einschätzung** auf der Zielseite: „gut im Plan“ / „knapp“ / „hängt hinterher“ mit Puffer, voraussichtlichem Ende und Termin-Vorschlägen mit Priorität 1–2, die ausfallen könnten. Chip in der Ziel-Liste. Kachel „Hängt hinterher“ zählt jetzt nach CPM.
+  - **Baumanagement-Modus** (Einstellungen): Abhängigkeitsart + Wartezeit wählbar, sonst nur „startet nach“.
+  - Hinweis: Die Puffer je Unterziel sind klassischer CPM (ohne Allein-Prüfung); der Gesamtstatus berücksichtigt beides.
+- ⏳ Feature 10: Test auf dem Handy, README
 
 ## Entscheidungen
 
@@ -148,8 +156,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 9: Abhängigkeiten + kritischer Pfad + „Hängt hinterher“
-2. Feature 10: Test auf dem Handy, Fehler beheben, README
+1. Feature 10: Test auf dem Handy, Fehler beheben, README
+2. Freeze Do 12 Uhr, danach Poster
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -164,8 +172,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Daten von außen: Feiertage automatisch laden
 
 **Should: das Highlight, wenn der Kern steht**
-- [ ] Abhängigkeiten „Ende → Anfang“ + Berechnung des kritischen Pfads, Kennzeichnung im Plan
-- [ ] Kachel „Hängt hinterher“ + Warnung „Zeit reicht nicht“
+- [x] Abhängigkeiten „Ende → Anfang“ + Berechnung des kritischen Pfads, Kennzeichnung im Plan
+- [x] Kachel „Hängt hinterher“ + Warnung „Zeit reicht nicht“
 - [ ] Vorschläge in freie Zeit als gestrichelte Option zum Bestätigen
 - [ ] Sperrzeiten
 - [x] Wiederholung alle 2 Wochen / monatlich, Zeitraum, einzelnen Termin absagen (vorgezogen in Feature 4)
@@ -173,10 +181,10 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 
 **Could: wenn noch Zeit ist**
 - [ ] Netzplan-Ansicht und Balkenplan
-- [ ] Weitere Abhängigkeitsarten, Wartezeiten (auch negativ), Baumanagement-Modus, Dauer in Tagen
+- [x] Weitere Abhängigkeitsarten, Wartezeiten (auch negativ), Baumanagement-Modus, Dauer in Tagen
 - [ ] Automatisches Umplanen des ganzen Plans nach CPM
 - [ ] Aufgaben aufteilen, Woche als Abarbeitungsliste ✅, Monatskalender
-- [ ] Tagesnotizen, ganztägige Termine ✅, Schriftgröße, umschaltbare Sortierung ✅, Einschätzungstexte, Löschen nach 6 Monaten ✅
+- [ ] Tagesnotizen, ganztägige Termine ✅, Schriftgröße, umschaltbare Sortierung ✅, Einschätzungstexte ✅, Löschen nach 6 Monaten ✅
 
 **Won't (diese Woche):** Accounts, Server, Zusammenarbeit, Push-Nachrichten. Diese Punkte stehen auf dem Poster unter „Ausblick“.
 

@@ -179,6 +179,9 @@ const Schedule = (() => {
       }
     }
 
+    // Kritischer Pfad (cpm.js): Ziele, die ihre Deadline so nicht schaffen
+    if (typeof CPM !== "undefined") behind = CPM.behindCount(entries, today);
+
     return {
       today: plan.timed.filter((b) => b.kind !== "sperr" && !b.cancelled).length + plan.allDay.filter((a) => a.kind !== "feiertag").length,
       dueThisWeek,

@@ -20,7 +20,22 @@ const EinstellungenView = (() => {
       .pop();
     const next = Holidays.upcoming(6);
 
+    const cfg = CPM.cfg;
+    const hourOpts = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map((h) => `<option value="${h}" ${cfg.maxHoursPerDay === h ? "selected" : ""}>${h} Std.</option>`).join("");
     container.innerHTML = `
+      <h3 class="list-group">Planung</h3>
+      <div class="form-group settings">
+        <label class="row"><span>Höchstens pro Tag an Zielen arbeiten</span>
+          <select name="maxH">${hourOpts}</select>
+        </label>
+        <label class="row"><span>Arbeitszeit ab</span><input type="time" name="von" value="${cfg.workFrom}"></label>
+        <label class="row"><span>Arbeitszeit bis</span><input type="time" name="bis" value="${cfg.workTo}"></label>
+        <p class="hint">Die App rechnet mit deiner freien Zeit in diesem Fenster (ohne Termine und Sperrzeiten), höchstens mit dem Maximum pro Tag. Gerade: Ø ${GoalMath.fmtHours(CPM.averageCapacity(await Store.list()))} pro Tag.</p>
+        <label class="row"><span>Baumanagement-Modus <small class="muted">alle Abhängigkeitsarten, Wartezeiten, Überlappung</small></span>
+          <input type="checkbox" class="switch" name="bau" ${cfg.bau ? "checked" : ""}>
+        </label>
+      </div>
+
       <h3 class="list-group">Feiertage</h3>
       <div class="form-group settings">
         <label class="row"><span>Bundesland</span>
@@ -52,6 +67,15 @@ const EinstellungenView = (() => {
       busy = false;
       await render(container);
     });
+    container.querySelector('[name="maxH"]').addEventListener("change", (e) => Store.saveSettings({ maxStundenProTag: Number(e.target.value) }));
+    container.querySelector('[name="bau"]').addEventListener("change", (e) => Store.saveSettings({ bauModus: e.target.checked }));
+    const von = container.querySelector('[name="von"]'), bis = container.querySelector('[name="bis"]');
+    const saveTimes = () => {
+      if (von.value && bis.value && Schedule.toMin(bis.value) > Schedule.toMin(von.value)) Store.saveSettings({ arbeitVon: von.value, arbeitBis: bis.value });
+      else render(container); // ungültig → alten Wert wieder anzeigen
+    };
+    von.addEventListener("change", saveTimes);
+    bis.addEventListener("change", saveTimes);
     container.querySelector('[name="skip"]').addEventListener("change", (e) => Holidays.setSkipFixed(e.target.checked));
     container.querySelector("[data-reload]").addEventListener("click", async () => {
       busy = true;

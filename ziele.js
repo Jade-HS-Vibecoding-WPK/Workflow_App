@@ -28,11 +28,15 @@ const GoalMath = (() => {
       .reduce((s, sg) => s + Model.restzeitStunden(sg), 0));
   }
 
+  const fmtDays = (d) => {
+    const r = Math.round(d * 10) / 10;
+    return (Math.abs(r) === 1 ? "1 Tag" : String(Math.abs(r)).replace(".", ",") + " Tage");
+  };
   const workedHours = (sg) => round1((sg.log || []).reduce((s, e) => s + (e.hours || 0), 0));
   const round1 = (n) => Math.round(n * 10) / 10;
   const fmtHours = (h) => String(round1(h)).replace(".", ",") + " Std.";
 
-  return { progress, remainingHours, workedHours, fmtHours, round1 };
+  return { progress, remainingHours, workedHours, fmtHours, fmtDays, round1 };
 })();
 
 // ---------- Formulare ----------
@@ -142,7 +146,68 @@ const Goals = (() => {
   }
 
   // ===== Unterziel anlegen / bearbeiten =====
-  function subgoalForm(goal, sg, isNew) {
+  const DEP_LABELS = {
+    "ende-anfang": "Ende → Anfang (erst fertig, dann starten)",
+    "anfang-anfang": "Anfang → Anfang (gleichzeitig starten)",
+    "ende-ende": "Ende → Ende (gleichzeitig fertig)",
+    "anfang-ende": "Anfang → Ende (erst wenn A startet, darf B enden)",
+  };
+
+  function depsHtml(goal, sg, subs) {
+    const bau = CPM.cfg.bau;
+    const current = Object.fromEntries((sg.dependencies || []).map((d) => [d.fromId, d]));
+    // Nur Unterziele anbieten, die keinen Kreis bilden würden
+    const candidates = subs.filter((x) => x.id !== sg.id && !CPM.wouldCycle(goal, x.id, sg.id));
+    if (!candidates.length) return "";
+    const rows = candidates.map((x) => {
+      const d = current[x.id];
+      return `
+        <div class="dep-row">
+          <label class="dep-check"><input type="checkbox" name="dep" value="${esc(x.id)}" ${d ? "checked" : ""}><span>${esc(x.title)}</span></label>
+          ${bau ? `
+            <div class="dep-extra">
+              <select name="depType-${esc(x.id)}" aria-label="Art der Abhängigkeit">
+                ${Object.entries(DEP_LABELS).map(([v, l]) => `<option value="${v}" ${(d ? d.type : "ende-anfang") === v ? "selected" : ""}>${l}</option>`).join("")}
+              </select>
+              <span class="unit-input">Wartezeit <input type="number" name="depLag-${esc(x.id)}" step="0.5" inputmode="decimal" value="${d ? d.lagDays || 0 : 0}"> Tage</span>
+            </div>` : ""}
+        </div>`;
+    }).join("");
+    return `
+      <div class="form-group">
+        <div class="row row--stack">
+          <span>${bau ? "Abhängigkeiten" : "Startet erst, wenn fertig ist:"}</span>
+          <div class="dep-list">${rows}</div>
+        </div>
+        <p class="hint">${bau
+          ? "Baumanagement-Modus: Art der Abhängigkeit und Wartezeit wählbar. Negative Wartezeit = Überlappung (z. B. −2 = darf 2 Tage früher starten)."
+          : "Für den kritischen Pfad. Weitere Arten und Wartezeiten gibt es im Baumanagement-Modus (Einstellungen)."}</p>
+      </div>`;
+  }
+
+  function cpmHtml(res, sg) {
+    if (!res || res.cycle || !res.nodes[sg.id] || sg.done) return "";
+    const n = res.nodes[sg.id];
+    const d = (iso) => esc(S.parseDate(iso).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" }));
+    return `
+      <div class="form-group">
+        <div class="row row--stack">
+          <span>Kritischer Pfad ${n.critical ? '<b class="badge badge--crit">kritisch</b>' : ""}</span>
+          <dl class="cpm-values">
+            <dt>Dauer</dt><dd>${GoalMath.fmtDays(n.D)}</dd>
+            <dt>Frühester Anfang (FAZ)</dt><dd>${d(n.startDate)}</dd>
+            <dt>Frühestes Ende (FEZ)</dt><dd>${d(n.endDate)}</dd>
+            <dt>Spätester Anfang (SAZ)</dt><dd>${d(n.latestStart)}</dd>
+            <dt>Spätestes Ende (SEZ)</dt><dd>${d(n.latestEnd)}</dd>
+            <dt>Gesamtpuffer (GP)</dt><dd class="${n.TF < -0.05 ? "meta--warn" : ""}">${n.TF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.TF)}</dd>
+            <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.FF)}</dd>
+          </dl>
+        </div>
+        <p class="hint">Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.</p>
+      </div>`;
+  }
+
+  function subgoalForm(goal, sg, isNew, res = null) {
     const subs = [...goal.subgoals].sort((a, b) => a.order - b.order);
     const idx = subs.findIndex((x) => x.id === sg.id);
 
@@ -170,7 +235,9 @@ const Goals = (() => {
       <div class="form-group">
         <label class="row"><span>Zwischen-Deadline</span><input type="date" name="deadline" value="${esc(sg.deadline || "")}" max="${esc(goal.deadline || "")}"></label>
         <p class="hint">Optional. Spätestens die Deadline des Ziels (${esc(S.deadlineLabel(goal.deadline))}).</p>
-      </div>`,
+      </div>
+      ${depsHtml(goal, sg, subs)}
+      ${cpmHtml(res, sg)}`,
       isNew ? "" : `
         <button type="button" class="action" data-action="progress">Fortschritt eintragen</button>
         ${idx > 0 ? `<button type="button" class="action" data-action="up">In der Reihenfolge nach oben</button>` : ""}
@@ -201,6 +268,19 @@ const Goals = (() => {
       if (out.mode === "aufwand" && !(out.estimateHours > 0)) return fail("Gib einen Aufwand größer als 0 ein.", "estimateHours");
       if (out.mode === "dauer" && !(out.durationDays > 0)) return fail("Gib eine Dauer größer als 0 ein.", "durationDays");
       if (out.deadline && goal.deadline && out.deadline > goal.deadline) return fail("Die Zwischen-Deadline liegt nach der Deadline des Ziels.", "deadline");
+      // Abhängigkeiten auslesen (nur IDs, siehe CLAUDE.md)
+      const bau = CPM.cfg.bau;
+      const old = Object.fromEntries((sg.dependencies || []).map((d) => [d.fromId, d]));
+      out.dependencies = [...form.querySelectorAll('[name="dep"]:checked')].map((cb) => {
+        const id = cb.value;
+        const typeEl = form.elements["depType-" + id];
+        const lagEl = form.elements["depLag-" + id];
+        return {
+          fromId: id,
+          type: bau && typeEl ? typeEl.value : (old[id] ? old[id].type : "ende-anfang"),
+          lagDays: bau && lagEl ? (Number(lagEl.value) || 0) : (old[id] ? old[id].lagDays || 0 : 0),
+        };
+      });
       const list = isNew ? [...goal.subgoals, out] : goal.subgoals.map((x) => (x.id === out.id ? out : x));
       await saveGoal(list);
       Editor.close();
@@ -239,7 +319,9 @@ const Goals = (() => {
   async function editSubgoal(goalId, sgId) {
     const goal = await Store.get(goalId);
     const sg = goal && goal.subgoals.find((x) => x.id === sgId);
-    if (sg) subgoalForm(goal, sg, false);
+    if (!sg) return;
+    const res = CPM.computeGoal(goal, await Store.list());
+    subgoalForm(goal, sg, false, res);
   }
 
   // ===== Fortschritt eintragen: "Wie lange gearbeitet? Wie viel % geschafft?" =====
@@ -323,7 +405,13 @@ const ZieleView = (() => {
     return d === 1 ? "noch 1 Tag" : `noch ${d} Tage`;
   }
 
-  function card(g) {
+  function card(g, entries, cap) {
+    const res = CPM.computeGoal(g, entries, new Date(), cap);
+    const chip = res.cycle ? "" : {
+      hinterher: '<span class="badge badge--crit">hängt hinterher</span>',
+      knapp: '<span class="badge badge--warn">knapp</span>',
+      ok: '<span class="badge badge--ok">im Plan</span>',
+    }[res.status] || "";
     const p = GoalMath.progress(g);
     const subs = g.subgoals || [];
     const doneCount = subs.filter((x) => x.done).length;
@@ -332,7 +420,7 @@ const ZieleView = (() => {
     return `
       <a class="goal-card" href="#ziel/${encodeURIComponent(g.id)}" style="--c:${g.color}">
         <span class="goal-card__head">
-          <span class="goal-card__title">${esc(g.title)}</span>
+          <span class="goal-card__title">${esc(g.title)} ${chip}</span>
           <span class="goal-card__pct">${p} %</span>
         </span>
         <span class="progress"><span style="width:${p}%"></span></span>
@@ -345,7 +433,9 @@ const ZieleView = (() => {
   }
 
   async function render(container) {
-    const goals = (await Store.list(Model.TYPES.ZIEL))
+    const entries = await Store.list();
+    const cap = CPM.averageCapacity(entries);
+    const goals = entries.filter((e) => e.type === Model.TYPES.ZIEL)
       .filter((g) => !g.done)
       .sort((a, b) => String(a.deadline).localeCompare(String(b.deadline)) || b.priority - a.priority);
 
@@ -354,7 +444,7 @@ const ZieleView = (() => {
         <section class="empty">
           <p class="empty__title">Noch keine Ziele</p>
           <p class="empty__text">Ein Ziel ist ein größeres Vorhaben mit Deadline, z. B. eine Uni-Abgabe. Du teilst es in Unterziele auf und trägst deinen Fortschritt ein.</p>
-        </section>` : `<div class="goal-list">${goals.map(card).join("")}</div>`}
+        </section>` : `<div class="goal-list">${goals.map((g) => card(g, entries, cap)).join("")}</div>`}
       <button class="add-row" data-add><span class="add-row__plus">+</span> Neues Ziel</button>`;
     container.querySelector("[data-add]").addEventListener("click", Goals.newGoal);
   }
@@ -367,7 +457,11 @@ const ZielDetailView = (() => {
   const S = Schedule;
   const esc = (s) => Editor.esc(s);
 
-  function subRow(goal, sg, i, byId) {
+  // "Heute"/"Morgen" mitten im Satz klein schreiben
+  const inline = (lbl) => (lbl === "Heute" || lbl === "Morgen" ? lbl.toLowerCase() : lbl);
+
+  function subRow(goal, sg, i, byId, res) {
+    const n = res && !res.cycle ? res.nodes[sg.id] : null;
     const rest = sg.mode !== "dauer" ? Model.restzeitStunden(sg) : null;
     const overdue = !sg.done && sg.deadline && sg.deadline < S.isoDate(new Date());
     const waits = (sg.dependencies || []).map((d) => byId[d.fromId]).filter(Boolean).map((x) => x.title);
@@ -378,16 +472,46 @@ const ZielDetailView = (() => {
       GoalMath.workedHours(sg) ? `<span>${GoalMath.fmtHours(GoalMath.workedHours(sg))} gearbeitet</span>` : "",
       sg.deadline ? `<span class="${overdue ? "meta--warn" : ""}">${overdue ? "" : "bis "}${esc(S.deadlineLabel(sg.deadline))}</span>` : "",
       waits.length ? `<span>wartet auf: ${esc(waits.join(", "))}</span>` : "",
+      n && !sg.done ? `<span>fertig frühestens ${esc(inline(S.deadlineLabel(n.endDate)))}</span>` : "",
+      n && !sg.done ? (n.behind
+        ? `<span class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</span>`
+        : `<span>Puffer ${GoalMath.fmtDays(n.TF)}</span>`) : "",
     ].filter(Boolean).join("");
+    const badge = n && n.critical ? `<b class="badge badge--crit">kritisch</b>` : "";
     return `
       <li class="task ${sg.done ? "task--done" : ""}" style="--c:${goal.color}">
         <button class="task__check" data-progress="${esc(sg.id)}" aria-label="${esc(sg.title)}: Fortschritt eintragen"></button>
         <button class="task__body" data-sub="${esc(sg.id)}">
-          <span class="task__title"><span class="sub-num">${i + 1}.</span> ${esc(sg.title)}</span>
+          <span class="task__title"><span class="sub-num">${i + 1}.</span> ${esc(sg.title)} ${badge}</span>
           ${sg.done ? "" : `<span class="progress progress--small"><span style="width:${sg.progressPercent}%"></span></span>`}
           <span class="task__meta">${meta}</span>
         </button>
       </li>`;
+  }
+
+  // Einschätzung: "gut im Plan" / "knapp" / "hängt hinterher" + Tipps
+  function adviceHtml(goal, res, entries) {
+    if (res.cycle) return `<div class="advice advice--crit">Die Abhängigkeiten bilden einen Kreis. Bitte prüfe die Unterziele.</div>`;
+    const capTxt = GoalMath.fmtHours(res.cap);
+    const end = esc(inline(S.deadlineLabel(res.projectEndDate)));
+    if (res.status === "ok") {
+      return `<div class="advice advice--ok"><b>Du bist gut im Plan – weiter so!</b>
+        Mit Ø ${capTxt} freier Zeit pro Tag bist du voraussichtlich ${end} fertig. Puffer: ca. ${GoalMath.fmtDays(res.slack)}.
+        <small class="advice__calc">${GoalMath.fmtHours(res.neededHours)} Arbeit übrig · ${GoalMath.fmtHours(res.availableHours)} frei bis zur Deadline</small></div>`;
+    }
+    if (res.status === "knapp") {
+      return `<div class="advice advice--warn"><b>Es wird knapp.</b>
+        Voraussichtlich fertig ${end}, nur ca. ${GoalMath.fmtDays(Math.max(res.slack, 0))} Puffer. Bleib bei den kritischen Unterzielen dran.
+        <small class="advice__calc">${GoalMath.fmtHours(res.neededHours)} Arbeit übrig · ${GoalMath.fmtHours(res.availableHours)} frei bis zur Deadline</small></div>`;
+    }
+    const late = Math.max(-res.slack, 0);
+    const low = CPM.lowPriorityUntil(entries, goal.deadline).slice(0, 4);
+    return `<div class="advice advice--crit"><b>Du hängst hinterher.</b>
+      ${late > 0.05 ? `Mit Ø ${capTxt} freier Zeit pro Tag wirst du ca. ${GoalMath.fmtDays(late)} zu spät fertig.` : "Die Deadline ist erreicht oder überschritten."}
+      Investier mehr Zeit${low.length ? " oder lass etwas mit niedriger Priorität ausfallen:" : "."}
+      <small class="advice__calc">${GoalMath.fmtHours(res.neededHours)} Arbeit übrig · nur ${GoalMath.fmtHours(res.availableHours)} frei bis zur Deadline</small>
+      ${low.length ? `<ul class="advice__list">${low.map((e) => `<li><button class="link-btn" data-open="${esc(e.id)}" data-date="${esc(e.date)}">${esc(e.title)}</button> · ${esc(S.deadlineLabel(e.date))}${e.hours ? ` · ${GoalMath.fmtHours(e.hours)}` : ""}</li>`).join("")}</ul>` : ""}
+    </div>`;
   }
 
   async function render(container, { param, setTitle }) {
@@ -402,6 +526,8 @@ const ZielDetailView = (() => {
     const p = GoalMath.progress(goal);
     const rest = GoalMath.remainingHours(goal);
     const allDone = subs.length > 0 && subs.every((x) => x.done);
+    const entries = await Store.list();
+    const res = subs.length ? CPM.computeGoal(goal, entries) : null;
 
     container.innerHTML = `
       <a class="back-link" href="#ziele">‹ Ziele</a>
@@ -419,8 +545,9 @@ const ZielDetailView = (() => {
         <span class="progress"><span style="width:${p}%"></span></span>
       </section>
       ${allDone && !goal.done ? `<button class="banner-btn" data-finish>Alle Unterziele erledigt · Ziel abschließen</button>` : ""}
+      ${res && !allDone ? adviceHtml(goal, res, entries) : ""}
       <h3 class="list-group">Unterziele <span>${subs.length}</span></h3>
-      ${subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId)).join("")}</ul>` : `
+      ${subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId, res)).join("")}</ul>` : `
         <p class="plan-hint">Teile dein Ziel in Schritte auf, z. B. Grundriss, Lageplan, Details. Schätze für jeden den Aufwand.</p>`}
       <button class="add-row" data-add><span class="add-row__plus">+</span> Unterziel</button>
       <p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>`;
@@ -429,6 +556,7 @@ const ZielDetailView = (() => {
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));
     container.querySelectorAll("[data-progress]").forEach((b) => b.addEventListener("click", () => Goals.openProgress(goal.id, b.dataset.progress)));
     container.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => Goals.editSubgoal(goal.id, b.dataset.sub)));
+    container.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => Editor.edit(b.dataset.open, b.dataset.date)));
     const fin = container.querySelector("[data-finish]");
     if (fin) fin.addEventListener("click", async () => { await Tasks.toggleDone(goal.id); location.hash = "#ziele"; });
   }
