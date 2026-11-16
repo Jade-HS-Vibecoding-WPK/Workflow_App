@@ -92,6 +92,8 @@ function closeMenu() {
 }
 
 menuBtn.addEventListener("click", openMenu);
+// "+"-Knopf: neuen Eintrag für heute anlegen
+document.getElementById("add-btn").addEventListener("click", () => Editor.chooseNew(new Date()));
 document.getElementById("menu-close").addEventListener("click", closeMenu);
 backdrop.addEventListener("click", closeMenu);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });

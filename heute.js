@@ -55,7 +55,7 @@ const HeuteView = (() => {
     const left = `calc(${(b.col || 0) / cols} * (100% - 4px))`;
     const width = `calc(${1 / cols} * (100% - 4px) - 2px)`;
     const isTodo = b.kind === "aufgabe" || b.kind === "ziel";
-    const classes = ["block", b.option ? "block--option" : "", b.done ? "block--done" : "", short ? "block--short" : ""].join(" ");
+    const classes = ["block", b.option ? "block--option" : "", b.done ? "block--done" : "", b.cancelled ? "block--cancelled" : "", short ? "block--short" : ""].join(" ");
 
     // Puffer vor und nach dem Termin (blass angedeutet)
     let buffer = "";
@@ -74,7 +74,8 @@ const HeuteView = (() => {
     ].filter(Boolean).join(" · ");
 
     return buffer + `
-      <div class="${classes}" style="top:${top}px;height:${height}px;left:${left};width:${width};--c:${color}">
+      <div class="${classes}" style="top:${top}px;height:${height}px;left:${left};width:${width};--c:${color}"
+        data-id="${esc(b.id)}" role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}">
         ${isTodo ? '<span class="block__check" aria-hidden="true"></span>' : ""}
         <span class="block__text">
           <span class="block__title">${esc(b.title)}</span>
@@ -104,11 +105,11 @@ const HeuteView = (() => {
 
     const extras = [
       ...plan.notes.map((n) => `<div class="daynote">${esc(n.title)}</div>`),
-      ...plan.allDay.map((a) => `<div class="allday" style="--c:var(--cat-einmalig)">${esc(a.title)} <span>ganztägig</span></div>`),
+      ...plan.allDay.map((a) => `<div class="allday" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>ganztägig</span></div>`),
     ].join("");
 
     const emptyHint = entries.length === 0
-      ? `<p class="plan-hint">Noch keine Einträge. Termine kannst du ab Feature 4 über „+“ anlegen.</p>`
+      ? `<p class="plan-hint">Noch keine Einträge. Tippe oben auf „+“, um deinen ersten Termin anzulegen.</p>`
       : "";
 
     container.innerHTML = `
@@ -130,6 +131,17 @@ const HeuteView = (() => {
           <div class="now-line" id="now-line" style="top:${nowTop()}px"><span></span></div>
         </div>
       </section>`;
+
+    // Antippen eines Eintrags öffnet ihn zum Bearbeiten
+    const isoToday = Schedule.isoDate(today);
+    container.querySelectorAll(".block[data-id]").forEach((el) => {
+      const open = () => Editor.edit(el.dataset.id, isoToday);
+      el.addEventListener("click", open);
+      el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+    container.querySelectorAll(".allday[data-id]").forEach((el) => {
+      el.addEventListener("click", () => Editor.edit(el.dataset.id, isoToday));
+    });
 
     // Rote Linie jede Minute nachrücken
     clearInterval(nowTimer);

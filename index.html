@@ -29,9 +29,15 @@
       <div class="topbar__date" id="topbar-date"></div>
       <h1 class="topbar__title" id="topbar-title">Heute</h1>
     </div>
-    <button class="icon-btn" id="menu-open" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
+    <div class="topbar__actions">
+      <!-- "+": Neuen Eintrag anlegen -->
+      <button class="icon-btn" id="add-btn" aria-label="Neuen Eintrag anlegen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="icon-btn" id="menu-open" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
   </header>
 
   <!-- Hier zeigt die App die jeweils gewählte Ansicht an -->
@@ -95,6 +101,7 @@
   <script src="model.js"></script>
   <script src="store.js"></script>
   <script src="schedule.js"></script>
+  <script src="editor.js"></script>
   <script src="heute.js"></script>
   <script src="app.js"></script>
 </body>

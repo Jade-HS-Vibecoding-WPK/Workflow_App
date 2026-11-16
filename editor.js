@@ -1,0 +1,334 @@
+// ============================================================
+// Eintragen und Bearbeiten
+//
+// "+"-Knopf → Auswahl (Fester Termin / Einmaliger Termin …)
+// → Formular als Blatt, das von unten hochfährt.
+// Antippen eines Termins im Plan öffnet dasselbe Formular
+// zum Ändern, Absagen oder Löschen.
+// ============================================================
+
+const Editor = (() => {
+  const T = Model.TYPES;
+  const S = Schedule;
+  // Wochentage in deutscher Reihenfolge (0 = Sonntag wie in JavaScript)
+  const WD = [["Mo", 1], ["Di", 2], ["Mi", 3], ["Do", 4], ["Fr", 5], ["Sa", 6], ["So", 0]];
+  const WD_LONG = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+  const BUFFERS = [0, 5, 10, 15, 20, 30, 45, 60];
+
+  let layer = null;
+  let lastFocus = null;
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+  const fmtDate = (iso) => S.parseDate(iso).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" });
+
+  // ---------- Blatt öffnen / schließen ----------
+  function ensureLayer() {
+    if (layer) return layer;
+    layer = document.createElement("div");
+    layer.className = "sheet-layer";
+    layer.hidden = true;
+    document.body.appendChild(layer);
+    layer.addEventListener("click", (e) => { if (e.target === layer) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
+    return layer;
+  }
+
+  function show(html) {
+    ensureLayer();
+    lastFocus = document.activeElement;
+    layer.innerHTML = html;
+    layer.hidden = false;
+    document.body.classList.add("no-scroll");
+    const first = layer.querySelector("[autofocus]") || layer.querySelector("button, input");
+    if (first) first.focus({ preventScroll: true });
+  }
+
+  function close() {
+    if (!layer || layer.hidden) return;
+    layer.hidden = true;
+    layer.innerHTML = "";
+    document.body.classList.remove("no-scroll");
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  }
+
+  // Nächste volle Stunde als Startzeit vorschlagen
+  function defaultTimes() {
+    const h = Math.min(new Date().getHours() + 1, 22);
+    return { start: S.fromMin(h * 60), end: S.fromMin((h + 1) * 60) };
+  }
+
+  // ---------- 1. Auswahl: was soll angelegt werden? ----------
+  function chooseNew(date = new Date()) {
+    show(`
+      <div class="sheet sheet--small" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <div class="sheet__head">
+          <button class="link-btn" data-close>Abbrechen</button>
+          <h2 id="sheet-title">Neu</h2>
+          <span class="sheet__spacer"></span>
+        </div>
+        <div class="choice-list">
+          <button class="choice" data-new="${T.FEST}">
+            <span class="choice__dot" style="background:var(--cat-fest)"></span>
+            <span class="choice__text"><b>Fester Termin</b><small>wiederkehrend, z. B. Arbeit, Uni</small></span>
+          </button>
+          <button class="choice" data-new="${T.EINMALIG}">
+            <span class="choice__dot" style="background:var(--cat-einmalig)"></span>
+            <span class="choice__text"><b>Einmaliger Termin</b><small>z. B. Arzt, Verabredung, Urlaub</small></span>
+          </button>
+          <div class="choice choice--soon">
+            <span class="choice__dot" style="background:#ba7517"></span>
+            <span class="choice__text"><b>Aufgabe</b><small>kommt in Feature 5</small></span>
+          </div>
+          <div class="choice choice--soon">
+            <span class="choice__dot" style="background:#7f77dd"></span>
+            <span class="choice__text"><b>Ziel</b><small>kommt in Feature 6</small></span>
+          </div>
+        </div>
+      </div>`);
+
+    layer.querySelector("[data-close]").onclick = close;
+    layer.querySelectorAll("[data-new]").forEach((btn) => {
+      btn.onclick = () => {
+        const times = defaultTimes();
+        const entry = btn.dataset.new === T.FEST
+          ? Model.neuerFesterTermin({ ...times, recurrence: { ...Model.neuerFesterTermin().recurrence, weekdays: [date.getDay()] } })
+          : Model.neuerEinmaligerTermin({ ...times, date: S.isoDate(date) });
+        openForm(entry, { isNew: true, date: S.isoDate(date) });
+      };
+    });
+  }
+
+  // ---------- 2. Vorhandenen Eintrag bearbeiten ----------
+  async function edit(id, dateIso) {
+    const entry = await Store.get(id);
+    if (!entry) return;
+    if (entry.type !== T.FEST && entry.type !== T.EINMALIG) return; // andere Arten folgen in späteren Features
+    openForm(entry, { isNew: false, date: dateIso });
+  }
+
+  // ---------- Formular ----------
+  function openForm(entry, { isNew, date }) {
+    const isFest = entry.type === T.FEST;
+    const rec = entry.recurrence || {};
+    const label = isFest ? "Fester Termin" : "Einmaliger Termin";
+    const color = isFest ? "var(--cat-fest)" : "var(--cat-einmalig)";
+    const cancelled = isFest && date && (entry.exceptions || []).some((x) => x.date === date && x.status === "abgesagt");
+
+    const weekdayChips = WD.map(([short, n]) => `
+      <label class="chip"><input type="checkbox" name="wd" value="${n}" ${(rec.weekdays || []).includes(n) ? "checked" : ""}><span>${short}</span></label>`).join("");
+
+    const prio = [1, 2, 3, 4, 5].map((p) => `
+      <label class="seg"><input type="radio" name="priority" value="${p}" ${entry.priority === p ? "checked" : ""}><span>${p}</span></label>`).join("");
+
+    const repeatPart = isFest ? `
+      <div class="form-group">
+        <label class="row"><span>Wiederholung</span>
+          <select name="freq">
+            <option value="woechentlich" ${rec.freq === "woechentlich" ? "selected" : ""}>jede Woche</option>
+            <option value="zweiwoechentlich" ${rec.freq === "zweiwoechentlich" ? "selected" : ""}>alle 2 Wochen</option>
+            <option value="monatlich" ${rec.freq === "monatlich" ? "selected" : ""}>jeden Monat</option>
+          </select>
+        </label>
+        <div class="row row--stack" data-show="monthly">
+          <span>Monatlich am</span>
+          <div class="segmented">
+            <label class="seg"><input type="radio" name="monthlyMode" value="datum" ${rec.monthlyMode !== "wochentag" ? "checked" : ""}><span>Datum</span></label>
+            <label class="seg"><input type="radio" name="monthlyMode" value="wochentag" ${rec.monthlyMode === "wochentag" ? "checked" : ""}><span>Wochentag</span></label>
+          </div>
+        </div>
+        <label class="row" data-show="monthly-datum"><span>Jeden … des Monats</span>
+          <input type="number" name="dayOfMonth" min="1" max="31" inputmode="numeric" value="${esc(rec.dayOfMonth || S.parseDate(date).getDate())}">
+        </label>
+        <label class="row" data-show="monthly-wochentag"><span>Welche Woche</span>
+          <select name="nthWeek">
+            ${[[1, "1."], [2, "2."], [3, "3."], [4, "4."], [-1, "letzter"]].map(([v, t]) => `<option value="${v}" ${rec.nthWeek === v ? "selected" : ""}>${t}</option>`).join("")}
+          </select>
+        </label>
+        <div class="row row--stack" data-show="weekdays">
+          <span data-wd-label>Wochentage</span>
+          <div class="chips">${weekdayChips}</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="row"><span>Ab</span><input type="date" name="from" value="${esc(rec.from || "")}"></label>
+        <label class="row"><span>Bis</span><input type="date" name="until" value="${esc(rec.until || "")}"></label>
+        <p class="hint">Optional, z. B. bis Semesterende. Leer = unbegrenzt.</p>
+      </div>` : `
+      <div class="form-group">
+        <label class="row"><span>Datum</span><input type="date" name="date" value="${esc(entry.date || date || "")}" required></label>
+        <label class="row"><span>Ganztägig</span><input type="checkbox" name="allDay" class="switch" ${entry.allDay ? "checked" : ""}></label>
+        <label class="row" data-show="allday"><span>Bis</span><input type="date" name="endDate" value="${esc(entry.endDate || "")}"></label>
+      </div>`;
+
+    const actions = isNew ? "" : `
+      <div class="form-group form-actions">
+        ${isFest && date ? `<button type="button" class="action" data-action="toggle-cancel">${cancelled ? `Absage am ${fmtDate(date)} zurücknehmen` : `Nur am ${fmtDate(date)} absagen`}</button>` : ""}
+        <button type="button" class="action action--danger" data-action="delete">${isFest ? "Ganze Serie löschen" : "Termin löschen"}</button>
+      </div>`;
+
+    show(`
+      <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" novalidate>
+        <div class="sheet__head">
+          <button type="button" class="link-btn" data-close>Abbrechen</button>
+          <h2 id="sheet-title"><span class="choice__dot" style="background:${color}"></span>${isNew ? label : "Bearbeiten"}</h2>
+          <button type="submit" class="link-btn link-btn--strong">Sichern</button>
+        </div>
+        ${cancelled ? `<p class="notice">Am ${fmtDate(date)} abgesagt – das Zeitfenster ist frei.</p>` : ""}
+
+        <div class="form-group">
+          <input class="title-input" name="title" placeholder="Titel, z. B. ${isFest ? "Vorlesung Statik" : "Zahnarzt"}" value="${esc(entry.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
+          <input name="location" placeholder="Ort / Raum (optional)" value="${esc(entry.location)}" autocomplete="off">
+        </div>
+
+        ${repeatPart}
+
+        <div class="form-group" data-show="times">
+          <label class="row"><span>Beginn</span><input type="time" name="start" value="${esc(entry.start)}"></label>
+          <label class="row"><span>Ende</span><input type="time" name="end" value="${esc(entry.end)}"></label>
+          <label class="row"><span>Puffer davor/danach</span>
+            <select name="bufferMin">${BUFFERS.map((b) => `<option value="${b}" ${entry.bufferMin === b ? "selected" : ""}>${b ? b + " Min." : "keiner"}</option>`).join("")}</select>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <div class="row row--stack">
+            <span>Priorität <small class="muted">1 = darf am ehesten weichen · 5 = sehr wichtig</small></span>
+            <div class="segmented">${prio}</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <textarea name="notes" rows="3" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
+        </div>
+
+        <p class="form-error" role="alert" hidden></p>
+        ${actions}
+      </form>`);
+
+    const form = layer.querySelector("form");
+    const errorEl = form.querySelector(".form-error");
+
+    // Felder je nach Auswahl ein-/ausblenden
+    function updateVisibility() {
+      const v = (sel) => form.querySelector(sel);
+      const set = (key, on) => form.querySelectorAll(`[data-show="${key}"]`).forEach((el) => { el.hidden = !on; });
+      if (isFest) {
+        const freq = v('[name="freq"]').value;
+        const mode = v('[name="monthlyMode"]:checked').value;
+        const monthly = freq === "monatlich";
+        set("monthly", monthly);
+        set("monthly-datum", monthly && mode === "datum");
+        set("monthly-wochentag", monthly && mode === "wochentag");
+        set("weekdays", !monthly || mode === "wochentag");
+        form.querySelector("[data-wd-label]").textContent = monthly ? "Wochentag (einer)" : "Wochentage";
+        set("times", true);
+      } else {
+        const allDay = v('[name="allDay"]').checked;
+        set("allday", allDay);
+        set("times", !allDay);
+      }
+      errorEl.hidden = true;
+    }
+    form.addEventListener("change", updateVisibility);
+    updateVisibility();
+
+    // Beim monatlichen Wochentag darf nur EIN Tag gewählt sein
+    form.addEventListener("change", (e) => {
+      if (!isFest || e.target.name !== "wd" || !e.target.checked) return;
+      const monthly = form.querySelector('[name="freq"]').value === "monatlich";
+      if (monthly) form.querySelectorAll('[name="wd"]').forEach((cb) => { if (cb !== e.target) cb.checked = false; });
+    });
+
+    form.querySelector("[data-close]").onclick = close;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const result = readForm(form, entry, isFest);
+      if (result.error) {
+        errorEl.textContent = result.error;
+        errorEl.hidden = false;
+        if (result.field && form.elements[result.field]) form.elements[result.field].focus();
+        else errorEl.scrollIntoView({ block: "nearest" });
+        return;
+      }
+      try {
+        await Store.save(result.entry);
+        close();
+      } catch (err) {
+        errorEl.textContent = "Speichern hat nicht geklappt. Ist der Speicher des Browsers voll oder im privaten Modus?";
+        errorEl.hidden = false;
+      }
+    });
+
+    // Absagen / Löschen
+    form.querySelectorAll("[data-action]").forEach((btn) => {
+      btn.onclick = async () => {
+        if (btn.dataset.action === "delete") {
+          const q = isFest ? `„${entry.title}“ an allen Tagen löschen?` : `„${entry.title}“ löschen?`;
+          if (!confirm(q)) return;
+          await Store.remove(entry.id);
+          close();
+        }
+        if (btn.dataset.action === "toggle-cancel") {
+          const exceptions = (entry.exceptions || []).filter((x) => x.date !== date);
+          if (!cancelled) exceptions.push({ date, status: "abgesagt" });
+          await Store.save({ ...entry, exceptions });
+          close();
+        }
+      };
+    });
+  }
+
+  // Formular auslesen und prüfen
+  function readForm(form, entry, isFest) {
+    const val = (n) => (form.elements[n] ? form.elements[n].value.trim() : "");
+    const out = { ...entry };
+
+    out.title = val("title");
+    out.location = val("location");
+    out.notes = val("notes");
+    out.priority = Number((form.querySelector('[name="priority"]:checked') || {}).value || 3);
+    out.bufferMin = Number(val("bufferMin") || 0);
+    out.start = val("start");
+    out.end = val("end");
+
+    if (!out.title) return { error: "Bitte gib einen Titel ein.", field: "title" };
+
+    if (isFest) {
+      const freq = val("freq");
+      const monthlyMode = (form.querySelector('[name="monthlyMode"]:checked') || {}).value || "datum";
+      const weekdays = [...form.querySelectorAll('[name="wd"]:checked')].map((cb) => Number(cb.value));
+      out.recurrence = {
+        ...entry.recurrence,
+        freq,
+        weekdays,
+        monthlyMode,
+        dayOfMonth: Number(val("dayOfMonth")) || null,
+        nthWeek: Number(val("nthWeek")) || null,
+        from: val("from") || null,
+        until: val("until") || null,
+      };
+      if (freq !== "monatlich" && weekdays.length === 0) return { error: "Wähle mindestens einen Wochentag." };
+      if (freq === "monatlich" && monthlyMode === "wochentag" && weekdays.length !== 1) return { error: "Wähle genau einen Wochentag." };
+      if (freq === "monatlich" && monthlyMode === "datum" && !(out.recurrence.dayOfMonth >= 1 && out.recurrence.dayOfMonth <= 31)) return { error: "Gib einen Tag zwischen 1 und 31 ein." };
+      if (out.recurrence.from && out.recurrence.until && out.recurrence.until < out.recurrence.from) return { error: "„Bis“ liegt vor „Ab“." };
+    } else {
+      out.date = val("date") || null;
+      out.allDay = form.elements.allDay.checked;
+      out.endDate = out.allDay ? (val("endDate") || null) : null;
+      if (!out.date) return { error: "Bitte wähle ein Datum." };
+      if (out.endDate && out.endDate < out.date) return { error: "Das Enddatum liegt vor dem Startdatum." };
+    }
+
+    const needsTimes = isFest || !out.allDay;
+    if (needsTimes) {
+      if (!out.start || !out.end) return { error: "Bitte gib Beginn und Ende ein." };
+      if (S.toMin(out.end) <= S.toMin(out.start)) return { error: "Das Ende muss nach dem Beginn liegen." };
+    }
+    return { entry: out };
+  }
+
+  return { chooseNew, edit, close };
+})();

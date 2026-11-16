@@ -80,8 +80,12 @@ const Schedule = (() => {
         case T.FEST: {
           if (!recursOn(e.recurrence, date, (e.createdAt || iso).slice(0, 10))) break;
           const ex = (e.exceptions || []).find((x) => x.date === iso);
-          if (ex && ex.status === "abgesagt") break; // fällt heute aus → Zeit ist frei
-          timed.push(block(e, "fest", e.start, e.end, { sub: e.location, buffer: e.bufferMin }));
+          // Fällt heute aus → Zeit ist frei. Wird nur noch blass angezeigt,
+          // damit man die Absage wieder zurücknehmen kann.
+          const cancelled = !!(ex && ex.status === "abgesagt");
+          timed.push(block(e, "fest", e.start, e.end, {
+            sub: cancelled ? "abgesagt" : e.location, buffer: cancelled ? 0 : e.bufferMin, cancelled,
+          }));
           break;
         }
         case T.EINMALIG: {
@@ -135,7 +139,7 @@ const Schedule = (() => {
     if (endMin <= startMin) endMin = startMin + 30; // Sicherheit bei falscher Eingabe
     return {
       id: e.id, kind, title: e.title, sub: "", priority: e.priority,
-      start, end, startMin, endMin, buffer: 0, color: null, option: false, done: false,
+      start, end, startMin, endMin, buffer: 0, color: null, option: false, done: false, cancelled: false,
       ...extra,
     };
   }
@@ -170,7 +174,7 @@ const Schedule = (() => {
     }
 
     return {
-      today: plan.timed.filter((b) => b.kind !== "sperr").length + plan.allDay.length,
+      today: plan.timed.filter((b) => b.kind !== "sperr" && !b.cancelled).length + plan.allDay.length,
       dueThisWeek,
       open,
       behind,
