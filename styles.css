@@ -18,6 +18,7 @@
   --cat-einmalig: #1d9e75;  /* einmalige Termine */
   --cat-sperr: #8e8e93;     /* Sperrzeiten */
   --warn: #d85a30;          /* "Hängt hinterher" */
+  --holiday: #e24b4a;       /* Feiertage (Daten von außen) */
 
   --radius: 12px;
   --tabbar-h: 56px;
@@ -867,3 +868,15 @@ body.no-scroll { overflow: hidden; }
 .wl-row--due .task__check { margin-top: 0; }
 .wl-flag { flex: none; width: 24px; text-align: center; color: var(--c); }
 .wl-empty { margin: 0; padding: 4px 4px 0; color: var(--text-3); font-size: 0.9rem; }
+
+/* ============================================================
+   Feiertage und Einstellungen
+   ============================================================ */
+.allday--holiday { font-weight: 600; }
+.wtag--holiday { --c: var(--holiday); cursor: default; font-weight: 600; }
+.whead--holiday span { color: var(--holiday); }
+.wl-row--holiday { cursor: default; }
+.wl-row--holiday .wl-time { color: var(--holiday); font-weight: 600; }
+.settings .row > span { flex: 1; }
+.settings .row--stack { gap: 4px; }
+.settings .link-btn { align-self: flex-start; }

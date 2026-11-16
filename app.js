@@ -41,6 +41,7 @@ const RENDERERS = {
   aufgaben: AufgabenView,
   erledigt: ErledigtView,
   woche: WocheView,
+  einstellungen: EinstellungenView,
   ziele: ZieleView,
   ziel: ZielDetailView,
 };
@@ -131,6 +132,8 @@ Store.subscribe(() => render());
 render();
 // Alte Einträge im Ordner "Erledigt" (älter als 6 Monate) aufräumen
 ErledigtView.cleanup();
+// Daten von außen: Feiertage laden (im Hintergrund, mit Zwischenspeicher)
+Holidays.refresh();
 
 // ---------- Offline-Speicher (Service Worker) ----------
 // Sorgt dafür, dass die App installierbar ist und auch ohne Internet startet.

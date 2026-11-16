@@ -105,7 +105,9 @@ const HeuteView = (() => {
 
     const extras = [
       ...plan.notes.map((n) => `<div class="daynote">${esc(n.title)}</div>`),
-      ...plan.allDay.map((a) => `<div class="allday" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>ganztägig</span></div>`),
+      ...plan.allDay.map((a) => a.kind === "feiertag"
+        ? `<div class="allday allday--holiday" style="--c:var(--holiday)">${esc(a.title)} <span>Feiertag</span></div>`
+        : `<div class="allday" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>ganztägig</span></div>`),
     ].join("");
 
     const emptyHint = entries.length === 0

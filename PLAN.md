@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 7 ist fertig (Woche). **Als Nächstes: Feature 8: Feiertage laden** (Daten von außen, Kursthema Mittwoch). Danach Feature 9: Abhängigkeiten + kritischer Pfad.
+Feature 8 ist fertig (Feiertage = Daten von außen). **Alle Must-Punkte sind erledigt.** **Als Nächstes: Feature 9: Abhängigkeiten zwischen Unterzielen + kritischer Pfad + „Hängt hinterher“** (Should, das Highlight).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -24,7 +24,8 @@ Feature 7 ist fertig (Woche). **Als Nächstes: Feature 8: Feiertage laden** (Dat
 - ✅ Feature 5: Aufgaben: Liste wie Erinnerungen (Abhak-Kreise in Aufgabenfarbe), Gruppen nach Deadline (Überfällig/Heute/Diese Woche/Später/Ohne), Sortierung umschaltbar (Deadline/Priorität/Farbe, wird gemerkt). Formular: Titel, Notiz, optionale Deadline, Wiederholung (einmalig/wöchentlich/alle 2 Wochen/monatlich, abgeleitet aus der Deadline), Dauer, Priorität, 8 Farben. Abhaken mit „Rückgängig“; wiederkehrende Aufgaben rücken auf den nächsten Termin. Ordner „Erledigt“ mit Wiederherstellen, automatisches Löschen nach 6 Monaten.
 - ✅ Feature 6: Ziele: Liste mit Fortschrittsbalken, Deadline, „noch X Tage“, Unterziel-Zähler und Restarbeit. Detailseite (#ziel/<id>) mit Kennzahlen, Unterzielen in Reihenfolge (nach oben/unten verschiebbar), Aufwand (Std.) oder Dauer (Tage), Zwischen-Deadline (geprüft gegen Ziel-Deadline). Kreis antippen = Fortschritt eintragen (Std. heute + % gesamt, Live-Vorschau der Restzeit); 100 % = erledigt. Gesamtfortschritt gewichtet (Dauer: 1 Tag ≈ 8 Std.). „Ziel abschließen“ → Ordner Erledigt. Anzeige „wartet auf: …“ ist vorbereitet (Abhängigkeiten anlegen kommt in Feature 9).
 - ✅ Feature 7: Woche: umschaltbar **Stundenplan** (7 Spalten, Stundenraster, KW-Anzeige, vor/zurück blättern, heute rot markiert, Jetzt-Linie, Sperrzeiten schraffiert, ganztägige Termine und Tagesnotizen als Streifen oben, Kopfzeile bleibt beim Scrollen stehen) und **Liste** zum Abarbeiten (pro Tag, inkl. fälliger Aufgaben zum Abhaken und Ziel-Deadlines). Leere Stelle antippen = neuer Termin an diesem Tag/zu dieser Uhrzeit. Auswahl wird gemerkt.
-- ⏳ Feature 8: Feiertage laden
+- ✅ Feature 8: Feiertage (Daten von außen): Quelle Nager.Date (date.nager.at, kostenlos, ohne Key, nur Jahr + Land werden abgefragt). Lädt aktuelles + nächstes Jahr im Hintergrund, Zwischenspeicher über `Store` (max. alle 30 Tage neu), funktioniert offline mit letztem Stand. Anzeige: Heute (oben), Woche (Kopf rot, Streifen, Liste). Einstellungen: Bundesland (Standard Niedersachsen), „Feste Termine fallen an Feiertagen aus“ (Standard aus), Jetzt neu laden, nächste Feiertage.
+- ⏳ Feature 9: Abhängigkeiten + kritischer Pfad
 
 ## Entscheidungen
 
@@ -147,8 +148,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 8: Feiertage laden (Daten von außen)
-2. Feature 9: Abhängigkeiten + kritischer Pfad + „Hängt hinterher“
+1. Feature 9: Abhängigkeiten + kritischer Pfad + „Hängt hinterher“
+2. Feature 10: Test auf dem Handy, Fehler beheben, README
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -160,7 +161,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Priorität (5 Stufen) und Kategorie-Farben
 - [x] Heute-Ansicht (Kacheln + Tagesplan) ✅, Woche als Stundenplan ✅, Ziele-Liste, Aufgaben-Liste, Leiste unten
 - [x] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
-- [ ] Daten von außen: Feiertage automatisch laden
+- [x] Daten von außen: Feiertage automatisch laden
 
 **Should: das Highlight, wenn der Kern steht**
 - [ ] Abhängigkeiten „Ende → Anfang“ + Berechnung des kritischen Pfads, Kennzeichnung im Plan

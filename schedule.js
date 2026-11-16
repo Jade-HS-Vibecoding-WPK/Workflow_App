@@ -75,6 +75,10 @@ const Schedule = (() => {
     const notes = [];
     const goalsById = {};
 
+    // Feiertag (Daten von außen, siehe feiertage.js)
+    const holiday = typeof Holidays !== "undefined" ? Holidays.on(iso) : null;
+    if (holiday) allDay.push({ id: null, kind: "feiertag", title: holiday });
+
     for (const e of entries) {
       switch (e.type) {
         case T.FEST: {
@@ -82,9 +86,11 @@ const Schedule = (() => {
           const ex = (e.exceptions || []).find((x) => x.date === iso);
           // Fällt heute aus → Zeit ist frei. Wird nur noch blass angezeigt,
           // damit man die Absage wieder zurücknehmen kann.
-          const cancelled = !!(ex && ex.status === "abgesagt");
+          // Einstellung: feste Termine fallen an Feiertagen automatisch aus
+          const byHoliday = !!(holiday && Holidays.skipFixed);
+          const cancelled = !!(ex && ex.status === "abgesagt") || byHoliday;
           timed.push(block(e, "fest", e.start, e.end, {
-            sub: cancelled ? "abgesagt" : e.location, buffer: cancelled ? 0 : e.bufferMin, cancelled,
+            sub: byHoliday ? "Feiertag" : cancelled ? "abgesagt" : e.location, buffer: cancelled ? 0 : e.bufferMin, cancelled,
           }));
           break;
         }
@@ -174,7 +180,7 @@ const Schedule = (() => {
     }
 
     return {
-      today: plan.timed.filter((b) => b.kind !== "sperr" && !b.cancelled).length + plan.allDay.length,
+      today: plan.timed.filter((b) => b.kind !== "sperr" && !b.cancelled).length + plan.allDay.filter((a) => a.kind !== "feiertag").length,
       dueThisWeek,
       open,
       behind,

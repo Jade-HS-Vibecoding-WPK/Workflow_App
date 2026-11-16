@@ -74,7 +74,9 @@ const WocheView = (() => {
     const cells = days.map((d) => {
       const plan = S.dayPlan(entries, d);
       const items = [
-        ...plan.allDay.map((a) => `<span class="wtag" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(a.title)}</span>`),
+        ...plan.allDay.map((a) => a.kind === "feiertag"
+          ? `<span class="wtag wtag--holiday" title="${esc(a.title)}">${esc(a.title)}</span>`
+          : `<span class="wtag" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(a.title)}</span>`),
         ...plan.notes.map((n) => `<span class="wtag wtag--note">${esc(n.title)}</span>`),
       ];
       return `<div class="wtop">${items.join("")}</div>`;
@@ -92,6 +94,10 @@ const WocheView = (() => {
       const plan = S.dayPlan(entries, d);
       const rows = [];
       for (const a of plan.allDay) {
+        if (a.kind === "feiertag") {
+          rows.push(`<li class="wl-row wl-row--holiday" style="--c:var(--holiday)"><span class="wl-time">Feiertag</span><span class="wl-title">${esc(a.title)}</span></li>`);
+          continue;
+        }
         rows.push(`<li class="wl-row" data-id="${esc(a.id)}" data-date="${iso}" role="button" tabindex="0" style="--c:var(--cat-einmalig)">
           <span class="wl-time">ganztägig</span><span class="wl-title">${esc(a.title)}</span></li>`);
       }
@@ -134,7 +140,8 @@ const WocheView = (() => {
 
     const dayHead = days.map((d) => {
       const iso = S.isoDate(d);
-      return `<div class="whead ${iso === todayIso ? "whead--today" : ""}"><span>${WD_SHORT[d.getDay()]}</span><b>${d.getDate()}</b></div>`;
+      const hol = typeof Holidays !== "undefined" && Holidays.on(iso);
+      return `<div class="whead ${iso === todayIso ? "whead--today" : ""} ${hol ? "whead--holiday" : ""}" ${hol ? `title="${esc(hol)}"` : ""}><span>${WD_SHORT[d.getDay()]}</span><b>${d.getDate()}</b></div>`;
     }).join("");
 
     container.innerHTML = `
