@@ -10,10 +10,9 @@ Alle Kategorien sind geklärt. Als Nächstes kommen die **Ansichten** (Tag, Woch
 - ✅ GitHub-Repo verbunden, `CLAUDE.md` und `PLAN.md` angelegt
 - ✅ Feste wiederkehrende Termine grundsätzlich geklärt (siehe „Entscheidungen“)
 - ✅ Sperrzeiten geklärt
-- ✅ Einmalige Termine grundsätzlich geklärt (Details später), Kategorien-Überblick steht
 - ✅ Aufgaben komplett geklärt
 - ✅ Ziele inklusive kritischem Pfad geklärt
-- ✅ Einmalige Termine komplett geklärt
+- ✅ Einmalige Termine komplett geklärt, Kategorien-Überblick steht
 - ⏳ Ansichten festlegen, danach MoSCoW
 
 ## Entscheidungen
