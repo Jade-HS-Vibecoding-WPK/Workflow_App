@@ -8,8 +8,8 @@
 - ✅ Feste wiederkehrende Termine grundsätzlich geklärt (siehe „Entscheidungen“)
 - ✅ Sperrzeiten geklärt
 - ✅ Einmalige Termine grundsätzlich geklärt (Details später), Kategorien-Überblick steht
-- ✅ Aufgaben und Ziele grundsätzlich geklärt
-- ⏳ Letzte Detailfragen zu Aufgaben und Zielen
+- ✅ Aufgaben komplett geklärt
+- ⏳ Ziele: eine weitere Funktion kommt noch dazu
 
 ## Entscheidungen
 
@@ -50,7 +50,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - **Geschätzte Dauer**, z. B. 30 Min., damit der Vorschlag in die passende Lücke kommt.
 - **Die App plant selbst ein, aber ich bestätige am Ende.** Nichts landet ohne Bestätigung fest im Plan.
 - **Aufteilen:** Große Aufgaben, die sich über längere Zeit ziehen, können auf mehrere Blöcke verteilt werden.
-- **Wiederkehrende Aufgaben** gibt es auch, z. B. „jeden Sonntag Wäsche“.
+- **Wiederholung:** einmalig (Standard), wöchentlich, alle 2 Wochen oder monatlich (Datum oder Wochentag), z. B. „jeden Sonntag Wäsche“.
+- **Nach dem Bestätigen** wird die Option zu einem **festen Block**. Man kann sie aber auch als Vorschlag (Option) stehen lassen.
 - Ein Vorschlag erscheint als **„Option“ in einer eigenen Farbe** im Kalender, nicht als fester Block. Am **Tag vorher** erinnert die App daran („Mach das doch morgen um …“). Diese Woche passiert das nur als Hinweis in der App, echte Push-Nachrichten bräuchten einen Server.
 
 ### Ziele
@@ -60,6 +61,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
   - **geschätzter Zeitaufwand**, z. B. 10 Std.
   - **Fortschritt eintragen:** gearbeitete Zeit + Prozent, z. B. „heute 2 Std., 20 % geschafft“
 - Daraus **schätzt die App die Restzeit neu**, z. B. 2 Std. = 20 % → noch ca. 8 Std. Sie schlägt vor, **wann** man daran arbeiten soll, damit die Deadline klappt.
+- **Zwischen-Deadlines:** Jedes Unterziel kann eine eigene Deadline haben, z. B. „Grundriss bis 01.12., ganze Abgabe bis 15.12.“
 - **Reihenfolge** der Unterziele: kann man festlegen und ändern, oder man sagt einfach „alle bis Datum X fertig“.
 - **Warnung**, wenn die freie Zeit bis zur Deadline nicht reicht, z. B. „Du brauchst noch 12 Std., hast aber nur 8 Std. frei.“
 - **Allgemeine Einschätzung** zum Stand, z. B. „Du bist gut im Plan, weiter so!“ oder „Du hängst hinterher, investier mehr Zeit und lass etwas anderes ausfallen.“
@@ -72,7 +74,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Detailfragen zu Aufgaben und Zielen klären
+1. Weitere Funktion für Ziele besprechen
 2. Details der einmaligen Termine besprechen
 3. Ansichten (Tag, Woche, Aufgabenliste, „Heute“) und Kernfunktionen festlegen
 4. MoSCoW-Liste unten füllen
@@ -106,12 +108,13 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Aufgaben: Deadline, Dauer, Vorschlag → siehe „Aufgaben“
 - [x] Ziele: Reihenfolge, Warnung → siehe „Ziele“
 - [x] Erledigtes → Ordner „Erledigt“, Löschen nach 6 Monaten
-- [ ] Ziele: eigene Zwischen-Deadlines für Unterziele?
+- [x] Ziele: eigene Zwischen-Deadlines für Unterziele? → ja
+- [ ] Ziele: weitere Funktion, die du noch beschreiben willst
 - [x] Wiederkehrende Aufgaben nötig? → ja
 - [x] Einplanen automatisch oder per Hand? → die App plant, ich bestätige
 - [x] Aufgaben aufteilen? → ja
-- [ ] Was passiert mit einer Option nach der Bestätigung: wird sie zum festen Block?
-- [ ] Wiederkehrende Aufgaben: dieselben Wiederholungsarten wie bei festen Terminen?
+- [x] Option nach der Bestätigung → wird zum festen Block, kann aber auch Vorschlag bleiben
+- [x] Wiederholung bei Aufgaben → einmalig, wöchentlich, alle 2 Wochen, monatlich
 
 ## Ausblick Version 2
 Kollaboration mit Freigabe-Stufen (voller Zugriff, Projekt-Freigabe, evtl. nur frei/belegt). Dafür nötig: ein Backend (z. B. Supabase oder Firebase), Login und Synchronisation. Mehr dazu in `docs/Grundlagen.md`, Abschnitt 5.
