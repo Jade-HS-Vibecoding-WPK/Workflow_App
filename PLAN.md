@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-Feature 6 ist fertig (Ziele + Unterziele + Fortschritt). **Als Nächstes: Feature 7: Woche als Stundenplan** (7 Spalten). Danach Feature 8 (Feiertage laden) und Feature 9 (Abhängigkeiten + kritischer Pfad).
+Feature 7 ist fertig (Woche). **Als Nächstes: Feature 8: Feiertage laden** (Daten von außen, Kursthema Mittwoch). Danach Feature 9: Abhängigkeiten + kritischer Pfad.
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -23,7 +23,8 @@ Feature 6 ist fertig (Ziele + Unterziele + Fortschritt). **Als Nächstes: Featur
 - ✅ Feature 4: Termine anlegen: „+“-Knopf → Auswahl → Formular (Blatt von unten). Feste Termine mit Wochentagen, jede Woche / alle 2 Wochen / monatlich (Datum oder Wochentag), Zeitraum ab/bis. Einmalige Termine mit Datum, ganztägig/mehrtägig. Beginn, Ende, Ort, Puffer, Priorität 1–5, Notiz. Prüfung der Eingaben. Antippen im Plan öffnet zum Bearbeiten; „Nur heute absagen“ (bleibt blass sichtbar, Zeit ist frei) und Löschen.
 - ✅ Feature 5: Aufgaben: Liste wie Erinnerungen (Abhak-Kreise in Aufgabenfarbe), Gruppen nach Deadline (Überfällig/Heute/Diese Woche/Später/Ohne), Sortierung umschaltbar (Deadline/Priorität/Farbe, wird gemerkt). Formular: Titel, Notiz, optionale Deadline, Wiederholung (einmalig/wöchentlich/alle 2 Wochen/monatlich, abgeleitet aus der Deadline), Dauer, Priorität, 8 Farben. Abhaken mit „Rückgängig“; wiederkehrende Aufgaben rücken auf den nächsten Termin. Ordner „Erledigt“ mit Wiederherstellen, automatisches Löschen nach 6 Monaten.
 - ✅ Feature 6: Ziele: Liste mit Fortschrittsbalken, Deadline, „noch X Tage“, Unterziel-Zähler und Restarbeit. Detailseite (#ziel/<id>) mit Kennzahlen, Unterzielen in Reihenfolge (nach oben/unten verschiebbar), Aufwand (Std.) oder Dauer (Tage), Zwischen-Deadline (geprüft gegen Ziel-Deadline). Kreis antippen = Fortschritt eintragen (Std. heute + % gesamt, Live-Vorschau der Restzeit); 100 % = erledigt. Gesamtfortschritt gewichtet (Dauer: 1 Tag ≈ 8 Std.). „Ziel abschließen“ → Ordner Erledigt. Anzeige „wartet auf: …“ ist vorbereitet (Abhängigkeiten anlegen kommt in Feature 9).
-- ⏳ Feature 7: Woche als Stundenplan
+- ✅ Feature 7: Woche: umschaltbar **Stundenplan** (7 Spalten, Stundenraster, KW-Anzeige, vor/zurück blättern, heute rot markiert, Jetzt-Linie, Sperrzeiten schraffiert, ganztägige Termine und Tagesnotizen als Streifen oben, Kopfzeile bleibt beim Scrollen stehen) und **Liste** zum Abarbeiten (pro Tag, inkl. fälliger Aufgaben zum Abhaken und Ziel-Deadlines). Leere Stelle antippen = neuer Termin an diesem Tag/zu dieser Uhrzeit. Auswahl wird gemerkt.
+- ⏳ Feature 8: Feiertage laden
 
 ## Entscheidungen
 
@@ -146,8 +147,8 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - Ich arbeite **allein** an dem Projekt.
 
 ## Nächste Schritte
-1. Feature 7: Woche als Stundenplan
-2. Feature 8: Feiertage laden (Daten von außen)
+1. Feature 8: Feiertage laden (Daten von außen)
+2. Feature 9: Abhängigkeiten + kritischer Pfad + „Hängt hinterher“
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -157,7 +158,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Speicher-Baustein (lokal) + Datenmodell mit IDs, Besitzer, versteckten V2-Feldern
 - [~] Anlegen/Bearbeiten/Löschen: feste Termine ✅, einmalige Termine ✅, Aufgaben ✅, Ziele mit Unterzielen ✅
 - [x] Priorität (5 Stufen) und Kategorie-Farben
-- [~] Heute-Ansicht (Kacheln + Tagesplan) ✅, Woche als Stundenplan, Ziele-Liste, Aufgaben-Liste, Leiste unten
+- [x] Heute-Ansicht (Kacheln + Tagesplan) ✅, Woche als Stundenplan ✅, Ziele-Liste, Aufgaben-Liste, Leiste unten
 - [x] Abhaken; bei Zielen Abfrage „Std. + %“ → Restzeit-Schätzung
 - [ ] Daten von außen: Feiertage automatisch laden
 
@@ -173,7 +174,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [ ] Netzplan-Ansicht und Balkenplan
 - [ ] Weitere Abhängigkeitsarten, Wartezeiten (auch negativ), Baumanagement-Modus, Dauer in Tagen
 - [ ] Automatisches Umplanen des ganzen Plans nach CPM
-- [ ] Aufgaben aufteilen, Woche als Abarbeitungsliste, Monatskalender
+- [ ] Aufgaben aufteilen, Woche als Abarbeitungsliste ✅, Monatskalender
 - [ ] Tagesnotizen, ganztägige Termine ✅, Schriftgröße, umschaltbare Sortierung ✅, Einschätzungstexte, Löschen nach 6 Monaten ✅
 
 **Won't (diese Woche):** Accounts, Server, Zusammenarbeit, Push-Nachrichten. Diese Punkte stehen auf dem Poster unter „Ausblick“.

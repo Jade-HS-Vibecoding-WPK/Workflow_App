@@ -54,13 +54,14 @@ const Editor = (() => {
   }
 
   // Nächste volle Stunde als Startzeit vorschlagen
-  function defaultTimes() {
+  function defaultTimes(startMin) {
+    if (startMin != null) return { start: S.fromMin(startMin), end: S.fromMin(Math.min(startMin + 60, 23 * 60 + 59)) };
     const h = Math.min(new Date().getHours() + 1, 22);
     return { start: S.fromMin(h * 60), end: S.fromMin((h + 1) * 60) };
   }
 
   // ---------- 1. Auswahl: was soll angelegt werden? ----------
-  function chooseNew(date = new Date()) {
+  function chooseNew(date = new Date(), startMin = null) {
     show(`
       <div class="sheet sheet--small" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
         <div class="sheet__head">
@@ -99,7 +100,7 @@ const Editor = (() => {
           openTaskForm(Model.neueAufgabe(), { isNew: true });
           return;
         }
-        const times = defaultTimes();
+        const times = defaultTimes(startMin);
         const entry = btn.dataset.new === T.FEST
           ? Model.neuerFesterTermin({ ...times, recurrence: { ...Model.neuerFesterTermin().recurrence, weekdays: [date.getDay()] } })
           : Model.neuerEinmaligerTermin({ ...times, date: S.isoDate(date) });

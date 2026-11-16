@@ -40,6 +40,7 @@ const RENDERERS = {
   heute: HeuteView,
   aufgaben: AufgabenView,
   erledigt: ErledigtView,
+  woche: WocheView,
   ziele: ZieleView,
   ziel: ZielDetailView,
 };
@@ -116,6 +117,12 @@ document.getElementById("add-btn").addEventListener("click", () => {
 document.getElementById("menu-close").addEventListener("click", closeMenu);
 backdrop.addEventListener("click", closeMenu);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
+
+// Höhe der Kopfzeile merken (für Leisten, die darunter kleben bleiben)
+const topbarEl = document.querySelector(".topbar");
+const setTopbarHeight = () => document.documentElement.style.setProperty("--topbar-h", topbarEl.offsetHeight + "px");
+window.addEventListener("resize", setTopbarHeight);
+setTopbarHeight();
 
 // ---------- Start ----------
 window.addEventListener("hashchange", render);
