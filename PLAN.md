@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mo 16.11.2026*
 
 ## Hier weitermachen
-README ist geschrieben. **Offen: Niklas testet die App auf dem Handy** (Checkliste im Chat), gefundene Fehler beheben. Danach Freeze (Do 12 Uhr) und Poster. Falls Zeit bleibt (Should): Vorschläge in freie Zeit, Sperrzeiten verwalten, Daten sichern/wiederherstellen.
+Handy-Test durch Niklas: läuft. **Niklas hat noch Änderungs- und Erweiterungswünsche** – als Nächstes besprechen und einplanen (Freeze Do 12 Uhr beachten).
 
 ## Wo stehen wir?
 - ✅ Idee, Rahmen und Technik-Entscheidung (PWA) stehen, Details in `docs/Grundlagen.md`
@@ -34,7 +34,8 @@ README ist geschrieben. **Offen: Niklas testet die App auf dem Handy** (Checklis
   - **Baumanagement-Modus** (Einstellungen): Abhängigkeitsart + Wartezeit wählbar, sonst nur „startet nach“.
   - Hinweis: Die Puffer je Unterziel sind klassischer CPM (ohne Allein-Prüfung); der Gesamtstatus berücksichtigt beides.
 - ✅ README für die Abgabe (Funktionen, CPM-Erklärung, Bedienung, Datenschutz, Technik, Quellen/Lizenzen, KI-Nutzung, Ausblick)
-- ⏳ Feature 10: Test auf dem Handy
+- ✅ Feature 10: Test auf dem Handy (Niklas, Mo 16.11.): alles läuft
+- ⏳ Änderungswünsche von Niklas
 
 ## Entscheidungen
 
