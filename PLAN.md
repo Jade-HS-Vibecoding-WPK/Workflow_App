@@ -85,7 +85,9 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - **Schalter „Auch im Wochenplan anzeigen“** bei Baustellen-Terminen (Standard aus): nur dann erscheint der Termin privat (gekennzeichnet „Baustelle“) und blockiert die Zeit; der Planer weicht ihm aus.
   - **B8 Vorlagen**: „Aus Vorlage …“ in der Ziel-/Projektliste: **Einfamilienhaus – Bauablauf** (21 Vorgänge, Gewerke, Aushärten Bodenplatte +7 Tage, Estrich trocknen +21 Tage, Überlappung SHK/Elektro) bzw. **Uni-Abgabe (Architektur)**. Vor dem Anlegen: Titel, Baubeginn (Vorschlag nächster Montag), Fertigstellung (Vorschlag: frühestes Ende + Puffer). Danach alles frei änderbar. **Eigene Vorlagen**: auf jeder Ziel-/Projektseite „Als Vorlage speichern“, löschbar in der Auswahl.
   - Fehler behoben: Nach „Alle Daten löschen“/Sicherung laden wurden Feiertage erst beim nächsten Start nachgeladen – jetzt sofort.
-- ⏳ Als Nächstes: Handy-Test von Etappe 1–4, dann „wenn Zeit bleibt“ (Balkenplan, Pfeil-Ziehen, Semesterzeiten) oder Feinschliff, README ergänzen
+- ✅ Handy-Test Etappe 1–4 (Niklas, Di 17.11.): alles klappt.
+- ✅ Design: Elemente mit Farbstreifen (Ziel-Kopf, Ziel-Karten, ganztägige Termine, Blöcke in Heute/Woche) haben jetzt rundum runde Ecken, der Streifen biegt sich mit – wie bei der Hinweisbox.
+- ⏳ Als Nächstes:, dann „wenn Zeit bleibt“ (Balkenplan, Pfeil-Ziehen, Semesterzeiten) oder Feinschliff, README ergänzen
 
 ## Entscheidungen
 
