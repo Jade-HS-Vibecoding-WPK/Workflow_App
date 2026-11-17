@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-17-0953
+- **Zeit:** Di 17.11.2026, 09:53 Uhr
+- **Zustand der App:** Feature 1–10 + Etappe 1 + Etappe 2 + Fix „Unterziel antippen“. Lauffähig.
+- **Zuletzt gemacht:** Fehler behoben (Unterziel-Formular öffnete nicht).
+- **Als Nächstes:** Etappe 3 Monatskalender + Netzplan.
+
 ## backup-2026-11-17-0945
 - **Zeit:** Di 17.11.2026, 09:45 Uhr
 - **Zustand der App:** Feature 1–10 + Etappe 1 + Etappe 2 (Planer: Vorschläge in freie Zeit, Umplanen, Hinweis am Vortag, „Was mache ich jetzt?“). Im Browser getestet, lauffähig.
