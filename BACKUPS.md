@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-17-1044
+- **Zeit:** Di 17.11.2026, 10:44 Uhr
+- **Zustand der App:** Etappe 1–4 fertig + Wünsche (runde Ecken, übersichtlicher Netzplan, Ziel-Blöcke ab 1,5 Std.). Am Handy getestet (Etappe 1–4), lauffähig.
+- **Zuletzt gemacht:** Netzplan-Pfeile neu geführt, Mindestblock 1,5 Std. für Ziele.
+- **Als Nächstes:** Extras: Balkenplan, Semesterzeiten, Abhängigkeiten im Netzplan verbinden.
+
 ## backup-2026-11-17-1022
 - **Zeit:** Di 17.11.2026, 10:22 Uhr
 - **Zustand der App:** Feature 1–10 + Etappe 1–4 (Planer, Kalender, Netzplan, Baustellen-Bereich mit Arbeitstagen, Vorlagen). Im Browser getestet, lauffähig.
