@@ -3,25 +3,23 @@
 *Zuletzt aktualisiert: Di 17.11.2026*
 
 ## Hier weitermachen
-*Stand: Di 17.11.2026, ca. 9:30 Uhr. Ideenliste ist komplett besprochen.*
+*Stand: Di 17.11.2026, 11:18 Uhr. Sitzung beendet (Nutzungslimit). Alles gespeichert und online, Sicherungspunkt `backup-2026-11-17-1118`.*
 
-**Alle Must-Punkte + kritischer Pfad sind fertig und online.** App: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/
+**App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras und die 12 Verbesserungen aus Testrunde 1 sind fertig. Testrunde 2 ohne Fehler.
 
-**Neu ab Di 17.11.:** Wir sind gut in der Zeit, deshalb wird die App deutlich umfangreicher (Could-Punkte fest einbauen, alles optimieren). Vor jedem größeren Schritt wird ein **Sicherungspunkt** gesetzt, siehe [`BACKUPS.md`](BACKUPS.md). **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, genauer je nach Stand.
+### ➜ ALS ERSTES in der neuen Sitzung: Niklas diese 4 Ideen aus Testrunde 2 vorstellen – er entscheidet, welche umgesetzt werden
+| # | Was unpraktisch ist | Vorschlag |
+|---|---|---|
+| 1 | Notizen und Sperrzeiten kann man nach dem Löschen rückgängig machen, Termine, Aufgaben und Ziele nicht (nur Sicherheitsfrage) | Überall „Rückgängig“ nach dem Löschen |
+| 2 | Der Netzplan springt nach jeder Änderung (z. B. Verbinden) wieder ganz nach links – bei breiten Plänen lästig | Scrollposition merken |
+| 3 | Wiederkehrende Aufgaben werden sehr früh eingeplant (Wäsche fällig Do 26.11., Vorschlag schon Sa 21.11.) | Wiederkehrende Aufgaben erst in den letzten 3 Tagen vor der Deadline vorschlagen |
+| 4 | Vorschläge kleben direkt an Terminen ohne Puffer (Vorlesung bis 12:00, Vorschlag ab 12:00) | Vorschläge mit 15 Min. Abstand nach Terminen |
 
-Alle Entscheidungen zu den Ideen stehen in [`docs/Ideenliste.md`](docs/Ideenliste.md) (Spalte „Entscheidung“ und Abschnitt D1 Baustellen-Bereich).
-
-**Reihenfolge der Bau-Etappen** (bestätigt Di 17.11.):
-1. **Grundlagen-Paket** (Di Vormittag): A1 Sperrzeiten anlegen · A2 + B5 Warnung bei Sperrzeit/Überschneidung · A10 Tagesnotizen anlegen · A3 Daten sichern/wiederherstellen · B3 + B4 Grundgerüst (Schätzung und echte Zeit, Erledigtes mit Datum mitschreiben)
-2. **Planungs-Kern** (Di Nachmittag – Mi früh): A4 + A9 Vorschläge in freie Zeit (30-Min.-Raster, CPM-Reihenfolge) · A8 Umplanen bei eigenem Termin + Knopf „neu berechnen“ · A5 Hinweis am Vortag · B1 „Was mache ich jetzt?“
-3. **Ansichten** (Mi): A11 Monatskalender · A6 Netzplan (Idee von Niklas zur Struktur ist D1)
-4. **Baustellen-Bereich** (Mi Abend – Do früh): D1 eigener Bereich + B8 Vorlage „Einfamilienhaus-Bauablauf“
-5. **Wenn Zeit bleibt:** A7 Balkenplan · Pfeil-Ziehen im Netzplan · B7 Semesterzeiten + Haken „Uni-Veranstaltung“
-6. **Abschluss** (Do): Test auf dem Handy, README ergänzen, **Freeze Do zwischen 12 und 16 Uhr** (genauer Zeitpunkt nach Stand), danach Poster
-
-Vor jeder Etappe wird ein Sicherungspunkt gesetzt (`BACKUPS.md`).
+**Danach:** README ergänzen (alle neuen Funktionen: Planer, Kalender, Netzplan/Balkenplan, Baustelle, Vorlagen, Semester, Zoom …), eventuell weitere Tests. **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
 
 Noch offen (unwichtig fürs Bauen): Was soll die App am Freitag live zeigen? Eher anstupsen oder eher ruhig?
+
+Arbeitsweise: Vor jedem größeren Schritt Sicherungspunkt (`BACKUPS.md`). Alle Entscheidungen zu Ideen: [`docs/Ideenliste.md`](docs/Ideenliste.md). Die bestätigte Etappen-Reihenfolge vom 17.11. ist komplett abgearbeitet.
 
 Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localhost:8765 öffnen (der Test-Server läuft nach dem Schließen der Sitzung nicht weiter).
 
