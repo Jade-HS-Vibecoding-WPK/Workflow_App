@@ -8,7 +8,7 @@
 const VIEWS = {
   heute:        { title: "Heute",        text: "Hier erscheinen die Kacheln und dein Tagesplan.",            feature: "Feature 3" },
   woche:        { title: "Woche",        text: "Hier erscheint dein Wochenplan als Stundenplan.",            feature: "Feature 7" },
-  kalender:     { title: "Kalender",     text: "Hier erscheint die Monatsübersicht.",                         feature: "später (Could)" },
+  kalender:     { title: "Kalender",     text: "", feature: "" },
   ziele:        { title: "Ziele",        text: "Hier erscheinen deine Ziele mit Unterzielen und Fortschritt.", feature: "Feature 6" },
   aufgaben:     { title: "Aufgaben",     text: "Hier erscheinen deine Aufgaben zum Abhaken.",                 feature: "Feature 5" },
   sperrzeiten:  { title: "Sperrzeiten",  text: "", feature: "" },
@@ -47,6 +47,7 @@ const RENDERERS = {
   sperrzeiten: SperrzeitenView,
   tagesnotizen: TagesnotizenView,
   daten: DatenView,
+  kalender: KalenderView,
 };
 let lastView = null;
 
@@ -124,6 +125,7 @@ document.getElementById("add-btn").addEventListener("click", () => {
   else if (name === "ziele") Goals.newGoal();
   else if (name === "ziel" && param) Goals.newSubgoal(param);
   else if (name === "heute") Editor.chooseNew(HeuteView.shownDate());
+  else if (name === "kalender") Editor.chooseNew(KalenderView.selectedDate());
   else Editor.chooseNew(new Date());
 });
 document.getElementById("menu-close").addEventListener("click", closeMenu);

@@ -1011,3 +1011,98 @@ body.no-scroll { overflow: hidden; }
 .lvl { font-weight: 700; }
 .lvl--kritisch { color: #ff3b30; }
 .lvl--eng { color: #ff9500; }
+
+/* ============================================================
+   Monatskalender
+   ============================================================ */
+.month { background: var(--surface); border-radius: var(--radius); overflow: hidden; }
+.month__head { display: grid; grid-template-columns: repeat(7, 1fr); padding: 8px 0 4px; }
+.month__head span { text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--text-2); }
+.month__grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.mcell {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 0; min-height: 58px; padding: 4px 1px 5px;
+  border: 0; border-top: 0.5px solid var(--line);
+  background: none; color: var(--text); font: inherit; cursor: pointer;
+}
+.mcell--other { color: var(--text-3); }
+.mcell--other .mcell__marks { opacity: 0.45; }
+.mcell__num {
+  display: grid; place-items: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 0.95rem; font-variant-numeric: tabular-nums;
+}
+.mcell--holiday .mcell__num { color: var(--holiday); font-weight: 700; }
+.mcell--today .mcell__num { background: #ff3b30; color: #fff; font-weight: 700; }
+.mcell--sel .mcell__num { outline: 2px solid var(--text); outline-offset: -1px; }
+.mcell--today.mcell--sel .mcell__num { outline-color: #ff3b30; outline-offset: 2px; }
+.mcell__bar {
+  align-self: stretch; overflow: hidden; margin: 0 2px;
+  padding: 0 3px; border-radius: 3px;
+  background: color-mix(in srgb, var(--c) 25%, transparent);
+  font-size: 0.6rem; line-height: 1.4; white-space: nowrap; text-overflow: ellipsis;
+}
+.mcell__marks { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px; max-width: 100%; }
+.mdot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.mdot--option { background: transparent; border: 1px dashed var(--c); width: 5px; height: 5px; }
+.mplus { font-style: normal; font-size: 0.6rem; line-height: 1; color: var(--text-2); }
+.mflag { font-style: normal; font-size: 0.65rem; line-height: 1; color: var(--c); }
+.mnote { font-style: normal; font-size: 0.65rem; line-height: 1; color: var(--text-2); }
+.month-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; margin: 8px 0 0; color: var(--text-2); font-size: 0.75rem; }
+.month-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.agenda { margin-top: 6px; }
+.agenda-head { display: flex; align-items: baseline; justify-content: space-between; }
+.agenda-head .link-btn { text-decoration: none; }
+
+/* ============================================================
+   Netzplan (Ziel-Detail)
+   ============================================================ */
+.sub-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sub-mode { flex: none; width: 180px; }
+.nz-wrap {
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  background: var(--surface); border-radius: var(--radius);
+}
+.nz-canvas { position: relative; }
+.nz-svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.nz-edge { fill: none; stroke: var(--text-3); stroke-width: 1.6; }
+.nz-edge--crit { stroke: #ff3b30; stroke-width: 2.2; }
+.nz-edge--end { stroke-dasharray: 4 4; }
+.nz-arrowhead { fill: var(--text-3); }
+.nz-arrowhead--crit { fill: #ff3b30; }
+.nz-label { font-size: 10px; font-weight: 700; fill: var(--text-2); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
+.nz-node {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 1px;
+  padding: 7px 9px; border: 1.5px solid var(--line); border-left: 4px solid var(--c);
+  border-radius: 10px; background: var(--bg, var(--surface-2));
+  color: var(--text); font: inherit; text-align: left; cursor: pointer; overflow: hidden;
+}
+.nz-node:active { opacity: 0.7; }
+.nz-node--main { border-color: var(--text-2); border-width: 2.5px; border-left-width: 4px; }
+.nz-node--eng { border-color: #ff9500; border-width: 2.5px; border-left-width: 4px; }
+.nz-node--kritisch { border-color: #ff3b30; border-width: 2.5px; border-left-width: 4px; }
+.nz-node--done { opacity: 0.5; }
+.nz-title { display: flex; gap: 5px; align-items: baseline; width: 100%; font-size: 0.85rem; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nz-num { flex: none; color: var(--text-3); font-weight: 600; font-size: 0.75rem; }
+.nz-meta { font-size: 0.72rem; color: var(--text-2); white-space: nowrap; }
+.nz-dates { font-size: 0.68rem; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.nz-end {
+  position: absolute; width: 84px; height: 56px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 28px; background: var(--text); color: var(--surface); font-size: 0.8rem;
+}
+.nz-end span { font-size: 0.72rem; opacity: 0.8; }
+.nz-key { display: inline-block; width: 14px; height: 10px; border-radius: 3px; border: 2px solid; }
+.nz-key--kritisch { border-color: #ff3b30; }
+.nz-key--eng { border-color: #ff9500; }
+.nz-key--main { border-color: var(--text-2); }
+/* Netzplan-Kästchen nach DIN 69900 */
+.din-box { margin: 0 0 12px; border: 2px solid var(--c); border-radius: 10px; overflow: hidden; }
+.din-row { display: grid; grid-template-columns: repeat(3, 1fr); }
+.din-row span { display: flex; flex-direction: column; align-items: center; padding: 6px 4px; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.din-row span + span { border-left: 1px solid var(--line); }
+.din-row small, .din-name small { color: var(--text-2); font-size: 0.7rem; font-weight: 600; }
+.din-name { padding: 8px 10px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; background: color-mix(in srgb, var(--c) 10%, transparent); }
+.din-name b { display: block; font-size: 1rem; }

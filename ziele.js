@@ -566,6 +566,7 @@ const ZielDetailView = (() => {
     const allDone = subs.length > 0 && subs.every((x) => x.done);
     const entries = await Store.list();
     const res = subs.length ? CPM.computeGoal(goal, entries) : null;
+    const mode = (await Store.getSettings()).zielAnsicht === "netz" ? "netz" : "liste";
 
     container.innerHTML = `
       <a class="back-link" href="#ziele">‹ Ziele</a>
@@ -584,11 +585,19 @@ const ZielDetailView = (() => {
       </section>
       ${allDone && !goal.done ? `<button class="banner-btn" data-finish>Alle Unterziele erledigt · Ziel abschließen</button>` : ""}
       ${res && !allDone ? adviceHtml(goal, res, entries) : ""}
-      <h3 class="list-group">Unterziele <span>${subs.length}</span></h3>
-      ${subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId, res)).join("")}</ul>` : `
+      <div class="sub-head">
+        <h3 class="list-group">Unterziele <span>${subs.length}</span></h3>
+        ${subs.length ? `<div class="segmented sub-mode" role="radiogroup" aria-label="Darstellung">
+          <label class="seg"><input type="radio" name="zmode" value="liste" ${mode === "liste" ? "checked" : ""}><span>Liste</span></label>
+          <label class="seg"><input type="radio" name="zmode" value="netz" ${mode === "netz" ? "checked" : ""}><span>Netzplan</span></label>
+        </div>` : ""}
+      </div>
+      ${mode === "netz" && subs.length ? Netzplan.html(goal, res) : subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId, res)).join("")}</ul>` : `
         <p class="plan-hint">Teile dein Ziel in Schritte auf, z. B. Grundriss, Lageplan, Details. Schätze für jeden den Aufwand.</p>`}
       <button class="add-row" data-add><span class="add-row__plus">+</span> Unterziel</button>
-      <p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>`;
+      ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}`;
+    container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
+    if (mode === "netz") Netzplan.wire(container, goal, res);
 
     container.querySelector("[data-edit-goal]").addEventListener("click", () => Goals.editGoal(goal.id));
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));

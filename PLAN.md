@@ -72,7 +72,10 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - **A5 Hinweis am Vortag**: auf Heute „Morgen eingeplant – passt das?“ mit den Optionen von morgen und „Alle bestätigen“.
   - **B1 „Was mache ich jetzt?“**: Knopf auf Heute; zeigt die freie Zeit bis zum nächsten Termin/Block/Feierabend und schlägt das Wichtigste vor (kurze Lücke: was hineinpasst zuerst). „Los, jetzt machen“ trägt einen festen Block ab jetzt ein. Bei Termin/Sperrzeit/Feierabend: Hinweis auf Pause.
 - ✅ Fehler behoben (Di 17.11.): Unterziel-Zeile antippen öffnete das Bearbeiten-Formular nicht mehr (seit der Umstellung auf „eng/kritisch“ fehlte dem Formular die Kennzeichnungs-Funktion). Liegt jetzt gemeinsam in `GoalMath`.
-- ⏳ Etappe 3: Monatskalender + Netzplan
+- ✅ Etappe 3 Ansichten (Di 17.11.), im Browser getestet (Handy-Format, hell/dunkel):
+  - **A11 Monatskalender** (Leiste unten „Kalender“, `kalender.js`): Monatsraster Mo–So, heute rot, Feiertage rote Zahl, Punkte für Termine (Vorschläge gestrichelt), ⚑ für Deadlines, ✎ für Tagesnotizen, Streifen für ganztägige Termine (Urlaub). Tag antippen = Liste des Tages darunter (Einträge antippbar), nochmal antippen oder „Tagesplan ›“ = Tag in Heute. Blättern mit ‹ › oder Wischen. „+“ legt für den gewählten Tag an.
+  - **A6 Netzplan** (`netzplan.js`): im Ziel umschaltbar **Liste | Netzplan** (wird gemerkt). Kästchen mit Nr., Name, Dauer (Std. ≈ Tage), Puffer, Zeitraum; Rahmen rot = kritisch, orange = eng, grau dick = Hauptpfad; erledigt blass. Pfeile je nach Art an Anfang/Ende, beschriftet mit NF/AF/EF/SF und Wartezeit; Unterziele ohne Nachfolger führen zum Kreis „Ziel“ mit Deadline. Seitlich scrollbar. Kästchen antippen = **Netzplan-Kästchen nach DIN 69900** (FAZ · Dauer · FEZ / Name / SAZ · GP · SEZ) + freier Puffer, Auslastung, Vorgänger; Knöpfe Fortschritt/Bearbeiten. Abhängigkeiten weiter im Formular (Pfeil-Ziehen = Ausblick).
+- ⏳ Etappe 4: Baustellen-Bereich (D1) + Vorlage (B8)
 
 ## Entscheidungen
 
