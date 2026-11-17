@@ -1146,3 +1146,8 @@ body.no-scroll { overflow: hidden; }
 .tpl-row .choice { flex: 1; min-width: 0; }
 .tpl-del { flex: none; color: #ff3b30; padding: 0 8px; }
 .add-row__plus--alt { background: var(--surface-2); color: var(--accent); font-size: 0.8rem; }
+
+/* Netzplan: Pfeile eines Kästchens hervorheben */
+.nz-edge, .nz-label { transition: opacity 0.15s; }
+.nz--focus .nz-edge, .nz--focus .nz-label { opacity: 0.12; }
+.nz--focus .nz-edge.is-on, .nz--focus .nz-label.is-on { opacity: 1; stroke-width: 2.6; }

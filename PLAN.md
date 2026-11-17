@@ -87,6 +87,7 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - Fehler behoben: Nach „Alle Daten löschen“/Sicherung laden wurden Feiertage erst beim nächsten Start nachgeladen – jetzt sofort.
 - ✅ Handy-Test Etappe 1–4 (Niklas, Di 17.11.): alles klappt.
 - ✅ Design: Elemente mit Farbstreifen (Ziel-Kopf, Ziel-Karten, ganztägige Termine, Blöcke in Heute/Woche) haben jetzt rundum runde Ecken, der Streifen biegt sich mit – wie bei der Hinweisbox.
+- ✅ Netzplan übersichtlicher (Wunsch Niklas, Di 17.11.): rechtwinklige Pfeile mit runden Ecken; jedes Ziel-Kästchen hat eine eigene senkrechte Spur im Zwischenraum; indirekte Pfeile (ergeben sich schon über andere „Ende → Anfang“-Ketten) werden ausgeblendet, mit Hinweis; Kästchen ohne Vorgänger stehen direkt vor ihrem Nachfolger; Pfeile, die Spalten überspringen oder andere Folgen (AF/EF/SF), laufen über einen Kanal oberhalb der Kästchen; Maus über Kästchen hebt seine Pfeile hervor.
 - ⏳ Als Nächstes: „wenn Zeit bleibt“ (Balkenplan, Pfeil-Ziehen, Semesterzeiten) oder Feinschliff, README ergänzen
 
 ## Entscheidungen

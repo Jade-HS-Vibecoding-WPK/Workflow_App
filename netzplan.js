@@ -16,46 +16,94 @@ const Netzplan = (() => {
   const S = Schedule;
   const DEP = Model.DEP_TYPES;
   const esc = (s) => Editor.esc(s);
-  const W = 160, H = 86, GX = 50, GY = 16, PAD = 14, PADX = 40; // PADX: Platz für Pfeile, die links herumlaufen (AF/SF)
+  const W = 160, H = 86, GX = 76, GY = 18, PAD = 14, PADX = 16, LANE = 7, R = 7;
   const SHORT = { [DEP.EA]: "NF", [DEP.AA]: "AF", [DEP.EE]: "EF", [DEP.AE]: "SF" };
   const LONG = { [DEP.EA]: "Ende → Anfang", [DEP.AA]: "Anfang → Anfang", [DEP.EE]: "Ende → Ende", [DEP.AE]: "Anfang → Ende" };
   const dShort = (iso) => S.parseDate(iso).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" });
 
-  // Spalten und Zeilen festlegen
-  function layout(subs) {
+  // ---------- 1. Welche Pfeile werden gezeichnet? ----------
+  // Indirekte Pfeile ausblenden: Wartet C auf A, und gibt es schon den
+  // Weg A → B → C (alles "Ende → Anfang" ohne Wartezeit), dann sagt
+  // der Pfeil A → C nichts Neues. Gerechnet wird trotzdem mit allen.
+  function displayEdges(subs) {
     const byId = Object.fromEntries(subs.map((s) => [s.id, s]));
-    const level = {};
-    const lvl = (id, seen = new Set()) => {
-      if (level[id] != null) return level[id];
-      if (seen.has(id)) return 0; // Sicherheit bei Kreisen
-      seen.add(id);
-      const preds = (byId[id].dependencies || []).filter((d) => byId[d.fromId]);
-      level[id] = preds.length ? 1 + Math.max(...preds.map((d) => lvl(d.fromId, seen))) : 0;
-      return level[id];
-    };
-    subs.forEach((s) => lvl(s.id));
-    const cols = [];
-    subs.forEach((s) => { (cols[level[s.id]] = cols[level[s.id]] || []).push(s); });
-    const row = {};
-    cols.forEach((col, c) => {
-      // Reihenfolge: in der Nähe der Vorgänger (weniger Überkreuzungen)
-      if (c > 0) {
-        const bary = (s) => {
-          const ps = (s.dependencies || []).filter((d) => row[d.fromId] != null).map((d) => row[d.fromId]);
-          return ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : 99;
-        };
-        col.sort((a, b) => bary(a) - bary(b) || a.order - b.order);
-      }
-      col.forEach((s, r) => { row[s.id] = r; });
-    });
-    const rows = Math.max(1, ...cols.map((c) => c.length));
-    const pos = {};
-    cols.forEach((col, c) => col.forEach((s, r) => {
-      const offset = ((rows - col.length) * (H + GY)) / 2; // Spalte mittig
-      pos[s.id] = { x: PADX + c * (W + GX), y: PAD + offset + r * (H + GY) };
+    const all = [];
+    subs.forEach((s) => (s.dependencies || []).forEach((d) => {
+      if (byId[d.fromId]) all.push({ from: d.fromId, to: s.id, type: d.type || DEP.EA, lag: Number(d.lagDays) || 0 });
     }));
-    const endPos = { x: PADX + cols.length * (W + GX), y: PAD + ((rows - 1) * (H + GY)) / 2 + (H - 56) / 2 };
-    return { pos, endPos, width: endPos.x + 96 + PAD, height: PAD * 2 + rows * (H + GY) - GY };
+    const strict = all.filter((e) => e.type === DEP.EA && e.lag >= 0);
+    const reach = (from, to, skip) => {
+      const stack = [from], seen = new Set();
+      while (stack.length) {
+        const id = stack.pop();
+        for (const e of strict) {
+          if (e === skip || e.from !== id || seen.has(e.to)) continue;
+          if (e.to === to) return true;
+          seen.add(e.to);
+          stack.push(e.to);
+        }
+      }
+      return false;
+    };
+    const shown = all.filter((e) => !(e.type === DEP.EA && e.lag === 0 && reach(e.from, e.to, e)));
+    return { all, shown, hidden: all.length - shown.length };
+  }
+
+  // ---------- 2. Spalten und Zeilen ----------
+  function layout(subs, edges) {
+    const preds = {}, succs = {};
+    subs.forEach((s) => { preds[s.id] = []; succs[s.id] = []; });
+    edges.forEach((e) => { preds[e.to].push(e.from); succs[e.from].push(e.to); });
+    // Spalte = längste Kette davor (frühestmöglich)
+    const col = {};
+    const colOf = (id, seen = new Set()) => {
+      if (col[id] != null) return col[id];
+      if (seen.has(id)) return 0;
+      seen.add(id);
+      col[id] = preds[id].length ? 1 + Math.max(...preds[id].map((p) => colOf(p, seen))) : 0;
+      return col[id];
+    };
+    subs.forEach((s) => colOf(s.id));
+    // Anfangs-Kästchen ohne Vorgänger direkt vor ihren Nachfolger schieben (kurze Pfeile)
+    [...subs].sort((a, b) => col[b.id] - col[a.id]).forEach((s) => {
+      if (!preds[s.id].length && succs[s.id].length) col[s.id] = Math.max(col[s.id], Math.min(...succs[s.id].map((t) => col[t])) - 1);
+    });
+    const cols = [];
+    subs.forEach((s) => { (cols[col[s.id]] = cols[col[s.id]] || []).push(s); });
+    for (let c = 0; c < cols.length; c++) cols[c] = cols[c] || [];
+    // Reihenfolge in der Spalte: nahe bei den Vorgängern (weniger Kreuzungen)
+    const row = {};
+    cols.forEach((list) => {
+      const bary = (s) => {
+        const ps = preds[s.id].filter((p) => row[p] != null).map((p) => row[p]);
+        return ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null;
+      };
+      list.sort((a, b) => {
+        const x = bary(a), y = bary(b);
+        if (x == null && y == null) return a.order - b.order;
+        if (x == null) return 1;
+        if (y == null) return -1;
+        return x - y || a.order - b.order;
+      });
+      list.forEach((s, r) => { row[s.id] = r; });
+    });
+    return { col, cols, preds, succs };
+  }
+
+  // Linienzug mit abgerundeten Ecken
+  function roundPath(pts) {
+    const p = pts.filter((q, i) => i === 0 || q[0] !== pts[i - 1][0] || q[1] !== pts[i - 1][1]);
+    let d = `M${p[0][0]},${p[0][1]}`;
+    for (let i = 1; i < p.length - 1; i++) {
+      const [x0, y0] = p[i - 1], [x, y] = p[i], [x1, y1] = p[i + 1];
+      const l0 = Math.hypot(x - x0, y - y0), l1 = Math.hypot(x1 - x, y1 - y);
+      const r = Math.min(R, l0 / 2, l1 / 2);
+      const ax = x - ((x - x0) / (l0 || 1)) * r, ay = y - ((y - y0) / (l0 || 1)) * r;
+      const bx = x + ((x1 - x) / (l1 || 1)) * r, by = y + ((y1 - y) / (l1 || 1)) * r;
+      d += ` L${ax},${ay} Q${x},${y} ${bx},${by}`;
+    }
+    const last = p[p.length - 1];
+    return d + ` L${last[0]},${last[1]}`;
   }
 
   function durationText(sg, n, bau) {
@@ -69,45 +117,77 @@ const Netzplan = (() => {
     return `${GoalMath.fmtHours(h)}${n ? ` ≈ ${GoalMath.fmtDays(n.D)}` : ""}`;
   }
 
-  function edgePath(a, b, type) {
-    // Anfang = linke Kante, Ende = rechte Kante
-    const fromEnd = type === DEP.EA || type === DEP.EE;
-    const toStart = type === DEP.EA || type === DEP.AA;
-    const x1 = a.x + (fromEnd ? W : 0), y1 = a.y + H / 2;
-    const x2 = b.x + (toStart ? 0 : W), y2 = b.y + H / 2;
-    const k = Math.max(30, Math.abs(x2 - x1) / 2);
-    const c1 = x1 + (fromEnd ? k : -k), c2 = x2 + (toStart ? -k : k);
-    // Beschriftung kurz vor der Pfeilspitze (im Zwischenraum, nicht hinter einem Kästchen)
-    return { d: `M${x1},${y1} C${c1},${y1} ${c2},${y2} ${x2},${y2}`, lx: x2 + (toStart ? -8 : 8), ly: y2 - 8, anchor: toStart ? "end" : "start" };
-  }
-
   function html(goal, res) {
     const subs = [...goal.subgoals].sort((a, b) => a.order - b.order);
     if (!subs.length) return `<p class="plan-hint">Noch keine Unterziele – lege welche an, dann entsteht hier der Netzplan.</p>`;
     if (res && res.cycle) return `<div class="advice advice--crit">Die Abhängigkeiten bilden einen Kreis – so lässt sich kein Netzplan zeichnen.</div>`;
     const nodes = (res && res.nodes) || {};
     const bau = goal.area === "bau";
-    const { pos, endPos, width, height } = layout(subs);
-    const byId = Object.fromEntries(subs.map((s) => [s.id, s]));
-    const hasSucc = new Set();
+    const { shown, hidden } = displayEdges(subs);
+    const { col, cols, succs } = layout(subs, shown);
+    const endCol = cols.length;
+    const sinks = subs.filter((s) => !succs[s.id].length).map((s) => s.id);
 
-    const edges = [];
-    subs.forEach((s) => (s.dependencies || []).forEach((d) => {
-      if (!byId[d.fromId]) return;
-      hasSucc.add(d.fromId);
-      const type = d.type || DEP.EA;
-      const p = edgePath(pos[d.fromId], pos[s.id], type);
-      const crit = nodes[s.id] && nodes[d.fromId] && nodes[s.id].critical && nodes[d.fromId].critical;
-      const lag = Number(d.lagDays) || 0;
-      const label = type !== DEP.EA || lag ? `${SHORT[type]}${lag ? ` ${lag > 0 ? "+" : "−"}${Math.abs(lag)} Tg` : ""}` : "";
-      edges.push(`<path class="nz-edge ${crit ? "nz-edge--crit" : ""}" d="${p.d}" marker-end="url(#nz-arrow${crit ? "-crit" : ""})"/>`
-        + (label ? `<text class="nz-label" x="${p.lx}" y="${p.ly}" text-anchor="${p.anchor}">${esc(label)}</text>` : ""));
+    // Pfeile, die direkt in die nächste Spalte gehen ("Normalfolge"), laufen
+    // im Zwischenraum; alle anderen über einen Kanal oberhalb der Kästchen.
+    const isDirect = (e) => e.type === DEP.EA && col[e.to] - col[e.from] === 1;
+    const channel = shown.filter((e) => !isDirect(e));
+    const top = channel.length ? 12 + channel.length * LANE : 0;
+
+    const rows = Math.max(1, ...cols.map((c) => c.length));
+    const colX = (c) => PADX + c * (W + GX);
+    const pos = {};
+    cols.forEach((list, c) => list.forEach((s, r) => {
+      const offset = ((rows - list.length) * (H + GY)) / 2; // Spalte mittig
+      pos[s.id] = { x: colX(c), y: top + PAD + offset + r * (H + GY) };
     }));
-    // Unterziele ohne Nachfolger führen zum Ziel
-    subs.filter((s) => !hasSucc.has(s.id)).forEach((s) => {
-      const a = pos[s.id];
-      const x1 = a.x + W, y1 = a.y + H / 2, x2 = endPos.x, y2 = endPos.y + 28;
-      edges.push(`<path class="nz-edge nz-edge--end" d="M${x1},${y1} C${x1 + 24},${y1} ${x2 - 24},${y2} ${x2},${y2}" marker-end="url(#nz-arrow)"/>`);
+    const endPos = { x: colX(endCol), y: top + PAD + ((rows - 1) * (H + GY)) / 2 + (H - 56) / 2 };
+    const width = endPos.x + 84 + PADX;
+    const height = top + PAD * 2 + rows * (H + GY) - GY;
+
+    // Eigene senkrechte "Spur" im Zwischenraum für jedes Ziel-Kästchen
+    const laneX = {};
+    const targetsByCol = {};
+    shown.filter(isDirect).forEach((e) => { (targetsByCol[col[e.to]] = targetsByCol[col[e.to]] || new Set()).add(e.to); });
+    Object.entries(targetsByCol).forEach(([c, set]) => {
+      const list = [...set].sort((a, b) => pos[a].y - pos[b].y);
+      const mid = colX(Number(c)) - GX / 2;
+      list.forEach((id, i) => { laneX[id] = mid + (i - (list.length - 1) / 2) * LANE * 1.6; });
+    });
+
+    const edgeHtml = (e, d, crit, label, lx, ly, anchor) =>
+      `<path class="nz-edge ${crit ? "nz-edge--crit" : ""} ${e.end ? "nz-edge--end" : ""}" data-from="${esc(e.from)}" data-to="${esc(e.to)}" d="${d}" marker-end="url(#nz-arrow${crit ? "-crit" : ""})"/>`
+      + (label ? `<text class="nz-label" data-from="${esc(e.from)}" data-to="${esc(e.to)}" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(label)}</text>` : "");
+
+    const out = [];
+    let ch = 0;
+    shown.forEach((e) => {
+      const a = pos[e.from], b = pos[e.to];
+      const fromEnd = e.type === DEP.EA || e.type === DEP.EE;
+      const toStart = e.type === DEP.EA || e.type === DEP.AA;
+      const x1 = a.x + (fromEnd ? W : 0), y1 = a.y + H / 2;
+      const x2 = b.x + (toStart ? 0 : W), y2 = b.y + H / 2;
+      let pts;
+      if (isDirect(e)) {
+        const xl = laneX[e.to];
+        pts = [[x1, y1], [xl, y1], [xl, y2], [x2, y2]];
+      } else {
+        const k = ch++;
+        const yc = 8 + k * LANE;
+        const xs = x1 + (fromEnd ? 1 : -1) * (10 + (k % 4) * LANE);
+        const xe = x2 + (toStart ? -1 : 1) * (10 + (k % 4) * LANE);
+        pts = [[x1, y1], [xs, y1], [xs, yc], [xe, yc], [xe, y2], [x2, y2]];
+      }
+      const crit = nodes[e.to] && nodes[e.from] && nodes[e.to].critical && nodes[e.from].critical;
+      const label = e.type !== DEP.EA || e.lag ? `${SHORT[e.type]}${e.lag ? ` ${e.lag > 0 ? "+" : "−"}${Math.abs(e.lag)} Tg` : ""}` : "";
+      out.push(edgeHtml(e, roundPath(pts), crit, label, x1 + (fromEnd ? 5 : -5), y1 - 5, fromEnd ? "start" : "end"));
+    });
+    // Kästchen ohne Nachfolger führen zum Ziel (gemeinsame Spur)
+    const endLane = colX(endCol) - GX / 2;
+    sinks.forEach((id) => {
+      const a = pos[id];
+      const y1 = a.y + H / 2, y2 = endPos.y + 28;
+      out.push(edgeHtml({ from: id, to: "ziel", end: true }, roundPath([[a.x + W, y1], [endLane, y1], [endLane, y2], [endPos.x, y2]]), false, "", 0, 0, "start"));
     });
 
     const boxes = subs.map((s, i) => {
@@ -139,7 +219,7 @@ const Netzplan = (() => {
               <marker id="nz-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="nz-arrowhead"/></marker>
               <marker id="nz-arrow-crit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="nz-arrowhead nz-arrowhead--crit"/></marker>
             </defs>
-            ${edges.join("")}
+            ${out.join("")}
           </svg>
           ${boxes}${end}
         </div>
@@ -150,7 +230,7 @@ const Netzplan = (() => {
         <span><i class="nz-key nz-key--main"></i>Hauptpfad</span>
         <span>NF/AF/EF/SF = Art der Folge</span>
       </p>
-      <p class="plan-hint plan-hint--small">Kästchen antippen = alle Werte · zur Seite wischen, wenn der Plan breiter ist</p>`;
+      <p class="plan-hint plan-hint--small">Kästchen antippen = alle Werte${hidden ? ` · ${hidden} indirekte${hidden === 1 ? "r" : ""} Pfeil${hidden === 1 ? "" : "e"} ausgeblendet (ergibt sich schon über andere)` : ""} · breiter Plan: zur Seite wischen</p>`;
   }
 
   // Netzplan-Kästchen nach DIN mit allen Werten
@@ -202,7 +282,21 @@ const Netzplan = (() => {
   }
 
   function wire(container, goal, res) {
-    container.querySelectorAll("[data-node]").forEach((b) => b.addEventListener("click", () => openNode(goal, res, b.dataset.node)));
+    const canvas = container.querySelector(".nz-canvas");
+    container.querySelectorAll("[data-node]").forEach((b) => {
+      b.addEventListener("click", () => openNode(goal, res, b.dataset.node));
+      // Pfeile dieses Kästchens hervorheben, alle anderen blass
+      const on = () => {
+        const id = b.dataset.node;
+        canvas.classList.add("nz--focus");
+        canvas.querySelectorAll("[data-from]").forEach((el) => el.classList.toggle("is-on", el.dataset.from === id || el.dataset.to === id));
+      };
+      const off = () => canvas.classList.remove("nz--focus");
+      b.addEventListener("mouseenter", on);
+      b.addEventListener("focus", on);
+      b.addEventListener("mouseleave", off);
+      b.addEventListener("blur", off);
+    });
   }
 
   return { html, wire, openNode };
