@@ -55,7 +55,7 @@ const HeuteView = (() => {
     const left = `calc(${(b.col || 0) / cols} * (100% - 4px))`;
     const width = `calc(${1 / cols} * (100% - 4px) - 2px)`;
     const isTodo = b.kind === "aufgabe" || b.kind === "ziel";
-    const classes = ["block", b.option ? "block--option" : "", b.done ? "block--done" : "", b.cancelled ? "block--cancelled" : "", short ? "block--short" : ""].join(" ");
+    const classes = ["block", b.kind === "vorgang" && b.critical ? "block--crit" : "", b.option ? "block--option" : "", b.done ? "block--done" : "", b.cancelled ? "block--cancelled" : "", short ? "block--short" : ""].join(" ");
 
     // Puffer vor und nach dem Termin (blass angedeutet)
     let buffer = "";
@@ -75,7 +75,7 @@ const HeuteView = (() => {
 
     return buffer + `
       <div class="${classes}" style="top:${top}px;height:${height}px;left:${left};width:${width};--c:${color}"
-        data-id="${esc(b.id)}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""} role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.option ? ", Vorschlag" : ""}">
+        data-id="${esc(b.id)}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : b.kind === "vorgang" ? `data-sub="${esc(b.subgoalId)}"` : ""} role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.option ? ", Vorschlag" : ""}">
         ${isTodo ? '<span class="block__check" aria-hidden="true"></span>' : ""}
         <span class="block__text">
           <span class="block__title">${short ? `<span class="block__time">${b.start}</span>` : ""}${esc(b.title)}</span>

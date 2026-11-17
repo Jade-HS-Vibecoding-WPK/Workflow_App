@@ -52,6 +52,13 @@ const EinstellungenView = (() => {
         </label>
       </div>
 
+      <h3 class="list-group">Baustelle</h3>
+      <div class="form-group settings">
+        <label class="row"><span>Gewerke arbeiten ab</span><input type="time" name="bauVon" value="${esc(settings.bauArbeitVon || "07:00")}"></label>
+        <label class="row"><span>Gewerke arbeiten bis</span><input type="time" name="bauBis" value="${esc(settings.bauArbeitBis || "16:00")}"></label>
+        <p class="hint">Standard-Arbeitszeit auf der Baustelle (Mo–Fr). Pro Vorgang kannst du eine eigene Zeit eintragen. So erscheinen die Gewerke im Tages- und Wochenplan.</p>
+      </div>
+
       <h3 class="list-group">Semester</h3>
       <div class="form-group settings">
         <label class="row"><span>Vorlesungszeit ab</span><input type="date" name="semVon" value="${esc(sem.von || "")}"></label>
@@ -93,6 +100,15 @@ const EinstellungenView = (() => {
       await render(container);
     });
     container.querySelector('[name="maxH"]').addEventListener("change", (e) => Store.saveSettings({ maxStundenProTag: Number(e.target.value) }));
+    // Arbeitszeit der Gewerke
+    const bv = container.querySelector('[name="bauVon"]'), bb = container.querySelector('[name="bauBis"]');
+    const saveBau = () => {
+      if (bv.value && bb.value && Schedule.toMin(bb.value) > Schedule.toMin(bv.value)) Store.saveSettings({ bauArbeitVon: bv.value, bauArbeitBis: bb.value });
+      else { Toast.show("Das Ende muss nach dem Beginn liegen"); render(container); }
+    };
+    bv.addEventListener("change", saveBau);
+    bb.addEventListener("change", saveBau);
+
     // Semester speichern (nur gültige Angaben)
     const semFields = ["semVon", "semBis", "semFreiVon", "semFreiBis"].map((n) => container.querySelector(`[name="${n}"]`));
     semFields.forEach((f) => f.addEventListener("change", () => {

@@ -1232,3 +1232,22 @@ body.no-scroll { overflow: hidden; }
 .nz-connect-bar[hidden] { display: none; }
 .dep-line { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 4px; }
 .dep-remove { flex: none; color: #ff3b30; font-size: 0.85rem; }
+
+/* Baustelle: kritischer Vorgang im Tagesplan */
+.block--crit { box-shadow: inset 0 0 0 1.5px #ff3b30; }
+
+/* Woche: schmale, nebeneinander liegende Blöcke (z. B. mehrere Gewerke) – Titel senkrecht */
+.wblock--vertical { align-items: center; padding: 3px 0; }
+.wblock--vertical .wblock__time { display: none; }
+.wblock--vertical .wblock__title {
+  writing-mode: vertical-rl; text-orientation: mixed;
+  max-height: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  overflow-wrap: normal; hyphens: none;
+}
+
+/* Heute: hohe Blöcke dürfen Titel und Zusatz umbrechen (z. B. schmale Gewerke-Spalten) */
+.block:not(.block--short) .block__title,
+.block:not(.block--short) .block__sub {
+  white-space: normal; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}

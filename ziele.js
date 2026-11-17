@@ -265,6 +265,8 @@ const Goals = (() => {
           <span class="unit-input"><input type="number" name="workdays" min="1" step="1" inputmode="numeric" value="${Math.max(1, Math.round(sg.durationDays))}"> Arbeitstage</span>
         </label>
         <p class="hint">Mo–Fr, Feiertage zählen nicht.</p>
+        <label class="row"><span>Arbeitszeit von <small class="muted">leer = Standard ${esc(Schedule.bauZeit.von)}</small></span><input type="time" name="workFrom" value="${esc(sg.workFrom || "")}"></label>
+        <label class="row"><span>Arbeitszeit bis <small class="muted">leer = Standard ${esc(Schedule.bauZeit.bis)}</small></span><input type="time" name="workTo" value="${esc(sg.workTo || "")}"></label>
       </div>` : ""}
       <div class="form-group">
         <label class="row"><span>Zwischen-Deadline</span><input type="date" name="deadline" value="${esc(sg.deadline || "")}" max="${esc(goal.deadline || "")}"></label>
@@ -301,6 +303,10 @@ const Goals = (() => {
         out.mode = "dauer";
         out.durationDays = Math.round(Number(form.elements.workdays.value));
         out.assignee = form.elements.gewerk.value.trim() || Model.OWNER_LOCAL;
+        out.workFrom = form.elements.workFrom.value || null;
+        out.workTo = form.elements.workTo.value || null;
+        const wf = out.workFrom || Schedule.bauZeit.von, wt = out.workTo || Schedule.bauZeit.bis;
+        if (Schedule.toMin(wt) <= Schedule.toMin(wf)) return fail("Das Ende der Arbeitszeit muss nach dem Beginn liegen.", "workTo");
         if (!(out.durationDays >= 1)) return fail("Gib mindestens 1 Arbeitstag ein.", "workdays");
       }
       out.deadline = form.elements.deadline.value || null;

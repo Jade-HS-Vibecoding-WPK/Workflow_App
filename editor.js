@@ -123,7 +123,12 @@ const Editor = (() => {
     const entry = await Store.get(id);
     if (!entry) return;
     if (entry.type === T.AUFGABE) { openTaskForm(entry, { isNew: false }); return; }
-    if (entry.type === T.ZIEL) { location.hash = "#ziel/" + encodeURIComponent(entry.id); return; }
+    if (entry.type === T.ZIEL) {
+      // Vorgang der Baustelle im Plan angetippt → Kästchen mit allen Werten
+      if (subId && typeof Netzplan !== "undefined") { Netzplan.openNode(entry, CPM.computeGoal(entry, await Store.list()), subId); return; }
+      location.hash = "#ziel/" + encodeURIComponent(entry.id);
+      return;
+    }
     if (entry.type === T.SPERRZEIT) { Manage.openSperrForm(entry, false); return; }
     if (entry.type === T.TAGESNOTIZ) { Manage.openNoteForm(entry, false); return; }
     if (entry.type !== T.FEST && entry.type !== T.EINMALIG) return;

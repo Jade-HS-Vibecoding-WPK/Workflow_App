@@ -46,6 +46,15 @@ const Schedule = (() => {
     if (c.settings) readSemester(c.settings);
     else if (c.action === "importiert" || c.action === "geleert") Store.getSettings().then(readSemester);
   });
+  // Arbeitszeit der Gewerke auf der Baustelle (Einstellungen → Baustelle)
+  let bauZeit = { von: "07:00", bis: "16:00" };
+  const readBau = (st) => { bauZeit = { von: (st && st.bauArbeitVon) || "07:00", bis: (st && st.bauArbeitBis) || "16:00" }; };
+  Store.getSettings().then(readBau);
+  Store.subscribe((c) => {
+    if (c.settings) readBau(c.settings);
+    else if (c.action === "importiert" || c.action === "geleert") Store.getSettings().then(readBau);
+  });
+
   // Liegt der Tag in der Vorlesungszeit? (ohne Semester-Angabe: immer ja)
   function inLecture(iso) {
     if (!semester) return true;
@@ -144,7 +153,7 @@ const Schedule = (() => {
           break;
         case T.ZIEL:
           goalsById[e.id] = e;
-          // Baustelle: laufende Vorgänge (Gewerke) als Tagesstreifen
+          // Baustelle: laufende Vorgänge (Gewerke) als Zeitblöcke (Arbeitszeit des Gewerks)
           if (e.area === "bau" && !e.done && typeof CPM !== "undefined") {
             const res = CPM.computeBau(e);
             const idx = Math.round((parseDate(iso) - parseDate(isoDate(new Date()))) / 86400000);
@@ -152,10 +161,11 @@ const Schedule = (() => {
               for (const sg of e.subgoals || []) {
                 const n = res.nodes[sg.id];
                 if (!n || n.done || !(n.ES <= idx && idx < n.EF)) continue;
-                allDay.push({
-                  id: e.id, kind: "vorgang", title: sg.title, color: e.color, critical: n.critical,
+                const von = sg.workFrom || bauZeit.von, bis = sg.workTo || bauZeit.bis;
+                timed.push(block(e, "vorgang", von, bis, {
+                  title: sg.title, color: e.color, critical: n.critical, subgoalId: sg.id,
                   sub: [sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? sg.assignee : "", n.critical ? "kritisch" : ""].filter(Boolean).join(" · ") || "Vorgang",
-                });
+                }));
               }
             }
           }
@@ -287,7 +297,7 @@ const Schedule = (() => {
     const seen = new Set();
     for (const d of dates) {
       for (const b of dayPlan(others, d).timed) {
-        if (b.cancelled || b.option) continue;
+        if (b.cancelled || b.option || b.kind === "vorgang") continue; // Gewerke arbeiten parallel, kein Konflikt
         if (!(b.startMin < e && s < b.endMin)) continue;
         const key = b.id + "|" + (b.kind === "fest" || b.kind === "sperr" ? b.start : isoDate(d));
         if (seen.has(key)) continue; // gleiche Serie nur einmal nennen
@@ -325,5 +335,5 @@ const Schedule = (() => {
     return d.toLocaleDateString("de-DE", { weekday: "short" }) + " " + short;
   }
 
-  return { inLecture, get semester() { return semester; }, isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
+  return { inLecture, get semester() { return semester; }, get bauZeit() { return bauZeit; }, isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
 })();

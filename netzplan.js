@@ -265,6 +265,7 @@ const Netzplan = (() => {
         <dt>Freier Puffer (FP)</dt><dd>${goal.area === "bau" ? `${n.FF} Tage` : GoalMath.fmtDays(n.FF)}</dd>
         ${n.neededHours > 0 ? `<dt>Auslastung</dt><dd>${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)</dd>` : ""}
         <dt>${sg.mode === "dauer" ? "Dauer" : "Restaufwand"}</dt><dd>${esc(durationText(sg, n, goal.area === "bau"))}</dd>
+        ${goal.area === "bau" ? `<dt>Arbeitszeit</dt><dd>${esc(sg.workFrom || Schedule.bauZeit.von)}–${esc(sg.workTo || Schedule.bauZeit.bis)} Uhr, Mo–Fr${sg.workFrom ? "" : " (Standard)"}</dd>` : ""}
       </dl>` : `<p class="notice">${sg.done ? "Dieses Unterziel ist erledigt." : "Keine Werte (Ziel ohne Berechnung)."}</p>`;
 
     Editor.show(`

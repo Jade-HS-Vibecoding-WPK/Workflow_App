@@ -151,6 +151,8 @@ const Model = (() => {
       done: false,
       doneAt: null,
       assignee: OWNER_LOCAL, // wer arbeitet daran; Baustelle: Gewerk (z. B. "Estrichleger")
+      workFrom: null,        // Baustelle: eigene Arbeitszeit des Gewerks (sonst Einstellung, Standard 07:00–16:00)
+      workTo: null,
       ...fields,
     };
   }

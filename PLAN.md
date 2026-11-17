@@ -95,7 +95,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - **Abhängigkeiten im Netzplan verbinden**: „+“-Griff rechts am Kästchen antippen → Kästchen antippen, das danach kommt (mögliche Ziele gestrichelt, Kreise werden verhindert) – oder „+“ auf ein Kästchen ziehen. Mit Rückgängig. Entfernen im Kästchen-Blatt („Wartet auf: … Entfernen“). Neue Verbindung = Normalfolge, Art/Wartezeit im Formular änderbar.
   - Kleinigkeiten: Umschalter im Ziel bricht auf schmalen Handys um; doppelter Punkt in „fertig Fr 27.11..“ behoben.
 - ✅ Extras getestet (Niklas, Di 17.11.): funktioniert.
-- ⏳ Als Nächstes: Feinschliff, README ergänzen (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
+- ✅ Gewerke-Zeiten im Tages- und Wochenplan (Wunsch Niklas, Di 17.11.): Vorgänge der Baustelle erscheinen als Zeitblöcke (Standard 7–16 Uhr Mo–Fr, Einstellungen → Baustelle; pro Vorgang eigene Arbeitszeit möglich). Parallele Gewerke nebeneinander, in schmalen Wochenspalten Titel senkrecht, in Heute Titel/Gewerk umbrechend. Antippen = DIN-Kästchen (mit Arbeitszeit). Kein Überschneidungs-Hinweis mit Gewerke-Zeiten. Kritische Vorgänge rot umrandet.
+- ⏳ Als Nächstes (Wunsch Niklas): mehrere Tests durchlaufen, alles „smoother“ machen; danach README ergänzen (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
 
 ## Entscheidungen
 
