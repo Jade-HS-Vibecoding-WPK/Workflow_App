@@ -1,24 +1,26 @@
 # PLAN.md – Aktueller Stand
 
-*Zuletzt aktualisiert: Mo 16.11.2026*
+*Zuletzt aktualisiert: Di 17.11.2026*
 
 ## Hier weitermachen
-*Stand: Mo 16.11.2026 abends. Neue Sitzung am Di 17.11.*
+*Stand: Di 17.11.2026. Besprechung der Ideenliste läuft.*
 
 **Alle Must-Punkte + kritischer Pfad sind fertig und online.** App: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/
 
 **Nächster Schritt: Ideenliste gemeinsam besprechen** → [`docs/Ideenliste.md`](docs/Ideenliste.md). Noch **nichts bauen**, erst besprechen und entscheiden.
 
 Ablauf der Besprechung:
-1. **Leitlinien gegen Überladung** (Abschnitt 0) bestätigen oder ändern – gerade offen. Dazu zwei Fragen an Niklas:
+1. ✅ **Leitlinien gegen Überladung** (Abschnitt 0) bestätigt, ohne die Regel „ein Knopf mehr pro Ansicht“. Noch offen, zwei Fragen an Niklas:
    - Was soll die App am Freitag in der Präsentation **live** zeigen?
    - Soll die App eher **anstupsen** (Hinweise, Vorschläge) oder eher **ruhig** sein?
-2. **Block A** durchgehen (beschlossen, noch nicht gebaut: A1–A12)
-3. **Block B** durchgehen (neue Ideen: B1–B9)
+2. ✅ **Block A** durchgehen – gerade dran. Gruppe 1 entschieden: A1, A2 (+B5), A3, A10 bauen, A12 weglassen. Gruppe 2: A4 + A9 bauen (Lücken im 30-Min.-Raster auffüllen, zusammenhängende Stücke = ein Block), A5 bauen, A8: Blöcke, die einem neuen eigenen Termin im Weg sind, werden automatisch neu eingeplant (bestätigte nur nach Nachfrage) + Knopf „neu berechnen“. Reihenfolge beim Einplanen und Umplanen nach CPM (wenig Puffer zuerst, darf Optionen mit mehr Puffer verdrängen), damit Wichtiges nicht nach hinten rutscht. Gruppe 3: A6 Netzplan bauen (sehr wichtig, Niklas hat noch eine Idee zur Struktur), A11 Monatskalender bauen (unbedingt), A7 Ausblick. **Neu D1 Baustellen-Bereich** (eigener leerer Bereich mit gleichen Ansichten, Gewerke Mo–Fr, Wartezeiten inkl. Wochenende, Schalter „Auch im Wochenplan anzeigen“, standardmäßig aus; nur eingeschaltet wird der Termin privat angezeigt und blockiert die Zeit), nach dem Kern zusammen mit A6. **Block B entschieden:** B1 bauen, B5 bauen (mit A2), B8 Vorlagen (leicht anpassbar), B3 + B4 nur Grundgerüst (Daten mitschreiben), B7 optional (Semesterzeiten selbst eintragen + Haken „Uni-Veranstaltung“), B2/B9 später, B6 nicht. Als Nächstes: Niklas sagt etwas zum weiteren Vorgehen, dann Reihenfolge bis Freeze (beschlossen, noch nicht gebaut: A1–A12)
+3. ✅ **Block B** durchgehen (neue Ideen: B1–B9)
 4. **Freies Brainstorming** (Abschnitt C/D) – auch: Was ist gut, was ist schlecht, was weglassen?
 5. **Reihenfolge bis zum Freeze** festlegen (Abschnitt E) und hier in PLAN.md übernehmen
 
 Mein Vorschlag aus der Zusammenfassung (noch nicht entschieden): A1 Sperrzeiten + A2 Warnung → A3 Daten sichern → A4 Vorschläge in freie Zeit + B1 „Was mache ich jetzt?“ → A6 Netzplan → B2/B4 wenn Zeit.
+
+**Neu ab Di 17.11.:** Die App wird deutlich umfangreicher (Could-Punkte fest einbauen, alles optimieren). Vor jedem größeren Schritt wird ein **Sicherungspunkt** gesetzt, siehe [`BACKUPS.md`](BACKUPS.md).
 
 Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localhost:8765 öffnen (der Test-Server läuft nach dem Schließen der Sitzung nicht weiter).
 
@@ -200,7 +202,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 - [x] Wiederholung alle 2 Wochen / monatlich, Zeitraum, einzelnen Termin absagen (vorgezogen in Feature 4)
 - [ ] Dunkelmodus ✅ (im Grundgerüst), Ordner „Erledigt“ ✅, Daten sichern/wiederherstellen
 
-**Could: wenn noch Zeit ist**
+**Could: wird jetzt fest eingebaut** (Entscheidung Di 17.11.: wir sind gut in der Zeit, die App soll deutlich umfangreicher werden)
 - [ ] Netzplan-Ansicht und Balkenplan
 - [x] Weitere Abhängigkeitsarten, Wartezeiten (auch negativ), Baumanagement-Modus, Dauer in Tagen
 - [ ] Automatisches Umplanen des ganzen Plans nach CPM

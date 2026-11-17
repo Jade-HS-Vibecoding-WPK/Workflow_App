@@ -11,6 +11,8 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
 - Neue Regeln oder Entscheidungen kommen sofort in diese `CLAUDE.md`.
 - Ein Feature pro Sitzung: klein halten, testen, committen, Stand in `PLAN.md` festhalten.
 - Nach jedem Commit wird auf GitHub hochgeladen (`git push`).
+- **Backups (Sicherungspunkte):** Vor jedem größeren Schritt und nach jedem fertigen Feature wird ein Sicherungspunkt gesetzt: Commit + Git-Markierung `backup-JJJJ-MM-TT-HHMM` (mit hochladen: `git push --tags`) + Eintrag oben in `BACKUPS.md` (Zeitstempel, Name, was zuletzt gemacht wurde, Zustand der App). Zurückholen nur auf Wunsch von Niklas, und zwar als **neuer Commit** (`git checkout <backup> -- .`), damit nichts aus der Geschichte verloren geht.
+- **Umfang (Entscheidung 17.11.):** Wir liegen gut in der Zeit, deshalb werden auch die Could-Punkte fest eingebaut und alles optimiert. Die App darf komplexer werden, die Leitlinien gegen Überladung gelten trotzdem.
 - Der Nutzer hat Grundkenntnisse: **jeden Schritt einfach auf Deutsch erklären.** Vor größeren Schritten erst Fragen stellen.
 - Keine echten personenbezogenen Daten verwenden, zum Testen nur erfundene Termine.
 - Keine API-Keys oder Tokens in Chats, Code oder auf GitHub (Keys nur in `.env`, und `.env` gehört in `.gitignore`).
@@ -20,6 +22,7 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
 - PWA, veröffentlicht über GitHub Pages; Daten nur lokal auf dem Gerät, kein Login, kein Server.
 - Die App startet mit einem leeren Plan.
 - Umsetzung: reines **HTML, CSS und JavaScript** ohne Build-Werkzeuge (`index.html`, `styles.css`, `app.js`). So läuft die App direkt auf GitHub Pages.
+- **Zwei Bereiche:** „Privat“ (rechnet mit eigener freier Zeit) und „Baustelle“ (Baumanagement-Modus, eigene Daten, Gewerke arbeiten Mo–Fr ohne Feiertage, Wartezeiten zählen Kalendertage inkl. Wochenende). Baustellen-Termine erscheinen privat nur mit Schalter „Auch im Wochenplan anzeigen“ (standardmäßig aus, von Hand einschalten; dann zählen sie privat als belegt). Details: `docs/Ideenliste.md` → D1.
 - Begriffe: „Hauptpfad“ = längste Kette (CPM). „eng“ ab 50 %, „kritisch“ ab 80 % Auslastung der freien Zeit (oder wenn es nicht reicht). Schwellen in `cpm.js` (`ENG_AB`, `KRITISCH_AB`).
 - Externe Daten nur aus kostenlosen Quellen ohne API-Key; Quelle in der App und im README nennen. Keine persönlichen Daten an externe Dienste schicken.
 - Arbeitsname der App: **„Workflow“** (änderbar).
@@ -37,6 +40,7 @@ Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelp
 
 ## Gestaltung
 Handy-Format zuerst.
+- **Leitlinien gegen Überladung** (beschlossen 17.11.): Jede neue Funktion muss beim Abarbeiten helfen; kein neuer Bildschirm, wenn es ohne geht; Fortgeschrittenes standardmäßig aus/versteckt; bis zum Freeze lieber wenig richtig als viel halb. Details in `docs/Ideenliste.md` → Abschnitt 0.
 - **Stil-Richtung:** angelehnt an Apples Erinnerungen-App (klare Listen, runde Abhak-Kreise, farbige Listen) und gemischt mit dem Layout der Apple-Kalender-App (Tages-/Wochenraster). Das ist nur Inspiration: eigener Name, eigenes Icon, keine Apple-Logos oder kopierten Grafiken.
 - Feste Kategorie-Farben für Termine und Sperrzeiten, frei wählbare Farben nur für Aufgaben und Ziele. Unbestätigte Vorschläge gestrichelt und blass.
 - Hell- und Dunkelmodus nach Handy-Einstellung. Leiste unten: Heute · Woche · Kalender · Ziele · Aufgaben.
