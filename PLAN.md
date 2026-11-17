@@ -3,24 +3,25 @@
 *Zuletzt aktualisiert: Di 17.11.2026*
 
 ## Hier weitermachen
-*Stand: Di 17.11.2026. Besprechung der Ideenliste läuft.*
+*Stand: Di 17.11.2026, ca. 9:30 Uhr. Ideenliste ist komplett besprochen.*
 
 **Alle Must-Punkte + kritischer Pfad sind fertig und online.** App: https://jade-hs-vibecoding-wpk.github.io/Workflow_App/
 
-**Nächster Schritt: Ideenliste gemeinsam besprechen** → [`docs/Ideenliste.md`](docs/Ideenliste.md). Noch **nichts bauen**, erst besprechen und entscheiden.
+**Neu ab Di 17.11.:** Wir sind gut in der Zeit, deshalb wird die App deutlich umfangreicher (Could-Punkte fest einbauen, alles optimieren). Vor jedem größeren Schritt wird ein **Sicherungspunkt** gesetzt, siehe [`BACKUPS.md`](BACKUPS.md). **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, genauer je nach Stand.
 
-Ablauf der Besprechung:
-1. ✅ **Leitlinien gegen Überladung** (Abschnitt 0) bestätigt, ohne die Regel „ein Knopf mehr pro Ansicht“. Noch offen, zwei Fragen an Niklas:
-   - Was soll die App am Freitag in der Präsentation **live** zeigen?
-   - Soll die App eher **anstupsen** (Hinweise, Vorschläge) oder eher **ruhig** sein?
-2. ✅ **Block A** durchgehen – gerade dran. Gruppe 1 entschieden: A1, A2 (+B5), A3, A10 bauen, A12 weglassen. Gruppe 2: A4 + A9 bauen (Lücken im 30-Min.-Raster auffüllen, zusammenhängende Stücke = ein Block), A5 bauen, A8: Blöcke, die einem neuen eigenen Termin im Weg sind, werden automatisch neu eingeplant (bestätigte nur nach Nachfrage) + Knopf „neu berechnen“. Reihenfolge beim Einplanen und Umplanen nach CPM (wenig Puffer zuerst, darf Optionen mit mehr Puffer verdrängen), damit Wichtiges nicht nach hinten rutscht. Gruppe 3: A6 Netzplan bauen (sehr wichtig, Niklas hat noch eine Idee zur Struktur), A11 Monatskalender bauen (unbedingt), A7 Ausblick. **Neu D1 Baustellen-Bereich** (eigener leerer Bereich mit gleichen Ansichten, Gewerke Mo–Fr, Wartezeiten inkl. Wochenende, Schalter „Auch im Wochenplan anzeigen“, standardmäßig aus; nur eingeschaltet wird der Termin privat angezeigt und blockiert die Zeit), nach dem Kern zusammen mit A6. **Block B entschieden:** B1 bauen, B5 bauen (mit A2), B8 Vorlagen (leicht anpassbar), B3 + B4 nur Grundgerüst (Daten mitschreiben), B7 optional (Semesterzeiten selbst eintragen + Haken „Uni-Veranstaltung“), B2/B9 später, B6 nicht. Als Nächstes: Niklas sagt etwas zum weiteren Vorgehen, dann Reihenfolge bis Freeze (beschlossen, noch nicht gebaut: A1–A12)
-3. ✅ **Block B** durchgehen (neue Ideen: B1–B9)
-4. **Freies Brainstorming** (Abschnitt C/D) – auch: Was ist gut, was ist schlecht, was weglassen?
-5. **Reihenfolge bis zum Freeze** festlegen (Abschnitt E) und hier in PLAN.md übernehmen
+Alle Entscheidungen zu den Ideen stehen in [`docs/Ideenliste.md`](docs/Ideenliste.md) (Spalte „Entscheidung“ und Abschnitt D1 Baustellen-Bereich).
 
-Mein Vorschlag aus der Zusammenfassung (noch nicht entschieden): A1 Sperrzeiten + A2 Warnung → A3 Daten sichern → A4 Vorschläge in freie Zeit + B1 „Was mache ich jetzt?“ → A6 Netzplan → B2/B4 wenn Zeit.
+**Reihenfolge der Bau-Etappen** (bestätigt Di 17.11.):
+1. **Grundlagen-Paket** (Di Vormittag): A1 Sperrzeiten anlegen · A2 + B5 Warnung bei Sperrzeit/Überschneidung · A10 Tagesnotizen anlegen · A3 Daten sichern/wiederherstellen · B3 + B4 Grundgerüst (Schätzung und echte Zeit, Erledigtes mit Datum mitschreiben)
+2. **Planungs-Kern** (Di Nachmittag – Mi früh): A4 + A9 Vorschläge in freie Zeit (30-Min.-Raster, CPM-Reihenfolge) · A8 Umplanen bei eigenem Termin + Knopf „neu berechnen“ · A5 Hinweis am Vortag · B1 „Was mache ich jetzt?“
+3. **Ansichten** (Mi): A11 Monatskalender · A6 Netzplan (Idee von Niklas zur Struktur ist D1)
+4. **Baustellen-Bereich** (Mi Abend – Do früh): D1 eigener Bereich + B8 Vorlage „Einfamilienhaus-Bauablauf“
+5. **Wenn Zeit bleibt:** A7 Balkenplan · Pfeil-Ziehen im Netzplan · B7 Semesterzeiten + Haken „Uni-Veranstaltung“
+6. **Abschluss** (Do): Test auf dem Handy, README ergänzen, **Freeze Do zwischen 12 und 16 Uhr** (genauer Zeitpunkt nach Stand), danach Poster
 
-**Neu ab Di 17.11.:** Die App wird deutlich umfangreicher (Could-Punkte fest einbauen, alles optimieren). Vor jedem größeren Schritt wird ein **Sicherungspunkt** gesetzt, siehe [`BACKUPS.md`](BACKUPS.md).
+Vor jeder Etappe wird ein Sicherungspunkt gesetzt (`BACKUPS.md`).
+
+Noch offen (unwichtig fürs Bauen): Was soll die App am Freitag live zeigen? Eher anstupsen oder eher ruhig?
 
 Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localhost:8765 öffnen (der Test-Server läuft nach dem Schließen der Sitzung nicht weiter).
 
@@ -56,7 +57,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Feature 10: Test auf dem Handy (Niklas, Mo 16.11.): alles läuft
 - ✅ Wunsch: Auf „Heute“ zwischen Tagen wischen (links = nächster Tag, rechts = vorheriger), zusätzlich ‹ › und „Heute“-Knopf. Titel/erste Kachel zeigen den Tag („Morgen“, „Mittwoch“ …), Jetzt-Linie nur heute, „+“ legt für den angezeigten Tag an, Scrollposition bleibt beim Blättern. Adresse `#heute/<Datum>`.
 - ✅ Wunsch: „kritisch“ nur bei echter Enge. **Auslastung** = nötige Stunden (Unterziel + alle Vorgänger) ÷ freie Stunden bis zu seinem spätesten Ende. Unter 50 % kein Hinweis, **50–80 % „eng“** (orange), **ab 80 % oder wenn es nicht reicht „kritisch“** (rot). Die längste Kette heißt jetzt **„Hauptpfad“** (grau, unabhängig von Deadlines berechnet). Ziel-Status: im Plan / eng / kritisch / hängt hinterher (= reicht nicht); Hinweistext nennt die engen Unterziele.
-- ⏳ Ideenliste besprechen (`docs/Ideenliste.md`), danach Reihenfolge bis zum Freeze festlegen
+- ✅ Ideenliste besprochen (`docs/Ideenliste.md`), Reihenfolge vorgeschlagen
+- ⏳ Etappe 1: Grundlagen-Paket
 
 ## Entscheidungen
 
@@ -180,7 +182,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 
 ## Nächste Schritte
 1. Feature 10: Test auf dem Handy, Fehler beheben, README
-2. Freeze Do 12 Uhr, danach Poster
+2. Freeze Do zwischen 12 und 16 Uhr, danach Poster
 3. Weiter nach Etappen-Tabelle
 
 ## MoSCoW (fertig bis Do 19.11., 12 Uhr) – bestätigt
@@ -217,7 +219,7 @@ Dazu kommen **Sperrzeiten**. Sie sind keine Einträge, sondern Regeln für die e
 | Mo 16.11. | Idee & Plan | `PLAN.md` und `CLAUDE.md` stehen | ✅ |
 | Di 17.11. | Grundgerüst & Aussehen: Die App läuft (✅ schon Mo fertig) | 1. PWA-Gerüst + Leiste unten + online auf GitHub Pages · 2. Speicher-Baustein + Datenmodell · 3. Heute-Ansicht mit Tagesplan · 4. Feste und einmalige Termine anlegen | – |
 | Mi 18.11. | Daten von außen | 5. Aufgaben · 6. Ziele + Unterziele + Abhaken mit Std./% · 7. Woche als Stundenplan · 8. Feiertage laden | – |
-| Do 19.11. | Fertig & veröffentlicht | 9. Abhängigkeiten + kritischer Pfad + „Hängt hinterher“ · 10. Test auf dem Handy, Fehler beheben, README · **Freeze 12 Uhr**, danach Poster | – |
+| Do 19.11. | Fertig & veröffentlicht | 9. Abhängigkeiten + kritischer Pfad + „Hängt hinterher“ · 10. Test auf dem Handy, Fehler beheben, README · **Freeze zwischen 12 und 16 Uhr**, danach Poster | – |
 | Fr 20.11. | Polieren und präsentieren | Präsentation, Abgabe bis 16 Uhr | – |
 
 Weitere Should-Punkte kommen dazwischen, wenn ein Feature schneller fertig ist.

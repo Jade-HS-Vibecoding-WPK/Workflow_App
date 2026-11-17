@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-17-0930
+- **Zeit:** Di 17.11.2026, 09:30 Uhr
+- **Zustand der App:** wie backup-2026-11-17-0926 (Feature 1–10, alles lauffähig).
+- **Zuletzt gemacht:** Freeze auf Do 12–16 Uhr gesetzt, Reihenfolge der Bau-Etappen festgelegt (PLAN.md).
+- **Als Nächstes:** Etappe 1 Grundlagen-Paket (Sperrzeiten, Warnungen, Tagesnotizen, Daten sichern, Zeiten mitschreiben).
+
 ## backup-2026-11-17-0926
 - **Zeit:** Di 17.11.2026, 09:26 Uhr
 - **Zustand der App:** Feature 1–10 fertig und online (Heute mit Wischen, Woche, Aufgaben, Ziele mit CPM, Status eng/kritisch, Hauptpfad, Feiertage, Einstellungen, README). Alles getestet und lauffähig.

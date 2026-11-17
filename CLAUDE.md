@@ -4,7 +4,7 @@ Dieses Dokument enthält die festen Regeln. Den aktuellen Stand findest du in `P
 
 ## Ziel
 Eine Zeitmanagement-App (PWA) mit Stunden- und Wochenplan und verschiedenen Kategorien von Einträgen (feste Termine, flexible Termine, Aufgaben, einmalige Termine, Ziele mit Unterzielen). Sie hilft, Aufgaben nicht zu vergessen und den Workflow zu verbessern.
-Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelprojekt (kein Team).
+Abgabe: GitHub-Repo mit README und Poster bis **Fr 20.11.2026, 16 Uhr**. Einzelprojekt (kein Team). Freeze: Do 19.11.2026 zwischen 12 und 16 Uhr (genauer je nach Stand).
 
 ## Arbeitsweise
 - **PLAN.md wird immer aktuell gehalten:** Vor jedem Commit aktualisieren und im selben Commit mitspeichern. Außerdem sofort aktualisieren, sobald eine Entscheidung fällt, ein Feature fertig ist oder sich die nächsten Schritte ändern. Diese Regel gilt dauerhaft.

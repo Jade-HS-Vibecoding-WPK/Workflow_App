@@ -2,7 +2,7 @@
 
 *Angelegt: Mo 16.11.2026 abends, nach Fertigstellung aller Must-Punkte (Feature 1–10). Wird gemeinsam Punkt für Punkt besprochen; Entscheidungen werden hier und in `PLAN.md` eingetragen.*
 
-**Freeze:** Do 19.11., 12 Uhr (danach Poster). Verbleibende Bauzeit: Di, Mi, Do-Vormittag.
+**Freeze:** Do 19.11. zwischen 12 und 16 Uhr, genauer Zeitpunkt je nach Stand (danach Poster). Verbleibende Bauzeit: Di, Mi, Do.
 
 ---
 
@@ -84,4 +84,13 @@ Der Baumanagement-Modus wird ein **eigener Bereich** neben „Privat“. Privat 
 
 ## E. Ergebnis: Reihenfolge bis zum Freeze
 
-*(wird am Ende der Besprechung festgelegt und nach `PLAN.md` übertragen)*
+*Bestätigt Di 17.11.:*
+
+1. **Grundlagen-Paket** (Di Vormittag): A1 Sperrzeiten anlegen · A2 + B5 Warnung bei Sperrzeit/Überschneidung · A10 Tagesnotizen anlegen · A3 Daten sichern/wiederherstellen · B3 + B4 Grundgerüst (Schätzung und echte Zeit, Erledigtes mit Datum mitschreiben)
+2. **Planungs-Kern** (Di Nachmittag – Mi früh): A4 + A9 Vorschläge in freie Zeit (30-Min.-Raster, CPM-Reihenfolge) · A8 Umplanen bei eigenem Termin + Knopf „neu berechnen“ · A5 Hinweis am Vortag · B1 „Was mache ich jetzt?“
+3. **Ansichten** (Mi): A11 Monatskalender · A6 Netzplan (Idee von Niklas zur Struktur ist D1)
+4. **Baustellen-Bereich** (Mi Abend – Do früh): D1 eigener Bereich + B8 Vorlage „Einfamilienhaus-Bauablauf“
+5. **Wenn Zeit bleibt:** A7 Balkenplan · Pfeil-Ziehen im Netzplan · B7 Semesterzeiten + Haken „Uni-Veranstaltung“
+6. **Abschluss** (Do): Test auf dem Handy, README ergänzen, **Freeze Do zwischen 12 und 16 Uhr** (genauer Zeitpunkt nach Stand), danach Poster
+
+Vor jeder Etappe wird ein Sicherungspunkt gesetzt (`BACKUPS.md`).
