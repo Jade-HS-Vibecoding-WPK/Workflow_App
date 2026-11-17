@@ -27,6 +27,14 @@ const Toast = (() => {
 const Tasks = (() => {
   const S = Schedule;
 
+  // Blöcke, die noch kommen (nicht vorbei) – fallen beim Abhaken weg und geben die Zeit frei
+  function dropUpcoming(slots) {
+    const now = new Date();
+    const today = S.isoDate(now);
+    const nm = now.getHours() * 60 + now.getMinutes();
+    return (slots || []).filter((s) => s.date < today || (s.date === today && S.toMin(s.end) <= nm));
+  }
+
   // Abhaken / wieder öffnen.
   // Wiederkehrende Aufgabe: Deadline rückt auf den nächsten Termin,
   // die Erledigung wird im Verlauf festgehalten.
@@ -48,6 +56,7 @@ const Tasks = (() => {
       const next = S.nextOccurrence(before.recurrence, before.deadline < today ? today : before.deadline);
       after = {
         ...before,
+        slots: dropUpcoming(before.slots),
         deadline: next,
         history: [...(before.history || []), { doneAt: new Date().toISOString(), deadlineWas: before.deadline, estimateMin: before.durationMin }],
       };
@@ -56,13 +65,18 @@ const Tasks = (() => {
     } else {
       const doneAt = new Date().toISOString();
       // Verlauf für Statistik (Wochenrückblick, Schätzung lernen)
-      after = { ...before, done: true, doneAt, history: [...(before.history || []), { doneAt, deadlineWas: before.deadline, estimateMin: before.durationMin }] };
+      after = {
+        ...before, done: true, doneAt,
+        slots: dropUpcoming(before.slots),
+        // Ziel abschließen: auch die geplanten Blöcke der Unterziele freigeben
+        ...(before.subgoals ? { subgoals: before.subgoals.map((sg) => ({ ...sg, slots: dropUpcoming(sg.slots) })) } : {}),
+        history: [...(before.history || []), { doneAt, deadlineWas: before.deadline, estimateMin: before.durationMin }] };
       await Store.save(after);
       Toast.show(`„${before.title}“ erledigt`, () => Store.save(before));
     }
   }
 
-  return { toggleDone };
+  return { toggleDone, dropUpcoming };
 })();
 
 const AufgabenView = (() => {

@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-17-1113
+- **Zeit:** Di 17.11.2026, 11:13 Uhr
+- **Zustand der App:** alles bis inkl. 12 Verbesserungen aus Testrunde 1 (Planer nachrücken/kürzen/max. 3 Std., Mitternacht, Wochenende …). Im Browser getestet, lauffähig.
+- **Zuletzt gemacht:** 12 Verbesserungen umgesetzt.
+- **Als Nächstes:** ggf. weitere Testrunde, README.
+
 ## backup-2026-11-17-1109
 - **Zeit:** Di 17.11.2026, 11:09 Uhr
 - **Zustand der App:** alles bis Testrunde 1 (inkl. Zoom, Gewerke-Zeiten, Extras). Lauffähig.

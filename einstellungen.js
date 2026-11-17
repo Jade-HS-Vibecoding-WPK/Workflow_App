@@ -53,6 +53,9 @@ const EinstellungenView = (() => {
         </label>
         <label class="row"><span>Arbeitszeit ab</span><input type="time" name="von" value="${cfg.workFrom}"></label>
         <label class="row"><span>Arbeitszeit bis</span><input type="time" name="bis" value="${cfg.workTo}"></label>
+        <label class="row"><span>Am Wochenende keine Vorschläge <small class="muted">Sa/So zählen dann auch nicht als freie Zeit</small></span>
+          <input type="checkbox" class="switch" name="we" ${settings.wochenendeFrei ? "checked" : ""}>
+        </label>
         <label class="row"><span>Vorschläge automatisch einplanen <small class="muted">Aufgaben und Ziel-Arbeit als gestrichelte Option in freie Lücken</small></span>
           <input type="checkbox" class="switch" name="auto" ${settings.autoPlanen !== false ? "checked" : ""}>
         </label>
@@ -129,6 +132,7 @@ const EinstellungenView = (() => {
     }));
     container.querySelectorAll('[name="zoom"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zoom: Number(r.value) })));
     container.querySelectorAll('[name="theme"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ farbmodus: r.value })));
+    container.querySelector('[name="we"]').addEventListener("change", (e) => Store.saveSettings({ wochenendeFrei: e.target.checked }));
     container.querySelector('[name="auto"]').addEventListener("change", (e) => Store.saveSettings({ autoPlanen: e.target.checked }));
     container.querySelector('[name="bau"]').addEventListener("change", (e) => Store.saveSettings({ bauModus: e.target.checked }));
     const von = container.querySelector('[name="von"]'), bis = container.querySelector('[name="bis"]');

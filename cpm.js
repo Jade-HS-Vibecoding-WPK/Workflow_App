@@ -32,6 +32,7 @@ const CPM = (() => {
       workFrom: st.arbeitVon || "08:00",
       workTo: st.arbeitBis || "22:00",
       bau: !!st.bauModus,
+      wochenendeFrei: !!st.wochenendeFrei, // Sa/So keine Vorschläge, zählt nicht als freie Zeit
     };
   }
   Store.getSettings().then((st) => { cfg = makeCfg(st); });
@@ -45,6 +46,8 @@ const CPM = (() => {
     const plan = S.dayPlan(entries, date);
     // Ganztägiger Termin (z. B. Urlaub) → kein Arbeiten an Zielen
     if (plan.allDay.some((a) => a.kind !== "feiertag")) return 0;
+    // Wochenende frei (Einstellung)
+    if (cfg.wochenendeFrei && (date.getDay() === 0 || date.getDay() === 6)) return 0;
     let from = S.toMin(cfg.workFrom);
     const to = S.toMin(cfg.workTo);
     if (S.isoDate(date) === S.isoDate(now)) from = Math.max(from, now.getHours() * 60 + now.getMinutes());

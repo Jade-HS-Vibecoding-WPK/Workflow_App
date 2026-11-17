@@ -414,6 +414,8 @@ const Goals = (() => {
       const done = pct >= 100;
       const updated = {
         ...sg,
+        // Fertig → noch kommende Blöcke freigeben
+        ...(done ? { slots: Tasks.dropUpcoming(sg.slots) } : {}),
         progressPercent: pct,
         // Erste Schätzung merken (Statistik: "Schätzung lernen")
         initialEstimateHours: sg.initialEstimateHours ?? sg.estimateHours,
@@ -561,7 +563,7 @@ const ZielDetailView = (() => {
     const end = esc(S.parseDate(res.projectEndDate).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" }));
     const crit = (goal.subgoals || []).filter((x) => res.nodes[x.id] && res.nodes[x.id].critical && !x.done).map((x) => `„${esc(x.title)}“`);
     const tf = res.minTF;
-    const days = (d) => `${Math.abs(d)} ${Math.abs(d) === 1 ? "Tag" : "Tagen"}`;
+    const days = (d) => `${Math.abs(d)} ${Math.abs(d) === 1 ? "Tag" : "Tage"}`;
     if (res.status === "hinterher") {
       return `<div class="advice advice--crit"><b>Verzug: ca. ${days(tf)}.</b>
         So wird das Projekt erst ${end} fertig. Kritisch: ${crit.slice(0, 4).join(", ")}. Prüfe Dauern, Überlappungen (negative Wartezeit) oder mehr Kolonnen.

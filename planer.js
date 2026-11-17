@@ -27,6 +27,10 @@ const Planner = (() => {
   const HORIZON = 42;   // so viele Tage im Voraus wird geplant
   const MIN_GOAL = 90;  // Ziel-Arbeit: kürzester sinnvoller Block (1,5 Std.) – Wunsch Niklas
   const MIN_TASK = 60;  // Aufgaben: Blöcke möglichst ab 1 Std., kleinere Lücken nur wenn nötig
+  const MAX_BLOCK = 180; // höchstens 3 Std. am Stück, danach 30 Min. Pause (Testrunde 1)
+  const NODL_DAYS = 7;   // Aufgaben ohne Deadline: nur in den nächsten 7 Tagen …
+  const NODL_PER_DAY = 60; // … und höchstens 1 Std. pro Tag (sonst ist alles gestrichelt)
+  const up5 = (m) => Math.ceil(m / 5) * 5; // Uhrzeiten auf 5 Minuten runden
   // Mindestlänge eines Blocks für diesen Posten (nie mehr als die ganze Restzeit)
   const minLenOf = (it, rest) => Math.min(it.kind === "sub" ? MIN_GOAL : STEP, Math.max(rest, STEP));
 
@@ -63,6 +67,7 @@ const Planner = (() => {
           key: e.id, kind: "task", entry: e, holder: e, need, slack,
           level: slack < 1 ? 0 : slack < 3 ? 1 : 2, prio: e.priority,
           due: e.deadline && e.deadline >= todayIso ? e.deadline : null,
+          noDL: !e.deadline, // ohne Deadline: nur sparsam vorschlagen
           title: e.title, color: e.color, preds: [],
         });
       }
@@ -112,9 +117,11 @@ const Planner = (() => {
         else if (b.kind === "sperr") busy.push([b.startMin, b.endMin]);
         else if (b.kind === "aufgabe" || b.kind === "ziel") { busy.push([b.startMin, b.endMin]); load += b.endMin - b.startMin; }
       }
+      const weekend = d.getDay() === 0 || d.getDay() === 6;
       days[iso] = {
-        iso, from, to, busy, opts: [], load,
-        blocked: plan.allDay.some((a) => a.kind !== "feiertag"), // z. B. Urlaub
+        iso, from, to, busy, opts: [], load, freeLoad: 0,
+        // Urlaub (ganztägig) oder Wochenende frei (Einstellung)
+        blocked: plan.allDay.some((a) => a.kind !== "feiertag") || (cfg.wochenendeFrei && weekend),
       };
     }
     return days;
@@ -142,6 +149,8 @@ const Planner = (() => {
       if (it.holder.declined) it.holder.declined = it.holder.declined.filter((x) => x.date >= todayIso);
     }
 
+    const nodlUntil = S.isoDate(S.addDays(now, NODL_DAYS - 1));
+
     // 1. Vorhandene Optionen prüfen (Wichtigstes zuerst behält seinen Platz)
     for (const it of items) {
       const keep = [];
@@ -151,7 +160,18 @@ const Planner = (() => {
         if (ended(s, todayIso, nm) || full) continue;            // vorbei oder Neuplanung
         if (it.need <= 0) continue;                               // erledigt
         const day = days[s.date];
-        const a = S.toMin(s.start), b = S.toMin(s.end);
+        const a = S.toMin(s.start);
+        let b = S.toMin(s.end);
+        // Restzeit gesunken (z. B. nach Fortschritt) → Vorschlag kürzen
+        if (kept < it.need && kept + (b - a) > it.need) {
+          let len = it.need - kept;
+          if (it.kind === "sub" && it.need >= MIN_GOAL) len = Math.max(len, MIN_GOAL);
+          len = up5(len);
+          if (len < b - a) { b = a + len; s.end = S.fromMin(b); }
+        }
+        const running = s.date === todayIso && a < nm;
+        if (!running && b - a > MAX_BLOCK) continue;              // zu lang am Stück → neu verteilen
+        if (it.noDL && (s.date > nodlUntil || (day && day.freeLoad + (b - a) > NODL_PER_DAY))) continue;
         // Läuft gerade (heute schon begonnen) → darf vor "from" liegen
         const inWindow = day && !day.blocked && a >= S.toMin(cfg.workFrom) && b <= day.to;
         const hitsFixed = !day || day.blocked || day.busy.some(([x, y]) => overlaps(a, b, x, y));
@@ -164,6 +184,7 @@ const Planner = (() => {
         }
         day.opts.push({ a, b, key: it.key, slot: s });
         day.load += b - a;
+        if (it.noDL) day.freeLoad += b - a;
         kept += b - a;
         keep.push(s);
       }
@@ -177,6 +198,7 @@ const Planner = (() => {
     // 2. Fehlende Zeit einplanen
     const placed = new Set();
     const visiting = new Set();
+    let noEvict = false; // beim Nachrücken niemanden verdrängen
     const created = {}; // neu angelegte Optionen je Posten (für die Meldung)
     const late = new Set();
 
@@ -218,6 +240,7 @@ const Planner = (() => {
       const total = chunks;
       let placedChunks = 0;
       const blocks = [];
+      if (it.noDL) untilIso = untilIso && untilIso < nodlUntil ? untilIso : nodlUntil;
       for (let i = 0; i < HORIZON && chunks > 0; i++) {
         const iso = S.isoDate(S.addDays(now, i));
         if (iso < start.iso) continue;
@@ -233,8 +256,9 @@ const Planner = (() => {
           if (!usable(t)) { t += STEP; continue; }
           let run = 0;
           while (t + (run + 1) * STEP <= day.to && usable(t + run * STEP)) run++;
-          const room = Math.floor((maxMin - day.load) / STEP);
-          let take = Math.min(run, chunks, room);
+          let room = Math.floor((maxMin - day.load) / STEP);
+          if (it.noDL) room = Math.min(room, Math.floor((NODL_PER_DAY - day.freeLoad) / STEP));
+          let take = Math.min(run, chunks, room, MAX_BLOCK / STEP);
           if (take <= 0) break; // Tageslimit erreicht
           if (take < Math.min(minRun, chunks)) { t += run * STEP; continue; }
           // Ziel-Arbeit: keinen Rest unter der Mindestlänge übrig lassen
@@ -250,10 +274,12 @@ const Planner = (() => {
             cur.parts.push(o);
           }
           day.load += take * STEP;
+          if (it.noDL) day.freeLoad += take * STEP;
           chunks -= take;
           placedChunks += take;
           blocks.push(cur);
-          t += run * STEP;
+          // Lauf noch nicht ausgeschöpft (3-Std.-Grenze) → 30 Min. Pause, dann weiter
+          t += take < run ? (take + 1) * STEP : run * STEP;
         }
       }
       // Letzten Block auf die echte Restzeit kürzen (z. B. 45 Min. statt 60),
@@ -262,7 +288,11 @@ const Planner = (() => {
         const last = blocks[blocks.length - 1];
         const extra = placedChunks * STEP - rem;
         const keep = blocks.length === 1 ? minLenOf(it, rem) : minLenOf(it, Infinity);
-        if (extra > 0) last.b -= Math.max(0, Math.min(extra, (last.b - last.a) - keep));
+        if (extra > 0) {
+          const full = last.b;
+          last.b -= Math.max(0, Math.min(extra, (last.b - last.a) - keep));
+          last.b = Math.min(full, up5(last.b)); // auf 5 Min. runden, z. B. 17:15 statt 17:12
+        }
       }
       for (const bl of blocks) {
         const slot = { id: Model.newId(), date: bl.iso, start: S.fromMin(bl.a), end: S.fromMin(bl.b), confirmed: false };
@@ -298,7 +328,7 @@ const Planner = (() => {
       if (remaining(it) > 0) {
         if (it.due && it.due >= start.iso) {
           fill(it, start, it.due);
-          if (remaining(it) > 0 && it.level <= 1 && evictFor(it, start, it.due) > 0) fill(it, start, it.due);
+          if (remaining(it) > 0 && it.level <= 1 && !noEvict && evictFor(it, start, it.due) > 0) fill(it, start, it.due);
         }
         if (remaining(it) > 0) {
           if (it.due) late.add(it.key);
@@ -309,10 +339,40 @@ const Planner = (() => {
       placed.add(it.key);
     }
 
+    // Nachrücken: Vorschläge eines Postens neu legen – nur in freie Lücken oder
+    // auf den eigenen alten Platz (andere werden nicht verdrängt). Ändert sich
+    // nichts, bleiben die alten Vorschläge (gleiche IDs) erhalten.
+    const sig = (arr) => arr.map((s) => s.date + s.start + s.end).sort().join("|");
+    function reflow(it) {
+      const old = it.holder.slots.filter((s) => !s.confirmed && !ended(s, todayIso, nm));
+      const runningNow = old.some((s) => s.date === todayIso && S.toMin(s.start) < nm);
+      if (!old.length || runningNow) { placeItem(it); return; }
+      for (const day of Object.values(days)) {
+        day.opts = day.opts.filter((o) => {
+          if (o.key !== it.key || !old.includes(o.slot)) return true;
+          day.load -= o.b - o.a;
+          if (it.noDL) day.freeLoad -= o.b - o.a;
+          return false;
+        });
+      }
+      it.holder.slots = it.holder.slots.filter((s) => !old.includes(s));
+      noEvict = true;
+      placeItem(it);
+      noEvict = false;
+      const neu = it.holder.slots.filter((s) => !s.confirmed && !old.includes(s));
+      if (sig(neu) === sig(old)) {
+        // gleicher Plan → alte Vorschläge behalten (keine unnötigen Änderungen)
+        const byPos = Object.fromEntries(old.map((s) => [s.date + s.start + s.end, s]));
+        it.holder.slots = it.holder.slots.filter((s) => !neu.includes(s)).concat(old);
+        for (const day of Object.values(days)) for (const o of day.opts) if (o.key === it.key && neu.includes(o.slot)) o.slot = byPos[o.slot.date + o.slot.start + o.slot.end] || o.slot;
+        if (created[it.key]) created[it.key] = created[it.key].filter((s) => !neu.includes(s));
+      }
+    }
+
     if (place) {
       // Verdrängte Posten landen wieder in "placed = nein" → zweite Runde
       for (let round = 0; round < 3; round++) {
-        for (const it of items) if (!placed.has(it.key)) placeItem(it);
+        for (const it of items) if (!placed.has(it.key)) (full || round > 0 ? placeItem(it) : reflow(it));
         if (items.every((it) => placed.has(it.key))) break;
       }
     } else {
@@ -482,9 +542,10 @@ const Planner = (() => {
   // ---------- "Was mache ich jetzt?" ----------
   // Schaut auf die freie Zeit bis zum nächsten Termin und schlägt
   // das Wichtigste vor (gleiche Reihenfolge wie beim Einplanen).
-  function nowSituation(entries, now) {
+  // fromMin: ab wann geschaut wird (Standard: jetzt; während eines Termins: danach)
+  function nowSituation(entries, now, fromMin = null) {
     const cfg = CPM.cfg;
-    const nm = nowMin(now);
+    const nm = fromMin == null ? nowMin(now) : fromMin;
     const plan = S.dayPlan(entries, now);
     const fixed = plan.timed.filter((b) => !b.cancelled && !b.option && (b.kind === "fest" || b.kind === "einmalig"));
     const running = fixed.find((b) => b.startMin <= nm && nm < b.endMin);
@@ -499,7 +560,7 @@ const Planner = (() => {
     busyStarts.push({ min: S.toMin(cfg.workTo), label: `Feierabend (${cfg.workTo} Uhr)` });
     const next = busyStarts.sort((a, b) => a.min - b.min)[0];
     const outside = nm < S.toMin(cfg.workFrom) || nm >= S.toMin(cfg.workTo);
-    return { running, sperr, outside, gap: Math.max(0, next.min - nm), nextLabel: next.label };
+    return { running, sperr, outside, from: nm, gap: Math.max(0, next.min - nm), nextLabel: next.label };
   }
 
   function startable(it) {
@@ -515,7 +576,13 @@ const Planner = (() => {
   async function whatNow() {
     const entries = await Store.list(null, { area: "privat" });
     const now = new Date();
-    const sit = nowSituation(entries, now);
+    let sit = nowSituation(entries, now);
+    // Läuft gerade ein Termin? Dann für die Zeit danach vorschlagen (auch bei Terminen direkt hintereinander)
+    const runningNow = sit.running;
+    for (let k = 0; k < 5 && sit.running; k++) sit = nowSituation(entries, now, up5(sit.running.endMin + (sit.running.buffer || 0)));
+    const later = !!runningNow;
+    const cfg = CPM.cfg;
+    const weekend = cfg.wochenendeFrei && (now.getDay() === 0 || now.getDay() === 6);
     let cands = collectItems(entries, now).filter((it) => it.need > 0 && startable(it));
     // Ziel-Arbeit lohnt sich erst ab 1,5 Std. (außer es ist nur noch weniger übrig)
     const shortForGoals = sit.gap < MIN_GOAL && cands.some((it) => it.kind === "sub" && it.need > sit.gap);
@@ -530,30 +597,32 @@ const Planner = (() => {
       let head = "";
       let card = "";
       let buttons = "";
-      if (sit.running) {
-        head = `Gerade läuft „${esc(sit.running.title)}“ bis ${sit.running.end} Uhr.`;
-      } else if ((sit.sperr || sit.outside) && !force) {
-        head = sit.sperr ? `Gerade ist deine Sperrzeit „${esc(sit.sperr.title)}“. Gönn dir die Pause!` : "Gerade ist außerhalb deiner Arbeitszeit. Gönn dir die Pause!";
+      const intro = later ? `Gerade läuft „${esc(runningNow.title)}“ bis ${runningNow.end} Uhr. ` : "";
+      const when = later ? `danach (ab ${S.fromMin(sit.from)} Uhr)` : "gerade";
+      if ((sit.sperr || sit.outside || weekend) && !force) {
+        head = intro + (weekend ? "Es ist Wochenende – heute keine Vorschläge. Gönn dir die Pause!"
+          : sit.sperr ? `${later ? "Danach" : "Gerade"} ist deine Sperrzeit „${esc(sit.sperr.title)}“. Gönn dir die Pause!`
+          : `${later ? "Danach" : "Gerade"} ist außerhalb deiner Arbeitszeit. Gönn dir die Pause!`);
         buttons = `<button class="action" data-a="force">Trotzdem etwas vorschlagen</button>`;
       } else if (!cands.length) {
-        head = shortForGoals
-          ? `Nur ${fmtH(sit.gap)} bis ${esc(sit.nextLabel)} – für Ziel-Arbeit lohnt sich erst ein Block ab 1,5 Std. Kurze Pause?`
-          : "Nichts offen – alles erledigt. Genieß die freie Zeit!";
+        head = intro + (shortForGoals
+          ? `${later ? "Danach" : "Jetzt"} nur ${fmtH(sit.gap)} bis ${esc(sit.nextLabel)} – für Ziel-Arbeit lohnt sich erst ein Block ab 1,5 Std. Kurze Pause?`
+          : "Nichts offen – alles erledigt. Genieß die freie Zeit!");
       } else if (sit.gap < 10 && !force) {
-        head = `Nur ${sit.gap} Min. bis ${esc(sit.nextLabel)} – kurz durchatmen.`;
+        head = intro + `${later ? "Danach" : "Jetzt"} nur ${sit.gap} Min. bis ${esc(sit.nextLabel)} – kurz durchatmen.`;
       } else {
-        const gap = force && (sit.sperr || sit.outside) ? 60 : sit.gap;
+        const gap = force && (sit.sperr || sit.outside || weekend) ? 60 : sit.gap;
         const it = cands[idx % cands.length];
         const len = Math.max(it.kind === "sub" ? Math.min(MIN_GOAL, it.need) : 15, Math.min(gap, it.need));
         const lvl = it.level === 0 ? "kritisch" : it.level === 1 ? "eng" : "";
-        head = `Du hast ${fmtH(gap)} bis ${esc(sit.nextLabel)}.`;
+        head = intro + (later ? `Danach (ab ${S.fromMin(sit.from)} Uhr) hast du ${fmtH(gap)} bis ${esc(sit.nextLabel)}.` : `Du hast ${fmtH(gap)} bis ${esc(sit.nextLabel)}.`);
         card = `
           <div class="slot-card" style="--c:${it.color || "var(--accent)"}">
             <b>${esc(it.title)}</b>
             <small>${it.kind === "sub" ? `Ziel: ${esc(it.goalTitle)}` : "Aufgabe"}${lvl ? ` · <span class="lvl lvl--${lvl}">${lvl}</span>` : ""}</small>
-            <span>noch ${fmtH(it.need)}${it.due ? ` · fertig bis ${fmtDay(it.due)}` : ""} → jetzt ${fmtH(len)}</span>
+            <span>noch ${fmtH(it.need)}${it.due ? ` · fertig bis ${fmtDay(it.due)}` : ""} → ${when} ${fmtH(len)}</span>
           </div>`;
-        buttons = `<button class="action" data-a="go" data-len="${len}"><b>Los, jetzt machen</b></button>
+        buttons = `<button class="action" data-a="go" data-len="${len}"><b>${later ? `Für ${S.fromMin(sit.from)} Uhr einplanen` : "Los, jetzt machen"}</b></button>
           ${cands.length > 1 ? `<button class="action" data-a="other">Anderer Vorschlag (${(idx % cands.length) + 1}/${cands.length})</button>` : ""}`;
       }
       Editor.show(`
@@ -573,7 +642,7 @@ const Planner = (() => {
         b.onclick = async () => {
           if (b.dataset.a === "other") { idx++; draw(); return; }
           if (b.dataset.a === "force") { force = true; draw(); return; }
-          if (b.dataset.a === "go") await startNow(cands[idx % cands.length], Number(b.dataset.len));
+          if (b.dataset.a === "go") await startNow(cands[idx % cands.length], Number(b.dataset.len), later ? sit.from : null);
         };
       });
     }
@@ -581,16 +650,16 @@ const Planner = (() => {
   }
 
   // Bestätigten Block ab jetzt eintragen
-  async function startNow(it, len) {
+  async function startNow(it, len, startMin = null) {
     const now = new Date();
-    const start = Math.floor(nowMin(now) / 5) * 5;
-    const end = Math.min(start + len, 24 * 60 - 1);
+    const start = startMin != null ? startMin : Math.floor(nowMin(now) / 5) * 5;
+    const end = Math.min(up5(start + len), 24 * 60 - 1);
     const entry = await Store.get(it.entry.id);
     const holder = it.kind === "sub" ? entry.subgoals.find((x) => x.id === it.sg.id) : entry;
     holder.slots = [...(holder.slots || []), { id: Model.newId(), date: S.isoDate(now), start: S.fromMin(start), end: S.fromMin(end), confirmed: true }];
     await Store.save(entry);
     Editor.close();
-    Toast.show(`Viel Erfolg! „${it.title}“ bis ${S.fromMin(end)} Uhr eingetragen`);
+    Toast.show(startMin != null ? `„${it.title}“ für ${S.fromMin(start)}–${S.fromMin(end)} Uhr eingetragen` : `Viel Erfolg! „${it.title}“ bis ${S.fromMin(end)} Uhr eingetragen`);
   }
 
   return {

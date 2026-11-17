@@ -108,6 +108,14 @@ const Schedule = (() => {
     for (const e of entries) {
       switch (e.type) {
         case T.FEST: {
+          // Über Mitternacht (z. B. Nachtschicht 22–6): Teil nach 0 Uhr gehört zum Vortag
+          const night = overnight(e);
+          const prev = addDays(date, -1), prevIso = isoDate(prev);
+          if (night && recursOn(e.recurrence, prev, (e.createdAt || prevIso).slice(0, 10)) && !(e.uni && !inLecture(prevIso))) {
+            const exP = (e.exceptions || []).find((x) => x.date === prevIso);
+            const cancelledP = !!(exP && exP.status === "abgesagt");
+            timed.push(block(e, "fest", "00:00", e.end, { sub: cancelledP ? "abgesagt" : contSub(e), cancelled: cancelledP, occDate: prevIso }));
+          }
           if (!recursOn(e.recurrence, date, (e.createdAt || iso).slice(0, 10))) break;
           if (e.uni && !inLecture(iso)) break; // Uni-Veranstaltung außerhalb der Vorlesungszeit
           const ex = (e.exceptions || []).find((x) => x.date === iso);
@@ -116,8 +124,9 @@ const Schedule = (() => {
           // Einstellung: feste Termine fallen an Feiertagen automatisch aus
           const byHoliday = !!(holiday && Holidays.skipFixed);
           const cancelled = !!(ex && ex.status === "abgesagt") || byHoliday;
-          timed.push(block(e, "fest", e.start, e.end, {
+          timed.push(block(e, "fest", e.start, night ? "24:00" : e.end, {
             sub: byHoliday ? "Feiertag" : cancelled ? "abgesagt" : bauSub(e), buffer: cancelled ? 0 : e.bufferMin, cancelled,
+            range: night ? rangeOf(e) : null,
           }));
           break;
         }
@@ -126,7 +135,11 @@ const Schedule = (() => {
             const last = e.endDate || e.date;
             if (e.date && e.date <= iso && iso <= last) allDay.push({ id: e.id, kind: "einmalig", title: e.title, sub: e.area === "bau" ? "Baustelle" : "" });
           } else if (e.date === iso) {
-            timed.push(block(e, "einmalig", e.start, e.end, { sub: bauSub(e), buffer: e.bufferMin }));
+            const night = overnight(e);
+            timed.push(block(e, "einmalig", e.start, night ? "24:00" : e.end, { sub: bauSub(e), buffer: e.bufferMin, range: night ? rangeOf(e) : null }));
+          } else if (e.date && overnight(e) && isoDate(addDays(parseDate(e.date), 1)) === iso) {
+            // Teil nach Mitternacht am Folgetag
+            timed.push(block(e, "einmalig", "00:00", e.end, { sub: contSub(e), buffer: e.bufferMin, occDate: e.date }));
           }
           break;
         }
@@ -189,6 +202,11 @@ const Schedule = (() => {
     timed.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
     return { timed, allDay, notes };
   }
+
+  // Termin über Mitternacht? (Ende vor Beginn, z. B. 22:00–02:00)
+  const overnight = (e) => !!e.start && !!e.end && toMin(e.end) < toMin(e.start);
+  const rangeOf = (e) => `${e.start}–${e.end} (+1 Tag)`;
+  const contSub = (e) => ["Fortsetzung von gestern", e.area === "bau" ? "Baustelle" : "", e.location].filter(Boolean).join(" · ");
 
   // Baustellen-Termine im privaten Plan erkennbar machen
   const bauSub = (e) => [e.area === "bau" ? "Baustelle" : "", e.location].filter(Boolean).join(" · ");
@@ -279,7 +297,9 @@ const Schedule = (() => {
     if (cand.type !== T.FEST && cand.type !== T.EINMALIG) return out;
     if (cand.type === T.EINMALIG && cand.allDay) return out;
     const others = entries.filter((e) => e.id !== cand.id);
-    const s = toMin(cand.start), e = toMin(cand.end);
+    const s = toMin(cand.start), e0 = toMin(cand.end);
+    const night = e0 < s;
+    const e = night ? 24 * 60 : e0; // erster Teil bis Mitternacht
     const dates = [];
     if (cand.type === T.EINMALIG) {
       if (cand.date) dates.push(parseDate(cand.date));
@@ -295,10 +315,16 @@ const Schedule = (() => {
       }
     }
     const seen = new Set();
+    // Abschnitte [Tag, von, bis]; über Mitternacht zusätzlich der Folgetag ab 0 Uhr
+    const parts = [];
     for (const d of dates) {
+      parts.push([d, s, e]);
+      if (night && e0 > 0) parts.push([addDays(d, 1), 0, e0]);
+    }
+    for (const [d, ps, pe] of parts) {
       for (const b of dayPlan(others, d).timed) {
         if (b.cancelled || b.option || b.kind === "vorgang") continue; // Gewerke arbeiten parallel, kein Konflikt
-        if (!(b.startMin < e && s < b.endMin)) continue;
+        if (!(b.startMin < pe && ps < b.endMin)) continue;
         const key = b.id + "|" + (b.kind === "fest" || b.kind === "sperr" ? b.start : isoDate(d));
         if (seen.has(key)) continue; // gleiche Serie nur einmal nennen
         seen.add(key);

@@ -68,14 +68,14 @@ const HeuteView = (() => {
 
     const sub = [
       b.option ? "Option" : "",
-      `${b.start}–${b.end}`,
+      b.range || `${b.start}–${b.end}`,
       b.sub,
       b.kind === "ziel" && b.progress != null ? `${b.progress} %` : "",
     ].filter(Boolean).join(" · ");
 
     return buffer + `
       <div class="${classes}" style="top:${top}px;height:${height}px;left:${left};width:${width};--c:${color}"
-        data-id="${esc(b.id)}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : b.kind === "vorgang" ? `data-sub="${esc(b.subgoalId)}"` : ""} role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.option ? ", Vorschlag" : ""}">
+        data-id="${esc(b.id)}" ${b.occDate ? `data-occ="${b.occDate}"` : ""} ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : b.kind === "vorgang" ? `data-sub="${esc(b.subgoalId)}"` : ""} role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.option ? ", Vorschlag" : ""}">
         ${isTodo ? '<span class="block__check" aria-hidden="true"></span>' : ""}
         <span class="block__text">
           <span class="block__title">${short ? `<span class="block__time">${b.start}</span>` : ""}${esc(b.title)}</span>
@@ -139,6 +139,8 @@ const HeuteView = (() => {
     // Hinweis am Vortag (A5): Vorschläge für morgen – passt das?
     const tomorrowIso = Schedule.isoDate(Schedule.addDays(now, 1));
     const privat = Store.getArea() !== "bau";
+    // "Was mache ich jetzt?" / "Neu planen" nur, wenn es etwas zu planen gibt
+    const hasWork = entries.some((e) => !e.done && (e.type === Model.TYPES.AUFGABE || e.type === Model.TYPES.ZIEL));
     const tomorrowOpts = isToday && privat && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
     const tomorrowHtml = tomorrowOpts.length ? `
       <div class="tomorrow">
@@ -162,7 +164,7 @@ const HeuteView = (() => {
         ${tile("ziele", "Ziele & Aufgaben", c.open, "#7f77dd", "#ziele")}
         ${tile("warn", "Hängt hinterher", c.behind, c.behind ? "var(--warn)" : "#8e8e93", "#ziele")}
       </div>
-      ${isToday && privat ? `
+      ${isToday && privat && hasWork ? `
         <div class="plan-actions">
           <button class="pill pill--primary" data-whatnow>Was mache ich jetzt?</button>
           <button class="pill" data-replan aria-label="Vorschläge neu berechnen">↻ Neu planen</button>
@@ -190,7 +192,8 @@ const HeuteView = (() => {
     // Antippen eines Eintrags öffnet ihn zum Bearbeiten
     const isoToday = dayIso; // der angezeigte Tag
     container.querySelectorAll(".block[data-id]").forEach((el) => {
-      const open = () => Editor.edit(el.dataset.id, isoToday, el.dataset.slot, el.dataset.sub);
+      // Teil nach Mitternacht gehört zum Termin vom Vortag (data-occ)
+      const open = () => Editor.edit(el.dataset.id, el.dataset.occ || isoToday, el.dataset.slot, el.dataset.sub);
       el.addEventListener("click", open);
       el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });

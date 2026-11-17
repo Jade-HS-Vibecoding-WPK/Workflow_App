@@ -84,7 +84,9 @@ const Editor = (() => {
           </button>
           <button class="choice" data-new="${T.ZIEL}">
             <span class="choice__dot" style="background:#7f77dd"></span>
-            <span class="choice__text"><b>Ziel</b><small>mit Deadline und Unterzielen, z. B. Uni-Abgabe</small></span>
+            <span class="choice__text">${Store.getArea() === "bau"
+              ? "<b>Projekt</b><small>Baustelle mit Vorgängen und Gewerken</small>"
+              : "<b>Ziel</b><small>mit Deadline und Unterzielen, z. B. Uni-Abgabe</small>"}</span>
           </button>
           <button class="choice" data-new="${T.TAGESNOTIZ}">
             <span class="choice__dot" style="background:var(--text-3)"></span>
@@ -219,6 +221,7 @@ const Editor = (() => {
         <div class="form-group" data-show="times">
           <label class="row"><span>Beginn</span><input type="time" name="start" value="${esc(entry.start)}"></label>
           <label class="row"><span>Ende</span><input type="time" name="end" value="${esc(entry.end)}"></label>
+          <p class="hint" data-night-hint hidden>Endet am nächsten Tag (über Mitternacht).</p>
           <label class="row"><span>Puffer davor/danach</span>
             <select name="bufferMin">${BUFFERS.map((b) => `<option value="${b}" ${entry.bufferMin === b ? "selected" : ""}>${b ? b + " Min." : "keiner"}</option>`).join("")}</select>
           </label>
@@ -275,6 +278,16 @@ const Editor = (() => {
     }
     form.addEventListener("change", updateVisibility);
     updateVisibility();
+
+    // Hinweis "über Mitternacht"
+    const nightHint = form.querySelector("[data-night-hint]");
+    const updateNight = () => {
+      const a = form.elements.start.value, b = form.elements.end.value;
+      nightHint.hidden = !(a && b && S.toMin(b) < S.toMin(a));
+      if (!nightHint.hidden) nightHint.textContent = `Endet am nächsten Tag um ${b} Uhr (über Mitternacht).`;
+    };
+    form.addEventListener("input", updateNight);
+    updateNight();
 
     // Hinweis zum Haken "Uni-Veranstaltung"
     const uniHint = form.querySelector("[data-uni-hint]");
@@ -415,7 +428,8 @@ const Editor = (() => {
     const needsTimes = isFest || !out.allDay;
     if (needsTimes) {
       if (!out.start || !out.end) return { error: "Bitte gib Beginn und Ende ein." };
-      if (S.toMin(out.end) <= S.toMin(out.start)) return { error: "Das Ende muss nach dem Beginn liegen." };
+      if (S.toMin(out.end) === S.toMin(out.start)) return { error: "Beginn und Ende dürfen nicht gleich sein." };
+      // Ende vor Beginn = Termin geht über Mitternacht (endet am nächsten Tag)
     }
     return { entry: out };
   }

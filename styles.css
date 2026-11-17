@@ -1260,3 +1260,5 @@ body.no-scroll { overflow: hidden; }
 
 /* Menü: Gruppen nie zusammenquetschen – lieber scrollen (kleine Bildschirme, große App-Größe) */
 .menu > * { flex-shrink: 0; }
+
+.wl-time small { margin-left: 2px; color: var(--text-3); font-size: 0.7rem; vertical-align: super; }
