@@ -40,7 +40,7 @@ const EinstellungenView = (() => {
         <div class="row row--stack">
           <span>Größe der App <small class="muted">z. B. größer am PC; auch im Menü mit − / +</small></span>
           <div class="segmented" role="radiogroup" aria-label="Größe">
-            ${[0.9, 1, 1.25, 1.5].map((z) => `
+            ${[0.6, 0.8, 1, 1.25, 1.5].map((z) => `
               <label class="seg"><input type="radio" name="zoom" value="${z}" ${Number(settings.zoom || 1) === z ? "checked" : ""}><span>${Math.round(z * 100)} %</span></label>`).join("")}
           </div>
         </div>

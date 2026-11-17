@@ -155,9 +155,9 @@ window.addEventListener("resize", setTopbarHeight);
 setTopbarHeight();
 
 // ---------- Größe der ganzen App (Zoom, v. a. für den PC) ----------
-// Einstellung "zoom": 0.9 … 1.5. Wirkt auf alles (Schrift, Knöpfe, Pläne).
+// Einstellung "zoom": 0.6 … 1.75. Wirkt auf alles (Schrift, Knöpfe, Pläne).
 // window.UIZoom brauchen Stellen, die mit Pixel-Positionen rechnen.
-const ZOOM_STEPS = [0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75];
+const ZOOM_STEPS = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75];
 window.UIZoom = 1;
 function applyZoom(z) {
   const v = ZOOM_STEPS.includes(Number(z)) ? Number(z) : 1;
@@ -169,7 +169,7 @@ function applyZoom(z) {
 }
 function stepZoom(dir) {
   const i = ZOOM_STEPS.indexOf(window.UIZoom);
-  const next = ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, Math.max(0, (i < 0 ? 2 : i) + dir))];
+  const next = ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, Math.max(0, (i < 0 ? ZOOM_STEPS.indexOf(1) : i) + dir))];
   Store.saveSettings({ zoom: next });
 }
 document.getElementById("zoom-out").addEventListener("click", () => stepZoom(-1));
