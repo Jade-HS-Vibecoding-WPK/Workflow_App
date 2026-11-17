@@ -96,6 +96,7 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - Kleinigkeiten: Umschalter im Ziel bricht auf schmalen Handys um; doppelter Punkt in „fertig Fr 27.11..“ behoben.
 - ✅ Extras getestet (Niklas, Di 17.11.): funktioniert.
 - ✅ Gewerke-Zeiten im Tages- und Wochenplan (Wunsch Niklas, Di 17.11.): Vorgänge der Baustelle erscheinen als Zeitblöcke (Standard 7–16 Uhr Mo–Fr, Einstellungen → Baustelle; pro Vorgang eigene Arbeitszeit möglich). Parallele Gewerke nebeneinander, in schmalen Wochenspalten Titel senkrecht, in Heute Titel/Gewerk umbrechend. Antippen = DIN-Kästchen (mit Arbeitszeit). Kein Überschneidungs-Hinweis mit Gewerke-Zeiten. Kritische Vorgänge rot umrandet.
+- ✅ Größe der ganzen App (Wunsch Niklas, Di 17.11., v. a. für den PC): Menü unten „Größe − 100 % +“ (Stufen 80–175 %, Tippen auf die Zahl = 100 %) und Einstellungen → Darstellung (90/100/125/150 %). Wird gemerkt. Technisch CSS-`zoom` am `<body>`; Stellen mit Pixel-Rechnung (Woche antippen, Springen zur Uhrzeit, Netzplan ziehen) rechnen mit `window.UIZoom`. Nebenbei: Menü scrollt jetzt statt Gruppen zu quetschen, und bleibt bei Einstellungs-Änderungen offen.
 - ⏳ Als Nächstes (Wunsch Niklas): mehrere Tests durchlaufen, alles „smoother“ machen; danach README ergänzen (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
 
 ## Entscheidungen

@@ -82,7 +82,7 @@ async function render() {
     if (tab.dataset.view === (view.tab || name)) tab.setAttribute("aria-current", "page");
     else tab.removeAttribute("aria-current");
   });
-  closeMenu();
+  if (isNavigation) closeMenu(); // nur beim Ansichtswechsel (nicht z. B. bei − / + im Menü)
 
   if (RENDERERS[name]) {
     if (isNavigation && !sameView) window.scrollTo(0, 0);
@@ -153,6 +153,33 @@ const topbarEl = document.querySelector(".topbar");
 const setTopbarHeight = () => document.documentElement.style.setProperty("--topbar-h", topbarEl.offsetHeight + "px");
 window.addEventListener("resize", setTopbarHeight);
 setTopbarHeight();
+
+// ---------- Größe der ganzen App (Zoom, v. a. für den PC) ----------
+// Einstellung "zoom": 0.9 … 1.5. Wirkt auf alles (Schrift, Knöpfe, Pläne).
+// window.UIZoom brauchen Stellen, die mit Pixel-Positionen rechnen.
+const ZOOM_STEPS = [0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75];
+window.UIZoom = 1;
+function applyZoom(z) {
+  const v = ZOOM_STEPS.includes(Number(z)) ? Number(z) : 1;
+  window.UIZoom = v;
+  document.body.style.zoom = v === 1 ? "" : String(v);
+  const label = document.getElementById("zoom-label");
+  if (label) label.textContent = Math.round(v * 100) + " %";
+  setTopbarHeight();
+}
+function stepZoom(dir) {
+  const i = ZOOM_STEPS.indexOf(window.UIZoom);
+  const next = ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, Math.max(0, (i < 0 ? 2 : i) + dir))];
+  Store.saveSettings({ zoom: next });
+}
+document.getElementById("zoom-out").addEventListener("click", () => stepZoom(-1));
+document.getElementById("zoom-in").addEventListener("click", () => stepZoom(+1));
+document.getElementById("zoom-label").addEventListener("click", () => Store.saveSettings({ zoom: 1 }));
+Store.getSettings().then((st) => applyZoom(st.zoom));
+Store.subscribe((change) => {
+  if (change.settings) applyZoom(change.settings.zoom);
+  else if (change.action === "importiert" || change.action === "geleert") Store.getSettings().then((st) => applyZoom(st.zoom));
+});
 
 // ---------- Hell / Dunkel (Einstellungen → Darstellung) ----------
 // "auto" = wie das Handy, "hell" oder "dunkel" = immer so

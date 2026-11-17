@@ -36,6 +36,16 @@ const EinstellungenView = (() => {
         </div>
       </div>
 
+      <div class="form-group settings">
+        <div class="row row--stack">
+          <span>Größe der App <small class="muted">z. B. größer am PC; auch im Menü mit − / +</small></span>
+          <div class="segmented" role="radiogroup" aria-label="Größe">
+            ${[0.9, 1, 1.25, 1.5].map((z) => `
+              <label class="seg"><input type="radio" name="zoom" value="${z}" ${Number(settings.zoom || 1) === z ? "checked" : ""}><span>${Math.round(z * 100)} %</span></label>`).join("")}
+          </div>
+        </div>
+      </div>
+
       <h3 class="list-group">Planung</h3>
       <div class="form-group settings">
         <label class="row"><span>Höchstens pro Tag an Zielen arbeiten</span>
@@ -117,6 +127,7 @@ const EinstellungenView = (() => {
       if (freiVon && freiBis && freiBis < freiVon) { Toast.show("Vorlesungsfrei: „bis“ liegt vor „ab“"); render(container); return; }
       Store.saveSettings({ semester: { von, bis, freiVon, freiBis } });
     }));
+    container.querySelectorAll('[name="zoom"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zoom: Number(r.value) })));
     container.querySelectorAll('[name="theme"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ farbmodus: r.value })));
     container.querySelector('[name="auto"]').addEventListener("change", (e) => Store.saveSettings({ autoPlanen: e.target.checked }));
     container.querySelector('[name="bau"]').addEventListener("change", (e) => Store.saveSettings({ bauModus: e.target.checked }));

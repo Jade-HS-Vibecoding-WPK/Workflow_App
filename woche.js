@@ -188,7 +188,8 @@ const WocheView = (() => {
     container.querySelectorAll(".wcol").forEach((col) => {
       col.addEventListener("click", (e) => {
         if (e.target !== col) return;
-        const y = e.clientY - col.getBoundingClientRect().top;
+        // Bildschirm-Pixel → Plan-Pixel (Größe der App beachten)
+        const y = (e.clientY - col.getBoundingClientRect().top) / (window.UIZoom || 1);
         const startMin = Math.max(0, Math.min(23, Math.floor(y / HOUR_PX))) * 60;
         Editor.chooseNew(S.parseDate(col.dataset.col), startMin);
       });
@@ -207,7 +208,7 @@ const WocheView = (() => {
     if (scrollToNow && mode === "plan") {
       const grid = container.querySelector(".week-grid");
       const h = isThisWeek ? Math.max(today.getHours() - 2, 0) : 7;
-      const y = grid.getBoundingClientRect().top + window.scrollY + h * HOUR_PX - 120;
+      const y = grid.getBoundingClientRect().top + window.scrollY + h * HOUR_PX * (window.UIZoom || 1) - 120;
       window.scrollTo(0, Math.max(0, y));
     }
   }

@@ -43,5 +43,6 @@ Handy-Format zuerst.
 - **Leitlinien gegen Überladung** (beschlossen 17.11.): Jede neue Funktion muss beim Abarbeiten helfen; kein neuer Bildschirm, wenn es ohne geht; Fortgeschrittenes standardmäßig aus/versteckt; bis zum Freeze lieber wenig richtig als viel halb. Details in `docs/Ideenliste.md` → Abschnitt 0.
 - **Stil-Richtung:** angelehnt an Apples Erinnerungen-App (klare Listen, runde Abhak-Kreise, farbige Listen) und gemischt mit dem Layout der Apple-Kalender-App (Tages-/Wochenraster). Das ist nur Inspiration: eigener Name, eigenes Icon, keine Apple-Logos oder kopierten Grafiken.
 - Feste Kategorie-Farben für Termine und Sperrzeiten, frei wählbare Farben nur für Aufgaben und Ziele. Unbestätigte Vorschläge gestrichelt und blass.
+- **Größe der App** (Zoom) per Einstellung `zoom` → CSS-`zoom` am `<body>`. Wer mit Bildschirm-Koordinaten (`getBoundingClientRect`, `clientX/Y`) und Plan-Pixeln rechnet, muss durch `window.UIZoom` teilen bzw. damit malnehmen.
 - Hell- und Dunkelmodus nach Handy-Einstellung, in den Einstellungen auch fest auf Hell oder Dunkel stellbar (`data-theme` am `<html>`; neue Dunkel-Regeln immer für beide Fälle schreiben). Leiste unten: Heute · Woche · Kalender · Ziele · Aufgaben.
 - Details siehe `PLAN.md` → „Design“.

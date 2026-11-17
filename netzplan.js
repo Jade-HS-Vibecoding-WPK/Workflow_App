@@ -360,7 +360,8 @@ const Netzplan = (() => {
         if (!moved) return;
         const r = canvas.getBoundingClientRect();
         const hx = h.offsetLeft + 11, hy = h.offsetTop + 11;
-        temp.setAttribute("d", `M${hx},${hy} L${e.clientX - r.left},${e.clientY - r.top}`);
+        const z = (window.UIZoom || 1); // Größe der App: Bildschirm-Pixel → Plan-Pixel
+        temp.setAttribute("d", `M${hx},${hy} L${(e.clientX - r.left) / z},${(e.clientY - r.top) / z}`);
       });
       h.addEventListener("pointerup", (e) => {
         if (!start) return;

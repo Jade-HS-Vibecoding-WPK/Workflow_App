@@ -228,7 +228,7 @@ const HeuteView = (() => {
     if (scrollToNow) {
       const grid = container.querySelector(".plan__grid");
       const target = isToday ? nowTop() : 7 * HOUR_PX;
-      const y = grid.getBoundingClientRect().top + window.scrollY + target - window.innerHeight / 3;
+      const y = grid.getBoundingClientRect().top + window.scrollY + target * (window.UIZoom || 1) - window.innerHeight / 3;
       window.scrollTo(0, Math.max(0, y));
     }
 
