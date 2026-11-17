@@ -1074,8 +1074,9 @@ body.no-scroll { overflow: hidden; }
 /* ============================================================
    Netzplan (Ziel-Detail)
    ============================================================ */
-.sub-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.sub-mode { flex: none; width: 180px; }
+.sub-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; }
+.sub-head .list-group { margin-bottom: 4px; }
+.sub-mode { flex: 1 1 220px; max-width: 280px; margin-bottom: 6px; }
 .nz-wrap {
   overflow-x: auto; -webkit-overflow-scrolling: touch;
   background: var(--surface); border-radius: var(--radius);
@@ -1151,3 +1152,83 @@ body.no-scroll { overflow: hidden; }
 .nz-edge, .nz-label { transition: opacity 0.15s; }
 .nz--focus .nz-edge, .nz--focus .nz-label { opacity: 0.12; }
 .nz--focus .nz-edge.is-on, .nz--focus .nz-label.is-on { opacity: 1; stroke-width: 2.6; }
+
+/* ============================================================
+   Balkenplan (Gantt)
+   ============================================================ */
+.gt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--surface); border-radius: var(--radius); }
+.gt { position: relative; font-size: 0.75rem; }
+.gt-head { display: flex; border-bottom: 0.5px solid var(--line); }
+.gt-corner {
+  position: sticky; left: 0; z-index: 3; flex: none; width: 136px;
+  padding: 4px 8px; background: var(--surface); color: var(--text-2); font-weight: 600;
+  border-right: 0.5px solid var(--line);
+}
+.gt-months { position: relative; height: 20px; }
+.gt-month { position: absolute; top: 0; padding: 3px 6px; overflow: hidden; white-space: nowrap; font-weight: 700; border-left: 0.5px solid var(--line); }
+.gt-days { display: flex; }
+.gt-day { flex: none; width: 26px; display: flex; flex-direction: column; align-items: center; padding: 2px 0; font-variant-numeric: tabular-nums; }
+.gt-day small { color: var(--text-3); font-size: 0.6rem; }
+.gt-day--we { color: var(--text-3); }
+.gt-day--hol { color: var(--holiday); font-weight: 700; }
+.gt-day--today { color: #ff3b30; font-weight: 800; }
+.gt-body { position: relative; }
+.gt-shades { position: absolute; top: 0; bottom: 0; pointer-events: none; }
+.gt-shade { position: absolute; top: 0; bottom: 0; width: 26px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+.gt-shade--hol { background: color-mix(in srgb, var(--holiday) 10%, transparent); }
+.gt-row { display: flex; min-height: 40px; border-bottom: 0.5px solid var(--line); }
+.gt-row:last-of-type { border-bottom: 0; }
+.gt-label {
+  position: sticky; left: 0; z-index: 2; flex: none; width: 136px;
+  display: flex; flex-direction: column; justify-content: center; gap: 1px;
+  padding: 4px 8px; border: 0; border-right: 0.5px solid var(--line);
+  background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer;
+}
+.gt-label > span { display: flex; gap: 4px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gt-label small { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gt-row--done .gt-label { color: var(--text-3); }
+.gt-track { position: relative; flex: none; }
+.gt-bar {
+  position: absolute; top: 9px; height: 22px; padding: 0 5px; overflow: hidden;
+  border: 1.5px solid color-mix(in srgb, var(--c, var(--accent)) 70%, black); border-radius: 6px;
+  background: color-mix(in srgb, var(--goal-c) 70%, var(--surface));
+  color: #fff; font: inherit; font-size: 0.68rem; font-weight: 700; text-align: left; cursor: pointer;
+}
+.gt-bar span { position: relative; z-index: 1; }
+.gt-progress { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255, 255, 255, 0.25); }
+.gt-bar--main { box-shadow: 0 0 0 1.5px var(--text-2); }
+.gt-bar--eng { border-color: #ff9500; box-shadow: 0 0 0 1.5px #ff9500; }
+.gt-bar--kritisch { border-color: #ff3b30; box-shadow: 0 0 0 1.5px #ff3b30; }
+.gt-slack {
+  position: absolute; top: 15px; height: 10px; border-radius: 0 5px 5px 0;
+  background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--goal-c) 35%, transparent) 0 3px, transparent 3px 6px);
+}
+.gt-dl { position: absolute; top: 11px; font-style: normal; font-size: 0.8rem; color: var(--text); }
+.gt-now, .gt-deadline { position: absolute; top: 0; bottom: 0; width: 0; pointer-events: none; z-index: 1; }
+.gt-now { border-left: 2px solid #ff3b30; }
+.gt-deadline { border-left: 2px dashed var(--text); }
+.gt-key-slack { display: inline-block; width: 16px; height: 8px; border-radius: 2px; background: repeating-linear-gradient(-45deg, var(--text-3) 0 2px, transparent 2px 4px); }
+.gt-key-now { display: inline-block; width: 0; height: 12px; border-left: 2px solid #ff3b30; }
+.gt-key-dl { display: inline-block; width: 0; height: 12px; border-left: 2px dashed var(--text); }
+
+/* Netzplan: Nachfolger verbinden */
+.nz-handle {
+  position: absolute; z-index: 2; width: 22px; height: 22px; padding: 0;
+  border: 2px solid var(--surface); border-radius: 50%;
+  background: var(--accent); color: #fff; font: inherit; font-size: 0.95rem; font-weight: 700; line-height: 1;
+  cursor: crosshair; touch-action: none;
+}
+.nz-handle:active { transform: scale(1.2); }
+.nz-temp { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 4; }
+.nz--connect .nz-node:not(.nz-node--target):not(.nz-node--source) { opacity: 0.3; }
+.nz--connect .nz-handle:not(:focus) { opacity: 0.3; }
+.nz-node--source { outline: 3px solid var(--accent); outline-offset: 2px; }
+.nz-node--target { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.nz-connect-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: 0 0 8px; padding: 8px 12px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface)); font-size: 0.9rem;
+}
+.nz-connect-bar[hidden] { display: none; }
+.dep-line { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.dep-remove { flex: none; color: #ff3b30; font-size: 0.85rem; }

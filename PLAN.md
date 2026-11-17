@@ -89,7 +89,12 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Design: Elemente mit Farbstreifen (Ziel-Kopf, Ziel-Karten, ganztägige Termine, Blöcke in Heute/Woche) haben jetzt rundum runde Ecken, der Streifen biegt sich mit – wie bei der Hinweisbox.
 - ✅ Netzplan übersichtlicher (Wunsch Niklas, Di 17.11.): rechtwinklige Pfeile mit runden Ecken; jedes Ziel-Kästchen hat eine eigene senkrechte Spur im Zwischenraum; indirekte Pfeile (ergeben sich schon über andere „Ende → Anfang“-Ketten) werden ausgeblendet, mit Hinweis; Kästchen ohne Vorgänger stehen direkt vor ihrem Nachfolger; Pfeile, die Spalten überspringen oder andere Folgen (AF/EF/SF), laufen über einen Kanal oberhalb der Kästchen; Maus über Kästchen hebt seine Pfeile hervor.
 - ✅ Mindestblock für Ziel-Arbeit **1,5 Std.** (Wunsch Niklas, Di 17.11.: „darunter hat man gerade mal ausgepackt“): Der Planer nutzt für Unterziele nur Lücken ab 1,5 Std.; es bleiben keine Reststücke unter 1,5 Std. (lieber etwas mehr einplanen). Ausnahme: Ist vom Unterziel insgesamt weniger übrig, ist der Block genau so lang. Alte kürzere Vorschläge werden neu verteilt. Aufgaben unverändert (ab 1 Std., notfalls 30 Min.). „Was mache ich jetzt?“ schlägt Ziel-Arbeit erst ab 1,5 Std. freier Zeit vor. Konstante `MIN_GOAL` in `planer.js`.
-- ⏳ Als Nächstes: „wenn Zeit bleibt“ (Balkenplan, Pfeil-Ziehen, Semesterzeiten) oder Feinschliff, README ergänzen
+- ✅ Extras (Di 17.11.), im Browser getestet:
+  - **A7 Balkenplan** (`balkenplan.js`): im Ziel/Projekt Umschalter **Liste | Netzplan | Balken**. Ein Balken pro Unterziel/Vorgang (FAZ–FEZ), schraffierter Puffer bis SEZ, Rahmen rot/orange (kritisch/eng), ◆ Zwischen-Deadline, rote Heute-Linie, gestrichelte Deadline, Wochenenden grau, Feiertage rot; Namensspalte bleibt beim Scrollen stehen, öffnet bei „heute“. Antippen = DIN-Kästchen.
+  - **B7 Semesterzeiten**: Einstellungen → Semester (Vorlesungszeit ab/bis, optional vorlesungsfrei ab/bis). Feste Termine mit Haken **„Uni-Veranstaltung“** finden nur in der Vorlesungszeit statt (auch für Warnungen und freie Zeit).
+  - **Abhängigkeiten im Netzplan verbinden**: „+“-Griff rechts am Kästchen antippen → Kästchen antippen, das danach kommt (mögliche Ziele gestrichelt, Kreise werden verhindert) – oder „+“ auf ein Kästchen ziehen. Mit Rückgängig. Entfernen im Kästchen-Blatt („Wartet auf: … Entfernen“). Neue Verbindung = Normalfolge, Art/Wartezeit im Formular änderbar.
+  - Kleinigkeiten: Umschalter im Ziel bricht auf schmalen Handys um; doppelter Punkt in „fertig Fr 27.11..“ behoben.
+- ⏳ Als Nächstes: Handy-Test der Extras, Feinschliff, README ergänzen (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
 
 ## Entscheidungen
 

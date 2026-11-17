@@ -37,6 +37,23 @@ const Schedule = (() => {
     return x;
   }
 
+  // ---------- Semester (Einstellungen): Vorlesungszeit ----------
+  // { von, bis, freiVon, freiBis } – selbst eingetragen, keine Datenquelle nötig
+  let semester = null;
+  const readSemester = (st) => { semester = st && st.semester && st.semester.von && st.semester.bis ? st.semester : null; };
+  Store.getSettings().then(readSemester);
+  Store.subscribe((c) => {
+    if (c.settings) readSemester(c.settings);
+    else if (c.action === "importiert" || c.action === "geleert") Store.getSettings().then(readSemester);
+  });
+  // Liegt der Tag in der Vorlesungszeit? (ohne Semester-Angabe: immer ja)
+  function inLecture(iso) {
+    if (!semester) return true;
+    if (iso < semester.von || iso > semester.bis) return false;
+    if (semester.freiVon && semester.freiBis && iso >= semester.freiVon && iso <= semester.freiBis) return false;
+    return true;
+  }
+
   // ---------- Wiederholung: findet der Termin an diesem Tag statt? ----------
   function recursOn(rec, date, fallbackFrom) {
     if (!rec) return false;
@@ -83,6 +100,7 @@ const Schedule = (() => {
       switch (e.type) {
         case T.FEST: {
           if (!recursOn(e.recurrence, date, (e.createdAt || iso).slice(0, 10))) break;
+          if (e.uni && !inLecture(iso)) break; // Uni-Veranstaltung außerhalb der Vorlesungszeit
           const ex = (e.exceptions || []).find((x) => x.date === iso);
           // Fällt heute aus → Zeit ist frei. Wird nur noch blass angezeigt,
           // damit man die Absage wieder zurücknehmen kann.
@@ -261,6 +279,7 @@ const Schedule = (() => {
       for (let i = 0; i < 28; i++, d = addDays(d, 1)) {
         const iso = isoDate(d);
         if (!recursOn(rec, d, iso)) continue;
+        if (cand.uni && !inLecture(iso)) continue;
         if ((cand.exceptions || []).some((x) => x.date === iso && x.status === "abgesagt")) continue;
         dates.push(d);
       }
@@ -306,5 +325,5 @@ const Schedule = (() => {
     return d.toLocaleDateString("de-DE", { weekday: "short" }) + " " + short;
   }
 
-  return { isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
+  return { inLecture, get semester() { return semester; }, isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
 })();

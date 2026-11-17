@@ -589,7 +589,7 @@ const ZielDetailView = (() => {
         ${res.utilization >= 0.5
           ? "Mehr als die Hälfte deiner freien Zeit bis zur Deadline geht dafür drauf – bleib am Hauptpfad dran."
           : `Eng wird es bei ${which.join(", ")} – dafür brauchst du einen großen Teil deiner freien Zeit.`}
-        Voraussichtlich fertig ${end}.
+        Voraussichtlich fertig ${end}${end.endsWith(".") ? "" : "."}
         ${calc}</div>`;
     }
     if (res.status === "kritisch") {
@@ -627,7 +627,7 @@ const ZielDetailView = (() => {
     const allDone = subs.length > 0 && subs.every((x) => x.done);
     const entries = await Store.list();
     const res = subs.length ? CPM.computeGoal(goal, entries) : null;
-    const mode = (await Store.getSettings()).zielAnsicht === "netz" ? "netz" : "liste";
+    const mode = ["netz", "balken"].includes((await Store.getSettings()).zielAnsicht) ? (await Store.getSettings()).zielAnsicht : "liste";
 
     container.innerHTML = `
       <a class="back-link" href="#ziele">‹ ${bau ? "Projekte" : "Ziele"}</a>
@@ -651,15 +651,17 @@ const ZielDetailView = (() => {
         ${subs.length ? `<div class="segmented sub-mode" role="radiogroup" aria-label="Darstellung">
           <label class="seg"><input type="radio" name="zmode" value="liste" ${mode === "liste" ? "checked" : ""}><span>Liste</span></label>
           <label class="seg"><input type="radio" name="zmode" value="netz" ${mode === "netz" ? "checked" : ""}><span>Netzplan</span></label>
+          <label class="seg"><input type="radio" name="zmode" value="balken" ${mode === "balken" ? "checked" : ""}><span>Balken</span></label>
         </div>` : ""}
       </div>
-      ${mode === "netz" && subs.length ? Netzplan.html(goal, res) : subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId, res)).join("")}</ul>` : `
+      ${mode === "netz" && subs.length ? Netzplan.html(goal, res) : mode === "balken" && subs.length ? Balkenplan.html(goal, res) : subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId, res)).join("")}</ul>` : `
         <p class="plan-hint">Teile dein Ziel in Schritte auf, z. B. Grundriss, Lageplan, Details. Schätze für jeden den Aufwand.</p>`}
       <button class="add-row" data-add><span class="add-row__plus">+</span> ${bau ? "Vorgang" : "Unterziel"}</button>
       <button class="add-row" data-save-template><span class="add-row__plus add-row__plus--alt">▤</span> Als Vorlage speichern</button>
       ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}`;
     container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
     if (mode === "netz") Netzplan.wire(container, goal, res);
+    if (mode === "balken") Balkenplan.wire(container, goal, res);
 
     container.querySelector("[data-edit-goal]").addEventListener("click", () => Goals.editGoal(goal.id));
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));

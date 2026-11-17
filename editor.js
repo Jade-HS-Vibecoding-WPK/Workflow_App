@@ -176,6 +176,9 @@ const Editor = (() => {
         </div>
       </div>
       <div class="form-group">
+        <label class="row"><span>Uni-Veranstaltung <small class="muted">findet nur in der Vorlesungszeit statt</small></span>
+          <input type="checkbox" class="switch" name="uni" ${entry.uni ? "checked" : ""}></label>
+        <p class="hint" data-uni-hint></p>
         <label class="row"><span>Ab</span><input type="date" name="from" value="${esc(rec.from || "")}"></label>
         <label class="row"><span>Bis</span><input type="date" name="until" value="${esc(rec.until || "")}"></label>
         <p class="hint">Optional, z. B. bis Semesterende. Leer = unbegrenzt.</p>
@@ -268,6 +271,20 @@ const Editor = (() => {
     form.addEventListener("change", updateVisibility);
     updateVisibility();
 
+    // Hinweis zum Haken "Uni-Veranstaltung"
+    const uniHint = form.querySelector("[data-uni-hint]");
+    const updateUni = () => {
+      if (!uniHint) return;
+      const on = form.elements.uni.checked;
+      const sem = S.semester;
+      uniHint.hidden = !on;
+      const d = (iso) => S.parseDate(iso).toLocaleDateString("de-DE", { day: "numeric", month: "numeric", year: "numeric" });
+      uniHint.textContent = !sem ? "Trag die Vorlesungszeit unter Einstellungen → Semester ein, dann weiß die App, wann die Veranstaltung stattfindet."
+        : `Vorlesungszeit ${d(sem.von)}–${d(sem.bis)}${sem.freiVon && sem.freiBis ? `, frei ${d(sem.freiVon)}–${d(sem.freiBis)}` : ""}.`;
+    };
+    form.addEventListener("change", updateUni);
+    updateUni();
+
     // Beim monatlichen Wochentag darf nur EIN Tag gewählt sein
     form.addEventListener("change", (e) => {
       if (!isFest || e.target.name !== "wd" || !e.target.checked) return;
@@ -359,6 +376,7 @@ const Editor = (() => {
     out.bufferMin = Number(val("bufferMin") || 0);
     out.start = val("start");
     out.end = val("end");
+    if (form.elements.uni) out.uni = form.elements.uni.checked;
     if (form.elements.showInPrivate) out.showInPrivate = form.elements.showInPrivate.checked;
 
     if (!out.title) return { error: "Bitte gib einen Titel ein.", field: "title" };

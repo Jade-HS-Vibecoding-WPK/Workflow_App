@@ -206,12 +206,22 @@ const Netzplan = (() => {
         </button>`;
     }).join("");
 
+    // "+"-Griff rechts am Kästchen: Nachfolger verbinden (antippen oder ziehen)
+    const handles = subs.map((s) => {
+      const p = pos[s.id];
+      return `<button class="nz-handle" data-handle="${esc(s.id)}" style="left:${p.x + W - 11}px;top:${p.y + H / 2 - 11}px" aria-label="${esc(s.title)}: Nachfolger verbinden">+</button>`;
+    }).join("");
+
     const end = `
       <div class="nz-end" style="left:${endPos.x}px;top:${endPos.y}px">
         <b>Ziel</b><span>${goal.deadline ? esc(dShort(goal.deadline)) : "ohne Deadline"}</span>
       </div>`;
 
     return `
+      <div class="nz-connect-bar" hidden>
+        <span>Tippe auf das Kästchen, das nach <b></b> kommt.</span>
+        <button class="link-btn" data-connect-cancel>Abbrechen</button>
+      </div>
       <div class="nz-wrap">
         <div class="nz-canvas" style="width:${width}px;height:${height}px">
           <svg class="nz-svg" width="${width}" height="${height}" aria-hidden="true">
@@ -220,8 +230,9 @@ const Netzplan = (() => {
               <marker id="nz-arrow-crit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="nz-arrowhead nz-arrowhead--crit"/></marker>
             </defs>
             ${out.join("")}
+            <path class="nz-temp" d=""/>
           </svg>
-          ${boxes}${end}
+          ${boxes}${handles}${end}
         </div>
       </div>
       <p class="month-legend">
@@ -230,7 +241,7 @@ const Netzplan = (() => {
         <span><i class="nz-key nz-key--main"></i>Hauptpfad</span>
         <span>NF/AF/EF/SF = Art der Folge</span>
       </p>
-      <p class="plan-hint plan-hint--small">Kästchen antippen = alle Werte${hidden ? ` · ${hidden} indirekte${hidden === 1 ? "r" : ""} Pfeil${hidden === 1 ? "" : "e"} ausgeblendet (ergibt sich schon über andere)` : ""} · breiter Plan: zur Seite wischen</p>`;
+      <p class="plan-hint plan-hint--small">Kästchen antippen = alle Werte · „+“ antippen oder ziehen = Nachfolger verbinden${hidden ? ` · ${hidden} indirekte${hidden === 1 ? "r" : ""} Pfeil${hidden === 1 ? "" : "e"} ausgeblendet (ergibt sich schon über andere)` : ""} · breiter Plan: zur Seite wischen</p>`;
   }
 
   // Netzplan-Kästchen nach DIN mit allen Werten
@@ -242,7 +253,8 @@ const Netzplan = (() => {
     const idx = [...goal.subgoals].sort((a, b) => a.order - b.order).findIndex((x) => x.id === sgId) + 1;
     const byId = Object.fromEntries(goal.subgoals.map((x) => [x.id, x]));
     const deps = (sg.dependencies || []).filter((x) => byId[x.fromId]).map((x) =>
-      `${esc(byId[x.fromId].title)} <small class="muted">${SHORT[x.type || DEP.EA]} (${LONG[x.type || DEP.EA]})${Number(x.lagDays) ? `, ${x.lagDays > 0 ? "+" : ""}${x.lagDays} Tage` : ""}</small>`);
+      `<span class="dep-line"><span>${esc(byId[x.fromId].title)} <small class="muted">${SHORT[x.type || DEP.EA]} (${LONG[x.type || DEP.EA]})${Number(x.lagDays) ? `, ${x.lagDays > 0 ? "+" : ""}${x.lagDays} Tage` : ""}</small></span>
+        <button class="link-btn dep-remove" data-undep="${esc(x.fromId)}" aria-label="Abhängigkeit von ${esc(byId[x.fromId].title)} entfernen">Entfernen</button></span>`);
     const box = n && !sg.done ? `
       <div class="din-box" style="--c:${goal.color}">
         <div class="din-row"><span><small>FAZ</small>${d(n.startDate)}</span><span><small>Dauer</small>${goal.area === "bau" ? `${n.D} AT` : GoalMath.fmtDays(n.D)}</span><span><small>FEZ</small>${d(n.endDate)}</span></div>
@@ -263,7 +275,7 @@ const Netzplan = (() => {
           <span class="sheet__spacer"></span>
         </div>
         ${box}
-        ${deps.length ? `<p class="notice"><b>Wartet auf:</b><br>${deps.join("<br>")}</p>` : ""}
+        ${deps.length ? `<div class="notice"><b>Wartet auf:</b>${deps.join("")}</div>` : ""}
         <p class="hint hint--plain">FAZ/FEZ = frühester Anfang/frühestes Ende · SAZ/SEZ = spätester Anfang/spätestes Ende · GP = Gesamtpuffer · FP = freier Puffer (Verzug, ohne den Nachfolger zu verschieben)</p>
         <div class="form-group form-actions">
           ${sg.done ? "" : `<button class="action" data-a="progress">Fortschritt eintragen</button>`}
@@ -279,12 +291,105 @@ const Netzplan = (() => {
         else Goals.editSubgoal(goal.id, sgId);
       };
     });
+    layer.querySelectorAll("[data-undep]").forEach((b) => {
+      b.onclick = async () => {
+        const fromId = b.dataset.undep;
+        const subgoals = goal.subgoals.map((x) => (x.id === sgId ? { ...x, dependencies: (x.dependencies || []).filter((d) => d.fromId !== fromId) } : x));
+        Editor.close();
+        await Store.save({ ...goal, subgoals });
+        Toast.show(`„${sg.title}“ wartet nicht mehr auf „${byId[fromId].title}“`, () => Store.save(goal));
+      };
+    });
   }
 
   function wire(container, goal, res) {
     const canvas = container.querySelector(".nz-canvas");
+    if (!canvas) return;
+    const bar = container.querySelector(".nz-connect-bar");
+    const temp = canvas.querySelector(".nz-temp");
+    const byId = Object.fromEntries(goal.subgoals.map((x) => [x.id, x]));
+    let source = null;
+
+    // Darf "to" auf "from" warten? (nicht sich selbst, nicht doppelt, kein Kreis)
+    const canConnect = (from, to) => from !== to && byId[to]
+      && !(byId[to].dependencies || []).some((d) => d.fromId === from) && !CPM.wouldCycle(goal, from, to);
+
+    async function connect(from, to) {
+      if (!canConnect(from, to)) {
+        Toast.show(from === to ? "Ein Kästchen kann nicht auf sich selbst warten" : CPM.wouldCycle(goal, from, to) ? "Das würde einen Kreis bilden" : "Diese Verbindung gibt es schon");
+        return;
+      }
+      const subgoals = goal.subgoals.map((x) => (x.id === to ? { ...x, dependencies: [...(x.dependencies || []), { fromId: from, type: DEP.EA, lagDays: 0 }] } : x));
+      await Store.save({ ...goal, subgoals });
+      Toast.show(`„${byId[to].title}“ startet nach „${byId[from].title}“`, () => Store.save(goal));
+    }
+
+    function startConnect(id) {
+      source = id;
+      canvas.classList.add("nz--connect");
+      canvas.querySelectorAll("[data-node]").forEach((n) => {
+        n.classList.toggle("nz-node--source", n.dataset.node === id);
+        n.classList.toggle("nz-node--target", canConnect(id, n.dataset.node));
+      });
+      bar.querySelector("b").textContent = `„${byId[id].title}“`;
+      bar.hidden = false;
+    }
+    function stopConnect() {
+      source = null;
+      canvas.classList.remove("nz--connect");
+      canvas.querySelectorAll(".nz-node--source, .nz-node--target").forEach((n) => n.classList.remove("nz-node--source", "nz-node--target"));
+      bar.hidden = true;
+      temp.setAttribute("d", "");
+    }
+    bar.querySelector("[data-connect-cancel]").addEventListener("click", stopConnect);
+
+    // "+"-Griff: antippen = Verbinden-Modus, ziehen = direkt verbinden
+    canvas.querySelectorAll("[data-handle]").forEach((h) => {
+      const id = h.dataset.handle;
+      let start = null, moved = false;
+      h.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        h.setPointerCapture(e.pointerId);
+        start = { x: e.clientX, y: e.clientY };
+        moved = false;
+      });
+      h.addEventListener("pointermove", (e) => {
+        if (!start) return;
+        if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) moved = true;
+        if (!moved) return;
+        const r = canvas.getBoundingClientRect();
+        const hx = h.offsetLeft + 11, hy = h.offsetTop + 11;
+        temp.setAttribute("d", `M${hx},${hy} L${e.clientX - r.left},${e.clientY - r.top}`);
+      });
+      h.addEventListener("pointerup", (e) => {
+        if (!start) return;
+        start = null;
+        temp.setAttribute("d", "");
+        if (moved) {
+          h.style.pointerEvents = "none"; // Griff selbst nicht als Ziel finden
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          h.style.pointerEvents = "";
+          const target = el && el.closest("[data-node]");
+          if (target) connect(id, target.dataset.node);
+          return;
+        }
+        if (source === id) stopConnect(); else startConnect(id);
+      });
+      h.addEventListener("pointercancel", () => { start = null; temp.setAttribute("d", ""); });
+    });
+
     container.querySelectorAll("[data-node]").forEach((b) => {
-      b.addEventListener("click", () => openNode(goal, res, b.dataset.node));
+      b.addEventListener("click", () => {
+        if (source) {
+          // Verbinden-Modus: dieses Kästchen kommt nach dem gewählten
+          if (b.dataset.node === source) { stopConnect(); return; }
+          const from = source;
+          stopConnect();
+          connect(from, b.dataset.node);
+          return;
+        }
+        openNode(goal, res, b.dataset.node);
+      });
       // Pfeile dieses Kästchens hervorheben, alle anderen blass
       const on = () => {
         const id = b.dataset.node;

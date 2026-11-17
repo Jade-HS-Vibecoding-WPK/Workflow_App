@@ -90,6 +90,7 @@ const Model = (() => {
       recurrence: recurrence(),
       exceptions: [],       // einzelne Tage: [{ date: "JJJJ-MM-TT", status: "abgesagt" }]
       showInPrivate: false, // nur Baustelle: "Auch im Wochenplan anzeigen" (blockiert dann private Zeit)
+      uni: false,           // Uni-Veranstaltung: findet nur in der Vorlesungszeit statt (Einstellungen → Semester)
       ...fields,
     });
   }

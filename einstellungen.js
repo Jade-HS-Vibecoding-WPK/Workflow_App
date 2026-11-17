@@ -23,6 +23,7 @@ const EinstellungenView = (() => {
     const cfg = CPM.cfg;
     const hourOpts = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map((h) => `<option value="${h}" ${cfg.maxHoursPerDay === h ? "selected" : ""}>${h} Std.</option>`).join("");
     const theme = settings.farbmodus || "auto";
+    const sem = settings.semester || {};
     container.innerHTML = `
       <h3 class="list-group">Darstellung</h3>
       <div class="form-group settings">
@@ -49,6 +50,15 @@ const EinstellungenView = (() => {
         <label class="row"><span>Baumanagement-Modus <small class="muted">alle Abhängigkeitsarten, Wartezeiten, Überlappung</small></span>
           <input type="checkbox" class="switch" name="bau" ${cfg.bau ? "checked" : ""}>
         </label>
+      </div>
+
+      <h3 class="list-group">Semester</h3>
+      <div class="form-group settings">
+        <label class="row"><span>Vorlesungszeit ab</span><input type="date" name="semVon" value="${esc(sem.von || "")}"></label>
+        <label class="row"><span>Vorlesungszeit bis</span><input type="date" name="semBis" value="${esc(sem.bis || "")}"></label>
+        <label class="row"><span>Vorlesungsfrei ab <small class="muted">optional, z. B. Weihnachten</small></span><input type="date" name="semFreiVon" value="${esc(sem.freiVon || "")}"></label>
+        <label class="row"><span>Vorlesungsfrei bis</span><input type="date" name="semFreiBis" value="${esc(sem.freiBis || "")}"></label>
+        <p class="hint">Selbst eintragen (z. B. aus dem Semesterplan der Hochschule). Feste Termine mit Haken „Uni-Veranstaltung“ finden nur in der Vorlesungszeit statt.</p>
       </div>
 
       <h3 class="list-group">Feiertage</h3>
@@ -83,6 +93,14 @@ const EinstellungenView = (() => {
       await render(container);
     });
     container.querySelector('[name="maxH"]').addEventListener("change", (e) => Store.saveSettings({ maxStundenProTag: Number(e.target.value) }));
+    // Semester speichern (nur gültige Angaben)
+    const semFields = ["semVon", "semBis", "semFreiVon", "semFreiBis"].map((n) => container.querySelector(`[name="${n}"]`));
+    semFields.forEach((f) => f.addEventListener("change", () => {
+      const [von, bis, freiVon, freiBis] = semFields.map((x) => x.value || null);
+      if (von && bis && bis < von) { Toast.show("„bis“ liegt vor „ab“"); render(container); return; }
+      if (freiVon && freiBis && freiBis < freiVon) { Toast.show("Vorlesungsfrei: „bis“ liegt vor „ab“"); render(container); return; }
+      Store.saveSettings({ semester: { von, bis, freiVon, freiBis } });
+    }));
     container.querySelectorAll('[name="theme"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ farbmodus: r.value })));
     container.querySelector('[name="auto"]').addEventListener("change", (e) => Store.saveSettings({ autoPlanen: e.target.checked }));
     container.querySelector('[name="bau"]').addEventListener("change", (e) => Store.saveSettings({ bauModus: e.target.checked }));
