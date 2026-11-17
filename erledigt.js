@@ -14,7 +14,7 @@ const ErledigtView = (() => {
   // Alles löschen, was länger als 6 Monate erledigt ist (läuft beim App-Start)
   async function cleanup() {
     const limit = Date.now() - KEEP_DAYS * 86400000;
-    const all = await Store.list();
+    const all = await Store.list(null, { all: true });
     for (const e of all) {
       if (e.done && e.doneAt && new Date(e.doneAt).getTime() < limit) await Store.remove(e.id);
     }

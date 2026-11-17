@@ -31,7 +31,10 @@ const Holidays = (() => {
   // Feiertag an diesem Datum? (Name oder null)
   const on = (iso) => byDate[iso] || null;
 
+  let version = 0; // zählt hoch, wenn sich die Feiertage ändern (für Zwischenspeicher anderer Bausteine)
+
   function rebuild(settings) {
+    version++;
     state = settings.feiertageLand || DEFAULT_STATE;
     skipFixed = !!settings.feiertageFesteAusfallen;
     byDate = {};
@@ -113,7 +116,10 @@ const Holidays = (() => {
 
   // Nach Import oder Zurücksetzen der Daten neu aufbauen
   Store.subscribe(async (change) => {
-    if (change.action === "importiert" || change.action === "geleert") rebuild(await Store.getSettings());
+    if (change.action === "importiert" || change.action === "geleert") {
+      rebuild(await Store.getSettings());
+      refresh(); // fehlende Jahre gleich nachladen (z. B. nach "Alle Daten löschen")
+    }
   });
 
   // Alle Feiertage ab heute (für die Einstellungen)
@@ -129,6 +135,7 @@ const Holidays = (() => {
   return {
     STATES, on, refresh, upcoming, setState, setSkipFixed,
     get state() { return state; },
+    get version() { return version; },
     get skipFixed() { return skipFixed; },
     get status() { return status; },
   };

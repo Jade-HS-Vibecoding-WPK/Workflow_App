@@ -78,7 +78,14 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Wünsche Niklas (Di 17.11.):
   - **Hell / Dunkel einstellbar**: Einstellungen → Darstellung: Automatisch (wie das Handy) · Hell · Dunkel. Technisch: `data-theme` am `<html>`, Statusleisten-Farbe passt sich an.
   - **Kurze Blöcke lesbar**: Heute zeigt bei kurzen Blöcken (z. B. 30 Min.) Zeit und Titel in einer Zeile („13:00 Reisepass“). In der Woche (schmale Spalten) steht bei Blöcken unter 50 Min. nur der Titel, die Zeit sieht man an der Stundenleiste.
-- ⏳ Etappe 4: Baustellen-Bereich (D1) + Vorlage (B8)
+- ✅ Etappe 4 Baustellen-Bereich + Vorlagen (Di 17.11.), im Browser getestet:
+  - **D1 Bereiche**: Menü oben **Privat | Baustelle**. Jeder Eintrag hat ein Feld `area`; die Baustelle startet leer und hat dieselben Ansichten (oben orange Kennzeichnung „Baustelle“, „Ziele“ heißen dort „Projekte“, Unterziele „Vorgänge“).
+  - **Bau-Rechnung** (`CPM.computeBau`): Vorgänge dauern **Arbeitstage Mo–Fr**, Feiertage frei; **Wartezeiten in Kalendertagen** (laufen übers Wochenende); alle 4 Folgen (NF/AF/EF/SF); optionaler **Baubeginn**. Kein Puffer = kritisch, bis 3 Tage = eng. Eigene Einschätzung („Im Plan“, „Es wird eng“, „Verzug ca. X Tage“, kritischer Pfad).
+  - **Vorgänge**: Feld **Gewerk** (Vorschlagsliste, frei eintippbar; gespeichert im Feld „zuständig“), Dauer in Arbeitstagen. Laufende Vorgänge erscheinen in Heute/Woche/Kalender als Tagesstreifen mit Gewerk.
+  - **Schalter „Auch im Wochenplan anzeigen“** bei Baustellen-Terminen (Standard aus): nur dann erscheint der Termin privat (gekennzeichnet „Baustelle“) und blockiert die Zeit; der Planer weicht ihm aus.
+  - **B8 Vorlagen**: „Aus Vorlage …“ in der Ziel-/Projektliste: **Einfamilienhaus – Bauablauf** (21 Vorgänge, Gewerke, Aushärten Bodenplatte +7 Tage, Estrich trocknen +21 Tage, Überlappung SHK/Elektro) bzw. **Uni-Abgabe (Architektur)**. Vor dem Anlegen: Titel, Baubeginn (Vorschlag nächster Montag), Fertigstellung (Vorschlag: frühestes Ende + Puffer). Danach alles frei änderbar. **Eigene Vorlagen**: auf jeder Ziel-/Projektseite „Als Vorlage speichern“, löschbar in der Auswahl.
+  - Fehler behoben: Nach „Alle Daten löschen“/Sicherung laden wurden Feiertage erst beim nächsten Start nachgeladen – jetzt sofort.
+- ⏳ Als Nächstes: Handy-Test von Etappe 1–4, dann „wenn Zeit bleibt“ (Balkenplan, Pfeil-Ziehen, Semesterzeiten) oder Feinschliff, README ergänzen
 
 ## Entscheidungen
 

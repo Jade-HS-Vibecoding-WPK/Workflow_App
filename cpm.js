@@ -74,8 +74,140 @@ const CPM = (() => {
 
   const daysUntil = (iso, now) => Math.round((S.parseDate(iso) - S.parseDate(S.isoDate(now))) / 86400000) + 1; // Deadline-Tag zählt mit
 
+  // ============================================================
+  // Baustelle: Gewerke arbeiten Mo–Fr (Feiertage frei), unabhängig
+  // von meiner freien Zeit. Dauer = Arbeitstage. Wartezeiten
+  // (z. B. Estrich trocknen) zählen Kalendertage, also auch am
+  // Wochenende. Alle Werte: Tage ab heute (0 = heute), Ende exklusiv.
+  // ============================================================
+  const BAU_ENG_TAGE = 3; // Puffer bis 3 Kalendertage → "eng"
+  const bauCache = new Map();
+
+  function computeBau(goal, now = new Date()) {
+    const todayIso = S.isoDate(now);
+    const key = goal.id + "|" + goal.updatedAt + "|" + todayIso + "|" + (typeof Holidays !== "undefined" ? Holidays.state + Holidays.version : "");
+    if (bauCache.has(key)) return bauCache.get(key);
+    const res = computeBauRaw(goal, now);
+    if (bauCache.size > 50) bauCache.clear();
+    bauCache.set(key, res);
+    return res;
+  }
+
+  function computeBauRaw(goal, now) {
+    const subs = goal.subgoals || [];
+    const byId = Object.fromEntries(subs.map((s) => [s.id, s]));
+    const dayDate = (i) => S.addDays(now, i);
+    const isWork = (i) => {
+      const d = dayDate(i);
+      const wd = d.getDay();
+      if (wd === 0 || wd === 6) return false;
+      return !(typeof Holidays !== "undefined" && Holidays.on(S.isoDate(d)));
+    };
+    const nextWork = (i) => { let x = Math.ceil(i - 1e-9); while (!isWork(x)) x++; return x; };
+    const prevWork = (i) => { let x = Math.floor(i + 1e-9); while (!isWork(x)) x--; return x; };
+    // Ende (exklusiv) nach D Arbeitstagen ab Start s
+    const addW = (s, D) => { let x = nextWork(s), n = D; if (n <= 0) return x; while (true) { if (isWork(x)) n--; x++; if (n <= 0) return x; } };
+    // Spätester Start, damit D Arbeitstage bis vor "endExcl" passen
+    const subW = (endExcl, D) => { let x = Math.floor(endExcl + 1e-9) - 1, n = D; if (n <= 0) return prevWork(endExcl); while (true) { if (isWork(x)) { n--; if (n <= 0) return x; } x--; } };
+    const days = (iso) => Math.round((S.parseDate(iso) - S.parseDate(S.isoDate(now))) / 86400000);
+    const start0 = goal.startDate ? Math.max(0, days(goal.startDate)) : 0;
+
+    const nodes = {};
+    for (const sg of subs) {
+      const total = Math.max(0, Math.ceil(sg.mode === "dauer" ? sg.durationDays : (sg.estimateHours || 0) / 8));
+      const D = sg.done ? 0 : Math.ceil(total * (1 - (sg.progressPercent || 0) / 100) - 1e-9);
+      nodes[sg.id] = { id: sg.id, D, done: sg.done, preds: (sg.dependencies || []).filter((d) => byId[d.fromId]), succs: [] };
+    }
+    for (const n of Object.values(nodes)) for (const d of n.preds) nodes[d.fromId].succs.push({ toId: n.id, type: d.type || DEP.EA, lag: Number(d.lagDays) || 0 });
+
+    const order = [];
+    const indeg = Object.fromEntries(Object.values(nodes).map((n) => [n.id, n.preds.length]));
+    const queue = Object.keys(indeg).filter((id) => indeg[id] === 0);
+    while (queue.length) {
+      const id = queue.shift();
+      order.push(id);
+      for (const s of nodes[id].succs) if (--indeg[s.toId] === 0) queue.push(s.toId);
+    }
+    if (order.length !== subs.length) return { cycle: true, cap: 1, bau: true };
+
+    // Vorwärts: frühester Anfang/Ende
+    for (const id of order) {
+      const n = nodes[id];
+      let es = start0;
+      for (const d of n.preds) {
+        const p = nodes[d.fromId], lag = Number(d.lagDays) || 0, t = d.type || DEP.EA;
+        if (t === DEP.EA) es = Math.max(es, p.EF + lag);
+        if (t === DEP.AA) es = Math.max(es, p.ES + lag);
+        if (t === DEP.EE) es = Math.max(es, subW(p.EF + lag, n.D));
+        if (t === DEP.AE) es = Math.max(es, subW(p.ES + lag, n.D));
+      }
+      n.ES = n.D > 0 ? nextWork(es) : es;
+      n.EF = n.D > 0 ? addW(n.ES, n.D) : n.ES;
+    }
+    const projectEnd = Math.max(start0, ...Object.values(nodes).map((n) => n.EF));
+    const deadlineEx = goal.deadline ? days(goal.deadline) + 1 : projectEnd;
+
+    // Rückwärts: spätester Anfang/Ende (ab Deadline bzw. Zwischen-Deadline)
+    for (const id of [...order].reverse()) {
+      const n = nodes[id];
+      const sg = byId[id];
+      let lf = deadlineEx;
+      if (sg.deadline) lf = Math.min(lf, days(sg.deadline) + 1);
+      let lsCap = Infinity;
+      for (const s of n.succs) {
+        const x = nodes[s.toId];
+        if (s.type === DEP.EA) lf = Math.min(lf, x.LS - s.lag);
+        if (s.type === DEP.EE) lf = Math.min(lf, x.LF - s.lag);
+        if (s.type === DEP.AA) lsCap = Math.min(lsCap, x.LS - s.lag);
+        if (s.type === DEP.AE) lsCap = Math.min(lsCap, x.LF - s.lag);
+      }
+      let ls = n.D > 0 ? subW(lf, n.D) : lf;
+      if (lsCap < ls) { ls = n.D > 0 ? prevWork(lsCap) : lsCap; lf = Math.min(lf, n.D > 0 ? addW(ls, n.D) : ls); }
+      n.LS = ls;
+      n.LF = lf;
+    }
+
+    // Puffer, Kennzeichnung, Daten
+    const open = Object.values(nodes).filter((n) => !n.done);
+    for (const n of Object.values(nodes)) {
+      n.TF = n.LS - n.ES;
+      let ff = n.succs.length ? Infinity : deadlineEx - n.EF;
+      for (const s of n.succs) {
+        const x = nodes[s.toId];
+        const v = { [DEP.EA]: x.ES - s.lag - n.EF, [DEP.AA]: x.ES - s.lag - n.ES, [DEP.EE]: x.EF - s.lag - n.EF, [DEP.AE]: x.EF - s.lag - n.ES }[s.type];
+        ff = Math.min(ff, v);
+      }
+      n.FF = Math.min(ff, n.TF);
+    }
+    const minTF = open.length ? Math.min(...open.map((n) => n.TF)) : 0;
+    for (const n of Object.values(nodes)) {
+      const active = !n.done;
+      n.behind = active && n.TF < 0;
+      n.level = !active ? null : n.TF <= 0 ? "kritisch" : n.TF <= BAU_ENG_TAGE ? "eng" : null;
+      n.critical = n.level === "kritisch";
+      n.mainPath = active && n.TF - minTF <= EPS; // längste Kette
+      n.utilization = 0; n.neededHours = 0; n.availableHours = 0;
+      n.startDate = S.isoDate(dayDate(n.ES));
+      n.endDate = S.isoDate(dayDate(Math.max(n.EF - 1, n.ES)));
+      n.latestStart = S.isoDate(dayDate(n.LS));
+      n.latestEnd = S.isoDate(dayDate(Math.max(n.LF - 1, n.LS)));
+      n.workdays = n.D;
+    }
+    let status = "ok";
+    if (!open.length) status = "fertig";
+    else if (minTF < 0) status = "hinterher";
+    else if (minTF === 0 && goal.deadline) status = "kritisch";
+    else if (minTF <= BAU_ENG_TAGE) status = "knapp";
+    return {
+      cycle: false, bau: true, cap: 1, nodes, projectEnd, deadlineDays: deadlineEx, minTF, slack: minTF, status,
+      utilization: 0, neededHours: 0, availableHours: 0, resourceLimited: false, isWork,
+      projectEndDate: S.isoDate(dayDate(Math.max(projectEnd - 1, 0))),
+    };
+  }
+
   // ---------- 2. + 3. Kritischer Pfad für ein Ziel ----------
   function computeGoal(goal, entries, now = new Date(), capacity = null) {
+    if (goal.area === "bau") return computeBau(goal, now);
     const cap = capacity || averageCapacity(entries, now);
     const subs = goal.subgoals || [];
     const byId = Object.fromEntries(subs.map((s) => [s.id, s]));
@@ -280,7 +412,7 @@ const CPM = (() => {
   }
 
   return {
-    freeHoursOn, averageCapacity, computeGoal, wouldCycle, lowPriorityUntil, behindCount,
+    freeHoursOn, averageCapacity, computeGoal, computeBau, wouldCycle, lowPriorityUntil, behindCount,
     get cfg() { return cfg; },
   };
 })();

@@ -90,16 +90,16 @@ const Schedule = (() => {
           const byHoliday = !!(holiday && Holidays.skipFixed);
           const cancelled = !!(ex && ex.status === "abgesagt") || byHoliday;
           timed.push(block(e, "fest", e.start, e.end, {
-            sub: byHoliday ? "Feiertag" : cancelled ? "abgesagt" : e.location, buffer: cancelled ? 0 : e.bufferMin, cancelled,
+            sub: byHoliday ? "Feiertag" : cancelled ? "abgesagt" : bauSub(e), buffer: cancelled ? 0 : e.bufferMin, cancelled,
           }));
           break;
         }
         case T.EINMALIG: {
           if (e.allDay) {
             const last = e.endDate || e.date;
-            if (e.date && e.date <= iso && iso <= last) allDay.push({ id: e.id, kind: "einmalig", title: e.title });
+            if (e.date && e.date <= iso && iso <= last) allDay.push({ id: e.id, kind: "einmalig", title: e.title, sub: e.area === "bau" ? "Baustelle" : "" });
           } else if (e.date === iso) {
-            timed.push(block(e, "einmalig", e.start, e.end, { sub: e.location, buffer: e.bufferMin }));
+            timed.push(block(e, "einmalig", e.start, e.end, { sub: bauSub(e), buffer: e.bufferMin }));
           }
           break;
         }
@@ -126,6 +126,21 @@ const Schedule = (() => {
           break;
         case T.ZIEL:
           goalsById[e.id] = e;
+          // Baustelle: laufende Vorgänge (Gewerke) als Tagesstreifen
+          if (e.area === "bau" && !e.done && typeof CPM !== "undefined") {
+            const res = CPM.computeBau(e);
+            const idx = Math.round((parseDate(iso) - parseDate(isoDate(new Date()))) / 86400000);
+            if (!res.cycle && idx >= 0 && res.isWork(idx)) {
+              for (const sg of e.subgoals || []) {
+                const n = res.nodes[sg.id];
+                if (!n || n.done || !(n.ES <= idx && idx < n.EF)) continue;
+                allDay.push({
+                  id: e.id, kind: "vorgang", title: sg.title, color: e.color, critical: n.critical,
+                  sub: [sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? sg.assignee : "", n.critical ? "kritisch" : ""].filter(Boolean).join(" · ") || "Vorgang",
+                });
+              }
+            }
+          }
           for (const sg of e.subgoals || []) {
             for (const s of sg.slots || []) {
               if (s.date !== iso) continue;
@@ -146,6 +161,9 @@ const Schedule = (() => {
     timed.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
     return { timed, allDay, notes };
   }
+
+  // Baustellen-Termine im privaten Plan erkennbar machen
+  const bauSub = (e) => [e.area === "bau" ? "Baustelle" : "", e.location].filter(Boolean).join(" · ");
 
   function block(e, kind, start, end, extra = {}) {
     const startMin = toMin(start);

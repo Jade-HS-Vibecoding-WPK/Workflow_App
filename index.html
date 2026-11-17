@@ -26,7 +26,7 @@
   <!-- Kopfzeile: Titel der aktuellen Ansicht + Menü-Knopf -->
   <header class="topbar">
     <div>
-      <div class="topbar__date" id="topbar-date"></div>
+      <div class="topbar__date"><span class="area-pill" id="area-pill" hidden>Baustelle</span><span id="topbar-date"></span></div>
       <h1 class="topbar__title" id="topbar-title">Heute</h1>
     </div>
     <div class="topbar__actions">
@@ -59,7 +59,7 @@
     </a>
     <a class="tab" href="#ziele" data-view="ziele">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
-      <span>Ziele</span>
+      <span data-goal-label>Ziele</span>
     </a>
     <a class="tab" href="#aufgaben" data-view="aufgaben">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><path d="M11 7h9M11 17h9"/></svg>
@@ -76,12 +76,17 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
+    <!-- Bereich: eigener Zeitplan oder Baustelle (Baumanagement) -->
+    <div class="segmented area-switch" role="radiogroup" aria-label="Bereich">
+      <label class="seg"><input type="radio" name="area" value="privat"><span>Privat</span></label>
+      <label class="seg"><input type="radio" name="area" value="bau"><span>Baustelle</span></label>
+    </div>
     <div class="menu__group-label">Ansichten</div>
     <ul class="menu__list">
       <li><a href="#heute">Heute</a></li>
       <li><a href="#woche">Woche</a></li>
       <li><a href="#kalender">Kalender</a></li>
-      <li><a href="#ziele">Ziele</a></li>
+      <li><a href="#ziele" data-goal-label>Ziele</a></li>
       <li><a href="#aufgaben">Aufgaben</a></li>
     </ul>
     <div class="menu__group-label">Verwalten</div>
@@ -115,6 +120,7 @@
   <script src="planer.js"></script>
   <script src="kalender.js"></script>
   <script src="netzplan.js"></script>
+  <script src="vorlagen.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

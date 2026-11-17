@@ -33,6 +33,9 @@ const Model = (() => {
 
   const OWNER_LOCAL = "lokal"; // Diese Woche gibt es nur eine Person: das Gerät
 
+  // Bereiche: eigener Zeitplan oder Baustelle (Baumanagement, Gewerke arbeiten)
+  const AREAS = { PRIVAT: "privat", BAU: "bau" };
+
   // Eindeutige ID erzeugen
   function newId() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -47,6 +50,7 @@ const Model = (() => {
       id: newId(),
       type,
       owner: OWNER_LOCAL,
+      area: AREAS.PRIVAT, // wird beim Speichern auf den aktiven Bereich gesetzt
       title: "",
       notes: "",
       priority: 3,        // 1 = sehr niedrig … 5 = sehr hoch
@@ -85,6 +89,7 @@ const Model = (() => {
       bufferMin: 0,         // Puffer vor/nach dem Termin (Minuten)
       recurrence: recurrence(),
       exceptions: [],       // einzelne Tage: [{ date: "JJJJ-MM-TT", status: "abgesagt" }]
+      showInPrivate: false, // nur Baustelle: "Auch im Wochenplan anzeigen" (blockiert dann private Zeit)
       ...fields,
     });
   }
@@ -98,6 +103,7 @@ const Model = (() => {
       endDate: null,        // bei mehrtägig: letzter Tag
       location: "",
       bufferMin: 0,
+      showInPrivate: false, // nur Baustelle: "Auch im Wochenplan anzeigen"
       ...fields,
     });
   }
@@ -118,6 +124,7 @@ const Model = (() => {
   function neuesZiel(fields = {}) {
     return base(TYPES.ZIEL, {
       deadline: null,       // "JJJJ-MM-TT"
+      startDate: null,      // Baustelle: Baubeginn (vorher plant der Netzplan nichts)
       color: "#7f77dd",     // frei wählbar
       orderMode: "frei",    // "frei" = Reihenfolge per Abhängigkeiten, "alle-bis-deadline"
       subgoals: [],         // Liste von neuesUnterziel()
@@ -142,7 +149,7 @@ const Model = (() => {
       slots: [],            // geplante Arbeitsblöcke (wie bei Aufgaben)
       done: false,
       doneAt: null,
-      assignee: OWNER_LOCAL, // Version 2: wer arbeitet daran
+      assignee: OWNER_LOCAL, // wer arbeitet daran; Baustelle: Gewerk (z. B. "Estrichleger")
       ...fields,
     };
   }
@@ -177,7 +184,7 @@ const Model = (() => {
   }
 
   return {
-    TYPES, DEP_TYPES, OWNER_LOCAL, newId,
+    TYPES, DEP_TYPES, OWNER_LOCAL, AREAS, newId,
     neuerFesterTermin, neuerEinmaligerTermin, neueAufgabe,
     neuesZiel, neuesUnterziel, neueSperrzeit, neueTagesnotiz,
     restzeitStunden,

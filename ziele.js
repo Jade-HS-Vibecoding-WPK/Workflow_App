@@ -90,17 +90,22 @@ const Goals = (() => {
   }
 
   // ===== Ziel anlegen / bearbeiten =====
+  const isBauGoal = (goal) => (goal.area ? goal.area === "bau" : Store.getArea() === "bau");
+
   function goalForm(goal, isNew) {
+    const bau = isBauGoal(goal);
     const colors = Editor.TASK_COLORS.map((c) => `
       <label class="swatch" style="--c:${c}"><input type="radio" name="color" value="${c}" ${goal.color === c ? "checked" : ""} aria-label="Farbe ${c}"><span></span></label>`).join("");
 
-    Editor.show(formShell(isNew ? "Neues Ziel" : "Ziel bearbeiten", goal.color, `
+    Editor.show(formShell(isNew ? (bau ? "Neues Projekt" : "Neues Ziel") : (bau ? "Projekt bearbeiten" : "Ziel bearbeiten"), goal.color, `
       <div class="form-group">
-        <input class="title-input" name="title" placeholder="Titel, z. B. Architektur-Abgabe" value="${esc(goal.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
+        <input class="title-input" name="title" placeholder="${bau ? "Titel, z. B. Einfamilienhaus Musterweg 1" : "Titel, z. B. Architektur-Abgabe"}" value="${esc(goal.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
         <textarea name="notes" rows="2" placeholder="Notiz (optional)">${esc(goal.notes)}</textarea>
       </div>
       <div class="form-group">
-        <label class="row"><span>Deadline</span><input type="date" name="deadline" value="${esc(goal.deadline || "")}"></label>
+        ${bau ? `<label class="row"><span>Baubeginn</span><input type="date" name="startDate" value="${esc(goal.startDate || "")}"></label>` : ""}
+        <label class="row"><span>${bau ? "Fertigstellung bis" : "Deadline"}</span><input type="date" name="deadline" value="${esc(goal.deadline || "")}"></label>
+        ${bau ? `<p class="hint">Die Gewerke arbeiten Mo–Fr, Feiertage sind frei. Ohne Baubeginn rechnet die App ab heute.</p>` : ""}
       </div>
       <div class="form-group">
         <div class="row row--stack">
@@ -109,7 +114,7 @@ const Goals = (() => {
         </div>
         <div class="row row--stack"><span>Farbe</span><div class="swatches">${colors}</div></div>
       </div>
-      ${isNew ? `<p class="hint hint--plain">Unterziele (z. B. Grundriss, Lageplan, Details) legst du im nächsten Schritt an.</p>` : ""}`,
+      ${isNew ? `<p class="hint hint--plain">${bau ? "Vorgänge (z. B. Erdarbeiten, Rohbau, Estrich) legst du im nächsten Schritt an – oder nimm eine Vorlage." : "Unterziele (z. B. Grundriss, Lageplan, Details) legst du im nächsten Schritt an."}</p>` : ""}`,
       isNew ? "" : `
         <button type="button" class="action" data-action="finish">${goal.done ? "Ziel wieder öffnen" : "Ziel als erledigt abschließen"}</button>
         <button type="button" class="action action--danger" data-action="delete">Ziel löschen</button>`));
@@ -125,10 +130,12 @@ const Goals = (() => {
       out.title = form.elements.title.value.trim();
       out.notes = form.elements.notes.value.trim();
       out.deadline = form.elements.deadline.value || null;
+      if (form.elements.startDate) out.startDate = form.elements.startDate.value || null;
       out.priority = Number((form.querySelector('[name="priority"]:checked') || {}).value || 3);
       out.color = (form.querySelector('[name="color"]:checked') || {}).value || goal.color;
       if (!out.title) return fail("Bitte gib einen Titel ein.", "title");
-      if (!out.deadline) return fail("Ein Ziel braucht eine Deadline.", "deadline");
+      if (!out.deadline) return fail(bau ? "Ein Projekt braucht einen Fertigstellungstermin." : "Ein Ziel braucht eine Deadline.", "deadline");
+      if (out.startDate && out.startDate > out.deadline) return fail("Der Baubeginn liegt nach der Fertigstellung.", "startDate");
       const late = (out.subgoals || []).find((sg) => sg.deadline && sg.deadline > out.deadline);
       if (late) return fail(`Das Unterziel „${late.title}“ hat eine spätere Zwischen-Deadline.`, "deadline");
       await Store.save(out);
@@ -164,7 +171,7 @@ const Goals = (() => {
   };
 
   function depsHtml(goal, sg, subs) {
-    const bau = CPM.cfg.bau;
+    const bau = CPM.cfg.bau || isBauGoal(goal);
     const current = Object.fromEntries((sg.dependencies || []).map((d) => [d.fromId, d]));
     // Nur Unterziele anbieten, die keinen Kreis bilden würden
     const candidates = subs.filter((x) => x.id !== sg.id && !CPM.wouldCycle(goal, x.id, sg.id));
@@ -190,7 +197,7 @@ const Goals = (() => {
           <div class="dep-list">${rows}</div>
         </div>
         <p class="hint">${bau
-          ? "Baumanagement-Modus: Art der Abhängigkeit und Wartezeit wählbar. Negative Wartezeit = Überlappung (z. B. −2 = darf 2 Tage früher starten)."
+          ? (isBauGoal(goal) ? "Wartezeit in Kalendertagen, läuft auch am Wochenende (z. B. Estrich trocknen). Negative Wartezeit = Überlappung." : "Baumanagement-Modus: Art der Abhängigkeit und Wartezeit wählbar. Negative Wartezeit = Überlappung (z. B. −2 = darf 2 Tage früher starten).")
           : "Für den kritischen Pfad. Weitere Arten und Wartezeiten gibt es im Baumanagement-Modus (Einstellungen)."}</p>
       </div>`;
   }
@@ -204,30 +211,39 @@ const Goals = (() => {
         <div class="row row--stack">
           <span>Zeitplan ${GoalMath.levelBadges(n)}</span>
           <dl class="cpm-values">
-            <dt>Dauer</dt><dd>${GoalMath.fmtDays(n.D)}</dd>
+            <dt>Dauer</dt><dd>${res.bau ? `${n.D} Arbeitstage` : GoalMath.fmtDays(n.D)}</dd>
             <dt>Frühester Anfang (FAZ)</dt><dd>${d(n.startDate)}</dd>
             <dt>Frühestes Ende (FEZ)</dt><dd>${d(n.endDate)}</dd>
             <dt>Spätester Anfang (SAZ)</dt><dd>${d(n.latestStart)}</dd>
             <dt>Spätestes Ende (SEZ)</dt><dd>${d(n.latestEnd)}</dd>
             <dt>Gesamtpuffer (GP)</dt><dd class="${n.TF < -0.05 ? "meta--warn" : ""}">${n.TF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.TF)}</dd>
-            <dt>Auslastung</dt><dd class="${n.level === "kritisch" ? "meta--warn" : ""}">${n.neededHours > 0 ? `${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)` : "–"}</dd>
+            ${res.bau ? "" : `<dt>Auslastung</dt><dd class="${n.level === "kritisch" ? "meta--warn" : ""}">${n.neededHours > 0 ? `${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)` : "–"}</dd>`}
             <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.FF)}</dd>
           </dl>
         </div>
-        <p class="hint">Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.</p>
+        <p class="hint">${res.bau ? "Baustelle: Arbeitstage Mo–Fr, Feiertage frei. Kein Puffer = kritisch, bis 3 Tage Puffer = eng." : `Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.`}</p>
       </div>`;
   }
+
+  // Häufige Gewerke als Vorschlagsliste (frei eintippbar)
+  const GEWERKE = ["Bauleitung", "Tiefbau", "Rohbau", "Zimmerei", "Dachdecker", "Fensterbauer", "Elektro", "Sanitär/Heizung (SHK)",
+    "Putzer", "Estrichleger", "Trockenbau", "Fliesenleger", "Maler", "Bodenleger", "Schreiner", "Garten- und Landschaftsbau"];
 
   function subgoalForm(goal, sg, isNew, res = null) {
     const subs = [...goal.subgoals].sort((a, b) => a.order - b.order);
     const idx = subs.findIndex((x) => x.id === sg.id);
+    const bau = isBauGoal(goal);
+    if (bau) sg = { ...sg, mode: "dauer" };
+    const gewerk = sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? sg.assignee : "";
 
-    Editor.show(formShell(isNew ? "Neues Unterziel" : "Unterziel", goal.color, `
-      <p class="sheet__context">Ziel: ${esc(goal.title)}</p>
+    Editor.show(formShell(isNew ? (bau ? "Neuer Vorgang" : "Neues Unterziel") : (bau ? "Vorgang" : "Unterziel"), goal.color, `
+      <p class="sheet__context">${bau ? "Projekt" : "Ziel"}: ${esc(goal.title)}</p>
       <div class="form-group">
-        <input class="title-input" name="title" placeholder="Titel, z. B. Grundriss" value="${esc(sg.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
+        <input class="title-input" name="title" placeholder="${bau ? "Titel, z. B. Estrich" : "Titel, z. B. Grundriss"}" value="${esc(sg.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
+        ${bau ? `<input name="gewerk" list="gewerke" placeholder="Gewerk, z. B. Estrichleger" value="${esc(gewerk)}" autocomplete="off">
+        <datalist id="gewerke">${GEWERKE.map((g) => `<option value="${esc(g)}">`).join("")}</datalist>` : ""}
       </div>
-      <div class="form-group">
+      <div class="form-group" ${bau ? "hidden" : ""}>
         <div class="row row--stack">
           <span>Wie wird geschätzt?</span>
           <div class="segmented">
@@ -243,9 +259,16 @@ const Goals = (() => {
         </label>
         <p class="hint" data-mode-hint></p>
       </div>
+      ${bau ? `
+      <div class="form-group">
+        <label class="row"><span>Dauer</span>
+          <span class="unit-input"><input type="number" name="workdays" min="1" step="1" inputmode="numeric" value="${Math.max(1, Math.round(sg.durationDays))}"> Arbeitstage</span>
+        </label>
+        <p class="hint">Mo–Fr, Feiertage zählen nicht.</p>
+      </div>` : ""}
       <div class="form-group">
         <label class="row"><span>Zwischen-Deadline</span><input type="date" name="deadline" value="${esc(sg.deadline || "")}" max="${esc(goal.deadline || "")}"></label>
-        <p class="hint">Optional. Spätestens die Deadline des Ziels (${esc(S.deadlineLabel(goal.deadline))}).</p>
+        <p class="hint">Optional. Spätestens die ${bau ? "Fertigstellung des Projekts" : "Deadline des Ziels"} (${esc(S.deadlineLabel(goal.deadline))}).</p>
       </div>
       ${depsHtml(goal, sg, subs)}
       ${cpmHtml(res, sg)}`,
@@ -253,12 +276,12 @@ const Goals = (() => {
         <button type="button" class="action" data-action="progress">Fortschritt eintragen</button>
         ${idx > 0 ? `<button type="button" class="action" data-action="up">In der Reihenfolge nach oben</button>` : ""}
         ${idx < subs.length - 1 ? `<button type="button" class="action" data-action="down">In der Reihenfolge nach unten</button>` : ""}
-        <button type="button" class="action action--danger" data-action="delete">Unterziel löschen</button>`));
+        <button type="button" class="action action--danger" data-action="delete">${bau ? "Vorgang" : "Unterziel"} löschen</button>`));
 
     const form = Editor.sheetForm();
     const update = () => {
       const mode = form.querySelector('[name="mode"]:checked').value;
-      form.querySelectorAll("[data-show]").forEach((el) => { el.hidden = el.dataset.show !== mode; });
+      if (!bau) form.querySelectorAll("[data-show]").forEach((el) => { el.hidden = el.dataset.show !== mode; });
       form.querySelector("[data-mode-hint]").textContent = mode === "aufwand"
         ? "Eigene Arbeitszeit. Die App plant sie später in freie Zeit ein."
         : "Kalenderzeit, die vergeht, egal wie viel du daran arbeitest (z. B. „Rohbau 3 Wochen“).";
@@ -274,13 +297,19 @@ const Goals = (() => {
       out.mode = form.querySelector('[name="mode"]:checked').value;
       out.estimateHours = Number(form.elements.estimateHours.value);
       out.durationDays = Number(form.elements.durationDays.value);
+      if (bau) {
+        out.mode = "dauer";
+        out.durationDays = Math.round(Number(form.elements.workdays.value));
+        out.assignee = form.elements.gewerk.value.trim() || Model.OWNER_LOCAL;
+        if (!(out.durationDays >= 1)) return fail("Gib mindestens 1 Arbeitstag ein.", "workdays");
+      }
       out.deadline = form.elements.deadline.value || null;
       if (!out.title) return fail("Bitte gib einen Titel ein.", "title");
       if (out.mode === "aufwand" && !(out.estimateHours > 0)) return fail("Gib einen Aufwand größer als 0 ein.", "estimateHours");
       if (out.mode === "dauer" && !(out.durationDays > 0)) return fail("Gib eine Dauer größer als 0 ein.", "durationDays");
       if (out.deadline && goal.deadline && out.deadline > goal.deadline) return fail("Die Zwischen-Deadline liegt nach der Deadline des Ziels.", "deadline");
       // Abhängigkeiten auslesen (nur IDs, siehe CLAUDE.md)
-      const bau = CPM.cfg.bau;
+      const fullDeps = CPM.cfg.bau || bau;
       const old = Object.fromEntries((sg.dependencies || []).map((d) => [d.fromId, d]));
       out.dependencies = [...form.querySelectorAll('[name="dep"]:checked')].map((cb) => {
         const id = cb.value;
@@ -288,8 +317,8 @@ const Goals = (() => {
         const lagEl = form.elements["depLag-" + id];
         return {
           fromId: id,
-          type: bau && typeEl ? typeEl.value : (old[id] ? old[id].type : "ende-anfang"),
-          lagDays: bau && lagEl ? (Number(lagEl.value) || 0) : (old[id] ? old[id].lagDays || 0 : 0),
+          type: fullDeps && typeEl ? typeEl.value : (old[id] ? old[id].type : "ende-anfang"),
+          lagDays: fullDeps && lagEl ? (Number(lagEl.value) || 0) : (old[id] ? old[id].lagDays || 0 : 0),
         };
       });
       const list = isNew ? [...goal.subgoals, out] : goal.subgoals.map((x) => (x.id === out.id ? out : x));
@@ -298,7 +327,7 @@ const Goals = (() => {
     }, {
       progress: () => progressForm(goal, sg),
       delete: async () => {
-        if (!confirm(`Unterziel „${sg.title}“ löschen?`)) return;
+        if (!confirm(`${bau ? "Vorgang" : "Unterziel"} „${sg.title}“ löschen?`)) return;
         // Abhängigkeiten anderer Unterziele auf dieses Unterziel mit entfernen
         const list = goal.subgoals
           .filter((x) => x.id !== sg.id)
@@ -324,7 +353,7 @@ const Goals = (() => {
     const goal = await Store.get(goalId);
     if (!goal) return;
     const order = goal.subgoals.reduce((m, x) => Math.max(m, x.order + 1), 0);
-    subgoalForm(goal, Model.neuesUnterziel({ order, estimateHours: 4 }), true);
+    subgoalForm(goal, Model.neuesUnterziel(isBauGoal(goal) ? { order, mode: "dauer", durationDays: 5 } : { order, estimateHours: 4 }), true);
   }
 
   async function editSubgoal(goalId, sgId) {
@@ -429,7 +458,8 @@ const ZieleView = (() => {
     const p = GoalMath.progress(g);
     const subs = g.subgoals || [];
     const doneCount = subs.filter((x) => x.done).length;
-    const rest = GoalMath.remainingHours(g);
+    const bau = g.area === "bau";
+    const rest = bau ? 0 : GoalMath.remainingHours(g);
     const overdue = g.deadline && g.deadline < S.isoDate(new Date());
     return `
       <a class="goal-card" href="#ziel/${encodeURIComponent(g.id)}" style="--c:${g.color}">
@@ -440,7 +470,8 @@ const ZieleView = (() => {
         <span class="progress"><span style="width:${p}%"></span></span>
         <span class="goal-card__meta">
           <span class="${overdue ? "meta--warn" : ""}">${esc(S.deadlineLabel(g.deadline))} · ${daysLeft(g.deadline)}</span>
-          <span>${subs.length ? `${doneCount}/${subs.length} Unterziele` : "noch keine Unterziele"}</span>
+          <span>${subs.length ? `${doneCount}/${subs.length} ${bau ? "Vorgänge" : "Unterziele"}` : bau ? "noch keine Vorgänge" : "noch keine Unterziele"}</span>
+          ${bau && !res.cycle && subs.length ? `<span>fertig voraussichtlich ${esc(S.deadlineLabel(res.projectEndDate))}</span>` : ""}
           ${rest > 0 ? `<span>noch ca. ${GoalMath.fmtHours(rest)}</span>` : ""}
         </span>
       </a>`;
@@ -452,15 +483,20 @@ const ZieleView = (() => {
     const goals = entries.filter((e) => e.type === Model.TYPES.ZIEL)
       .filter((g) => !g.done)
       .sort((a, b) => String(a.deadline).localeCompare(String(b.deadline)) || b.priority - a.priority);
+    const bau = Store.getArea() === "bau";
 
     container.innerHTML = `
       ${goals.length === 0 ? `
         <section class="empty">
-          <p class="empty__title">Noch keine Ziele</p>
-          <p class="empty__text">Ein Ziel ist ein größeres Vorhaben mit Deadline, z. B. eine Uni-Abgabe. Du teilst es in Unterziele auf und trägst deinen Fortschritt ein.</p>
+          <p class="empty__title">${bau ? "Noch keine Projekte" : "Noch keine Ziele"}</p>
+          <p class="empty__text">${bau
+            ? "Ein Projekt ist eine Baustelle mit Fertigstellungstermin. Du teilst es in Vorgänge mit Gewerken auf – die App rechnet den kritischen Pfad in Arbeitstagen."
+            : "Ein Ziel ist ein größeres Vorhaben mit Deadline, z. B. eine Uni-Abgabe. Du teilst es in Unterziele auf und trägst deinen Fortschritt ein."}</p>
         </section>` : `<div class="goal-list">${goals.map((g) => card(g, entries, cap)).join("")}</div>`}
-      <button class="add-row" data-add><span class="add-row__plus">+</span> Neues Ziel</button>`;
+      <button class="add-row" data-add><span class="add-row__plus">+</span> ${bau ? "Neues Projekt" : "Neues Ziel"}</button>
+      <button class="add-row" data-template><span class="add-row__plus add-row__plus--alt">▤</span> Aus Vorlage …</button>`;
     container.querySelector("[data-add]").addEventListener("click", Goals.newGoal);
+    container.querySelector("[data-template]").addEventListener("click", () => Templates.choose());
   }
 
   return { render, leave() {}, daysLeft };
@@ -480,17 +516,21 @@ const ZielDetailView = (() => {
 
   function subRow(goal, sg, i, byId, res) {
     const n = res && !res.cycle ? res.nodes[sg.id] : null;
+    const bau = goal.area === "bau";
+    const gewerk = bau && sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? sg.assignee : "";
     const rest = sg.mode !== "dauer" ? Model.restzeitStunden(sg) : null;
     const overdue = !sg.done && sg.deadline && sg.deadline < S.isoDate(new Date());
     const waits = (sg.dependencies || []).map((d) => byId[d.fromId]).filter(Boolean).map((x) => x.title);
     const meta = [
       sg.done ? `<span>erledigt</span>` : `<span>${sg.progressPercent} %</span>`,
       !sg.done && rest != null ? `<span>noch ca. ${GoalMath.fmtHours(rest)}</span>` : "",
-      sg.mode === "dauer" ? `<span>${String(sg.durationDays).replace(".", ",")} Tage Dauer</span>` : "",
+      gewerk ? `<span><b>${esc(gewerk)}</b></span>` : "",
+      sg.mode === "dauer" ? `<span>${String(sg.durationDays).replace(".", ",")} ${bau ? "Arbeitstage" : "Tage Dauer"}</span>` : "",
+      bau && n && !sg.done ? `<span>${esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(n.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}</span>` : "",
       GoalMath.workedHours(sg) ? `<span>${GoalMath.fmtHours(GoalMath.workedHours(sg))} gearbeitet</span>` : "",
       sg.deadline ? `<span class="${overdue ? "meta--warn" : ""}">${overdue ? "" : "bis "}${esc(S.deadlineLabel(sg.deadline))}</span>` : "",
       waits.length ? `<span>wartet auf: ${esc(waits.join(", "))}</span>` : "",
-      n && !sg.done ? `<span>fertig frühestens ${esc(inline(S.deadlineLabel(n.endDate)))}</span>` : "",
+      n && !sg.done && !bau ? `<span>fertig frühestens ${esc(inline(S.deadlineLabel(n.endDate)))}</span>` : "",
       n && !sg.done ? (n.behind
         ? `<span class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</span>`
         : `<span>Puffer ${GoalMath.fmtDays(n.TF)}</span>`) : "",
@@ -509,8 +549,28 @@ const ZielDetailView = (() => {
   }
 
   // Einschätzung: "gut im Plan" / "knapp" / "hängt hinterher" + Tipps
+  // Baustelle: Einschätzung in Arbeitstagen und Kalendertagen
+  function bauAdviceHtml(goal, res) {
+    const end = esc(S.parseDate(res.projectEndDate).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" }));
+    const crit = (goal.subgoals || []).filter((x) => res.nodes[x.id] && res.nodes[x.id].critical && !x.done).map((x) => `„${esc(x.title)}“`);
+    const tf = res.minTF;
+    const days = (d) => `${Math.abs(d)} ${Math.abs(d) === 1 ? "Tag" : "Tagen"}`;
+    if (res.status === "hinterher") {
+      return `<div class="advice advice--crit"><b>Verzug: ca. ${days(tf)}.</b>
+        So wird das Projekt erst ${end} fertig. Kritisch: ${crit.slice(0, 4).join(", ")}. Prüfe Dauern, Überlappungen (negative Wartezeit) oder mehr Kolonnen.
+        <small class="advice__calc">Arbeitstage Mo–Fr, Feiertage frei · Wartezeiten in Kalendertagen</small></div>`;
+    }
+    const cls = res.status === "ok" ? "advice--ok" : res.status === "kritisch" ? "advice--crit" : "advice--warn";
+    const head = res.status === "ok" ? "Im Plan." : res.status === "kritisch" ? "Kein Puffer mehr." : "Es wird eng.";
+    return `<div class="advice ${cls}"><b>${head}</b>
+      Voraussichtlich fertig ${end}, Puffer bis zur Fertigstellung ${days(tf)}.
+      ${crit.length ? `Kritischer Pfad: ${crit.slice(0, 5).join(" → ")}${crit.length > 5 ? " …" : ""}.` : ""}
+      <small class="advice__calc">Arbeitstage Mo–Fr, Feiertage frei · Wartezeiten in Kalendertagen</small></div>`;
+  }
+
   function adviceHtml(goal, res, entries) {
     if (res.cycle) return `<div class="advice advice--crit">Die Abhängigkeiten bilden einen Kreis. Bitte prüfe die Unterziele.</div>`;
+    if (res.bau) return bauAdviceHtml(goal, res);
     const capTxt = GoalMath.fmtHours(res.cap);
     const end = esc(inline(S.deadlineLabel(res.projectEndDate)));
     if (res.status === "ok") {
@@ -558,7 +618,8 @@ const ZielDetailView = (() => {
       container.innerHTML = `<section class="empty"><p class="empty__title">Ziel nicht gefunden</p><p class="empty__text"><a href="#ziele">Zurück zu den Zielen</a></p></section>`;
       return;
     }
-    setTitle("Ziel");
+    const bau = goal.area === "bau";
+    setTitle(bau ? "Projekt" : "Ziel");
     const subs = [...goal.subgoals].sort((a, b) => a.order - b.order);
     const byId = Object.fromEntries(subs.map((x) => [x.id, x]));
     const p = GoalMath.progress(goal);
@@ -569,7 +630,7 @@ const ZielDetailView = (() => {
     const mode = (await Store.getSettings()).zielAnsicht === "netz" ? "netz" : "liste";
 
     container.innerHTML = `
-      <a class="back-link" href="#ziele">‹ Ziele</a>
+      <a class="back-link" href="#ziele">‹ ${bau ? "Projekte" : "Ziele"}</a>
       <section class="goal-head" style="--c:${goal.color}">
         <div class="goal-head__top">
           <h2>${esc(goal.title)}</h2>
@@ -578,15 +639,15 @@ const ZielDetailView = (() => {
         ${goal.notes ? `<p class="goal-head__notes">${esc(goal.notes)}</p>` : ""}
         <div class="goal-head__stats">
           <span><b>${p} %</b> geschafft</span>
-          <span><b>${rest > 0 ? GoalMath.fmtHours(rest) : "–"}</b> Arbeit übrig</span>
+          ${bau ? `<span><b>${res && !res.cycle ? esc(S.parseDate(res.projectEndDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" })) : "–"}</b> fertig vorauss.</span>` : `<span><b>${rest > 0 ? GoalMath.fmtHours(rest) : "–"}</b> Arbeit übrig</span>`}
           <span><b>${esc(S.deadlineLabel(goal.deadline))}</b> ${ZieleView.daysLeft(goal.deadline)}</span>
         </div>
         <span class="progress"><span style="width:${p}%"></span></span>
       </section>
-      ${allDone && !goal.done ? `<button class="banner-btn" data-finish>Alle Unterziele erledigt · Ziel abschließen</button>` : ""}
+      ${allDone && !goal.done ? `<button class="banner-btn" data-finish>${bau ? "Alle Vorgänge erledigt · Projekt abschließen" : "Alle Unterziele erledigt · Ziel abschließen"}</button>` : ""}
       ${res && !allDone ? adviceHtml(goal, res, entries) : ""}
       <div class="sub-head">
-        <h3 class="list-group">Unterziele <span>${subs.length}</span></h3>
+        <h3 class="list-group">${bau ? "Vorgänge" : "Unterziele"} <span>${subs.length}</span></h3>
         ${subs.length ? `<div class="segmented sub-mode" role="radiogroup" aria-label="Darstellung">
           <label class="seg"><input type="radio" name="zmode" value="liste" ${mode === "liste" ? "checked" : ""}><span>Liste</span></label>
           <label class="seg"><input type="radio" name="zmode" value="netz" ${mode === "netz" ? "checked" : ""}><span>Netzplan</span></label>
@@ -594,13 +655,15 @@ const ZielDetailView = (() => {
       </div>
       ${mode === "netz" && subs.length ? Netzplan.html(goal, res) : subs.length ? `<ul class="task-list">${subs.map((sg, i) => subRow(goal, sg, i, byId, res)).join("")}</ul>` : `
         <p class="plan-hint">Teile dein Ziel in Schritte auf, z. B. Grundriss, Lageplan, Details. Schätze für jeden den Aufwand.</p>`}
-      <button class="add-row" data-add><span class="add-row__plus">+</span> Unterziel</button>
+      <button class="add-row" data-add><span class="add-row__plus">+</span> ${bau ? "Vorgang" : "Unterziel"}</button>
+      <button class="add-row" data-save-template><span class="add-row__plus add-row__plus--alt">▤</span> Als Vorlage speichern</button>
       ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}`;
     container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
     if (mode === "netz") Netzplan.wire(container, goal, res);
 
     container.querySelector("[data-edit-goal]").addEventListener("click", () => Goals.editGoal(goal.id));
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));
+    container.querySelector("[data-save-template]").addEventListener("click", () => Templates.saveFromGoal(goal));
     container.querySelectorAll("[data-progress]").forEach((b) => b.addEventListener("click", () => Goals.openProgress(goal.id, b.dataset.progress)));
     container.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => Goals.editSubgoal(goal.id, b.dataset.sub)));
     container.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => Editor.edit(b.dataset.open, b.dataset.date)));

@@ -58,8 +58,12 @@ const Netzplan = (() => {
     return { pos, endPos, width: endPos.x + 96 + PAD, height: PAD * 2 + rows * (H + GY) - GY };
   }
 
-  function durationText(sg, n) {
+  function durationText(sg, n, bau) {
     if (sg.done) return "erledigt";
+    if (bau) {
+      const g = sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? sg.assignee + " · " : "";
+      return `${g}${n ? n.D : sg.durationDays} AT`; // AT = Arbeitstage
+    }
     if (sg.mode === "dauer") return GoalMath.fmtDays(n ? n.D : sg.durationDays);
     const h = Model.restzeitStunden(sg);
     return `${GoalMath.fmtHours(h)}${n ? ` ≈ ${GoalMath.fmtDays(n.D)}` : ""}`;
@@ -82,6 +86,7 @@ const Netzplan = (() => {
     if (!subs.length) return `<p class="plan-hint">Noch keine Unterziele – lege welche an, dann entsteht hier der Netzplan.</p>`;
     if (res && res.cycle) return `<div class="advice advice--crit">Die Abhängigkeiten bilden einen Kreis – so lässt sich kein Netzplan zeichnen.</div>`;
     const nodes = (res && res.nodes) || {};
+    const bau = goal.area === "bau";
     const { pos, endPos, width, height } = layout(subs);
     const byId = Object.fromEntries(subs.map((s) => [s.id, s]));
     const hasSucc = new Set();
@@ -109,12 +114,13 @@ const Netzplan = (() => {
       const n = nodes[s.id];
       const p = pos[s.id];
       const cls = ["nz-node", s.done ? "nz-node--done" : "", n && n.level ? "nz-node--" + n.level : "", n && n.mainPath ? "nz-node--main" : ""].join(" ");
-      const puffer = s.done || !n ? "" : n.behind ? `<b class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</b>` : `Puffer ${GoalMath.fmtDays(n.TF)}`;
+      const fmtD = (d) => (bau ? `${d} ${Math.abs(d) === 1 ? "Tag" : "Tage"}` : GoalMath.fmtDays(d));
+      const puffer = s.done || !n ? "" : n.behind ? `<b class="meta--warn">${fmtD(-n.TF)} zu spät</b>` : `Puffer ${fmtD(n.TF)}`;
       return `
         <button class="${cls}" data-node="${esc(s.id)}" style="left:${p.x}px;top:${p.y}px;width:${W}px;height:${H}px;--c:${goal.color}"
-          aria-label="${esc(s.title)}: ${esc(durationText(s, n))}${puffer ? ", " + puffer.replace(/<[^>]+>/g, "") : ""}">
+          aria-label="${esc(s.title)}: ${esc(durationText(s, n, bau))}${puffer ? ", " + puffer.replace(/<[^>]+>/g, "") : ""}">
           <span class="nz-title"><span class="nz-num">${i + 1}</span>${s.done ? "✓ " : ""}${esc(s.title)}</span>
-          <span class="nz-meta">${esc(durationText(s, n))}</span>
+          <span class="nz-meta">${esc(durationText(s, n, bau))}</span>
           <span class="nz-meta">${puffer}</span>
           ${n && !s.done ? `<span class="nz-dates">${dShort(n.startDate)}–${dShort(n.endDate)}</span>` : ""}
         </button>`;
@@ -159,14 +165,14 @@ const Netzplan = (() => {
       `${esc(byId[x.fromId].title)} <small class="muted">${SHORT[x.type || DEP.EA]} (${LONG[x.type || DEP.EA]})${Number(x.lagDays) ? `, ${x.lagDays > 0 ? "+" : ""}${x.lagDays} Tage` : ""}</small>`);
     const box = n && !sg.done ? `
       <div class="din-box" style="--c:${goal.color}">
-        <div class="din-row"><span><small>FAZ</small>${d(n.startDate)}</span><span><small>Dauer</small>${GoalMath.fmtDays(n.D)}</span><span><small>FEZ</small>${d(n.endDate)}</span></div>
-        <div class="din-name"><small>Nr. ${idx}</small><b>${esc(sg.title)}</b> ${GoalMath.levelBadges(n)}</div>
-        <div class="din-row"><span><small>SAZ</small>${d(n.latestStart)}</span><span><small>GP</small>${GoalMath.fmtDays(n.TF)}</span><span><small>SEZ</small>${d(n.latestEnd)}</span></div>
+        <div class="din-row"><span><small>FAZ</small>${d(n.startDate)}</span><span><small>Dauer</small>${goal.area === "bau" ? `${n.D} AT` : GoalMath.fmtDays(n.D)}</span><span><small>FEZ</small>${d(n.endDate)}</span></div>
+        <div class="din-name"><small>Nr. ${idx}${goal.area === "bau" && sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? ` · ${esc(sg.assignee)}` : ""}</small><b>${esc(sg.title)}</b> ${GoalMath.levelBadges(n)}</div>
+        <div class="din-row"><span><small>SAZ</small>${d(n.latestStart)}</span><span><small>GP</small>${goal.area === "bau" ? `${n.TF} Tg` : GoalMath.fmtDays(n.TF)}</span><span><small>SEZ</small>${d(n.latestEnd)}</span></div>
       </div>
       <dl class="cpm-values">
-        <dt>Freier Puffer (FP)</dt><dd>${GoalMath.fmtDays(n.FF)}</dd>
+        <dt>Freier Puffer (FP)</dt><dd>${goal.area === "bau" ? `${n.FF} Tage` : GoalMath.fmtDays(n.FF)}</dd>
         ${n.neededHours > 0 ? `<dt>Auslastung</dt><dd>${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)</dd>` : ""}
-        <dt>${sg.mode === "dauer" ? "Dauer" : "Restaufwand"}</dt><dd>${esc(durationText(sg, n))}</dd>
+        <dt>${sg.mode === "dauer" ? "Dauer" : "Restaufwand"}</dt><dd>${esc(durationText(sg, n, goal.area === "bau"))}</dd>
       </dl>` : `<p class="notice">${sg.done ? "Dieses Unterziel ist erledigt." : "Keine Werte (Ziel ohne Berechnung)."}</p>`;
 
     Editor.show(`

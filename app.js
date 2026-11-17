@@ -62,8 +62,16 @@ async function render() {
   if (lastName && RENDERERS[lastName] && isNavigation && !sameView) RENDERERS[lastName].leave();
   lastView = routeKey;
 
-  titleEl.textContent = view.title;
-  document.title = view.title + " · Workflow";
+  // Bereich Privat / Baustelle: Kennzeichnung oben, "Ziele" heißen auf der Baustelle "Projekte"
+  const bau = Store.getArea() === "bau";
+  document.body.dataset.area = bau ? "bau" : "privat";
+  document.getElementById("area-pill").hidden = !bau;
+  document.querySelectorAll("[data-goal-label]").forEach((el) => { el.textContent = bau ? "Projekte" : "Ziele"; });
+  document.querySelectorAll('[name="area"]').forEach((r) => { r.checked = r.value === (bau ? "bau" : "privat"); });
+  const viewTitle = bau && name === "ziele" ? "Projekte" : bau && name === "ziel" ? "Projekt" : view.title;
+
+  titleEl.textContent = viewTitle;
+  document.title = viewTitle + " · Workflow";
   // Das Datum steht nur über "Heute"
   dateEl.textContent = name === "heute"
     ? new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })
@@ -129,6 +137,14 @@ document.getElementById("add-btn").addEventListener("click", () => {
   else Editor.chooseNew(new Date());
 });
 document.getElementById("menu-close").addEventListener("click", closeMenu);
+// Bereich wechseln (Privat ↔ Baustelle)
+document.querySelectorAll('[name="area"]').forEach((r) => r.addEventListener("change", async () => {
+  await Store.setArea(r.value);
+  closeMenu();
+  // Detailseiten gehören zum alten Bereich → zurück zur Übersicht
+  if (currentViewName() === "ziel") location.hash = "#ziele";
+  Toast.show(r.value === "bau" ? "Baustelle: hier arbeiten die Gewerke" : "Privat: dein eigener Zeitplan");
+}));
 backdrop.addEventListener("click", closeMenu);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
 

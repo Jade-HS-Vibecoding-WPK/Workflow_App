@@ -1129,3 +1129,20 @@ body.no-scroll { overflow: hidden; }
 .wblock--short { flex-direction: row; align-items: center; white-space: nowrap; }
 .wblock--short .wblock__time { display: none; }
 .wblock--short .wblock__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; hyphens: none; }
+
+/* ============================================================
+   Bereich Baustelle
+   ============================================================ */
+.area-switch { margin: 4px 16px 10px; }
+.area-pill {
+  display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px;
+  background: #ff9500; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+  vertical-align: 1px;
+}
+.area-pill[hidden] { display: none; }
+
+/* Vorlagen */
+.tpl-row { display: flex; align-items: center; gap: 4px; }
+.tpl-row .choice { flex: 1; min-width: 0; }
+.tpl-del { flex: none; color: #ff3b30; padding: 0 8px; }
+.add-row__plus--alt { background: var(--surface-2); color: var(--accent); font-size: 0.8rem; }

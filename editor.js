@@ -137,6 +137,8 @@ const Editor = (() => {
     const label = isFest ? "Fester Termin" : "Einmaliger Termin";
     const color = isFest ? "var(--cat-fest)" : "var(--cat-einmalig)";
     const cancelled = isFest && date && (entry.exceptions || []).some((x) => x.date === date && x.status === "abgesagt");
+    // Termin der Baustelle? (neu im Bereich Baustelle angelegt oder schon dort gespeichert)
+    const isBauEntry = isNew ? Store.getArea() === "bau" : entry.area === "bau";
 
     const weekdayChips = WD.map(([short, n]) => `
       <label class="chip"><input type="checkbox" name="wd" value="${n}" ${(rec.weekdays || []).includes(n) ? "checked" : ""}><span>${short}</span></label>`).join("");
@@ -224,6 +226,12 @@ const Editor = (() => {
         <div class="form-group">
           <textarea name="notes" rows="3" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
         </div>
+
+        ${isBauEntry ? `
+        <div class="form-group">
+          <label class="row"><span>Auch im Wochenplan anzeigen <small class="muted">erscheint dann in deinem privaten Plan und blockiert dort die Zeit</small></span>
+            <input type="checkbox" class="switch" name="showInPrivate" ${entry.showInPrivate ? "checked" : ""}></label>
+        </div>` : ""}
 
         <div class="form-warn" role="alert" hidden></div>
         <p class="form-error" role="alert" hidden></p>
@@ -351,6 +359,7 @@ const Editor = (() => {
     out.bufferMin = Number(val("bufferMin") || 0);
     out.start = val("start");
     out.end = val("end");
+    if (form.elements.showInPrivate) out.showInPrivate = form.elements.showInPrivate.checked;
 
     if (!out.title) return { error: "Bitte gib einen Titel ein.", field: "title" };
 

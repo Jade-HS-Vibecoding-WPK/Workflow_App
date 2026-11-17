@@ -57,7 +57,7 @@ const KalenderView = (() => {
     return `
       <button class="${cls}" data-day="${iso}" aria-label="${esc(label)}" ${iso === selected ? 'aria-pressed="true"' : ""}>
         <span class="mcell__num">${d.getDate()}</span>
-        ${allDay.length ? `<span class="mcell__bar" style="--c:var(--cat-einmalig)">${esc(allDay[0].title)}</span>` : ""}
+        ${allDay.length ? `<span class="mcell__bar" style="--c:${allDay[0].color || "var(--cat-einmalig)"}">${allDay.length > 1 ? `${allDay.length}× ` : ""}${esc(allDay[0].title)}</span>` : ""}
         <span class="mcell__marks">
           ${dots}${timed.length > 4 ? `<i class="mplus">+</i>` : ""}
           ${due.length ? `<i class="mflag" style="--c:${due[0].color}">⚑</i>` : ""}
@@ -75,7 +75,7 @@ const KalenderView = (() => {
     for (const a of plan.allDay) {
       rows.push(a.kind === "feiertag"
         ? `<li class="wl-row wl-row--holiday" style="--c:var(--holiday)"><span class="wl-time">Feiertag</span><span class="wl-title">${esc(a.title)}</span></li>`
-        : `<li class="wl-row" data-id="${esc(a.id)}" data-date="${iso}" role="button" tabindex="0" style="--c:var(--cat-einmalig)"><span class="wl-time">ganztägig</span><span class="wl-title">${esc(a.title)}</span></li>`);
+        : `<li class="wl-row" data-id="${esc(a.id)}" data-date="${iso}" role="button" tabindex="0" style="--c:${a.color || "var(--cat-einmalig)"}"><span class="wl-time">${a.kind === "vorgang" ? "Vorgang" : "ganztägig"}</span><span class="wl-title">${esc(a.title)}${a.sub && a.kind === "vorgang" ? `<small>${esc(a.sub)}</small>` : ""}</span></li>`);
     }
     for (const b of plan.timed.filter((x) => x.kind !== "sperr")) {
       rows.push(`<li class="wl-row ${b.cancelled ? "wl-row--cancelled" : ""} ${b.option ? "wl-row--option" : ""}" data-id="${esc(b.id)}" data-date="${iso}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""} role="button" tabindex="0" style="--c:${colorOf(b)}">

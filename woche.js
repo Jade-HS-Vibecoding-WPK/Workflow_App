@@ -77,7 +77,7 @@ const WocheView = (() => {
       const items = [
         ...plan.allDay.map((a) => a.kind === "feiertag"
           ? `<span class="wtag wtag--holiday" title="${esc(a.title)}">${esc(a.title)}</span>`
-          : `<span class="wtag" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(a.title)}</span>`),
+          : `<span class="wtag" style="--c:${a.color || "var(--cat-einmalig)"}" data-id="${esc(a.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(a.title)}</span>`),
         ...plan.notes.map((n) => `<span class="wtag wtag--note" data-id="${esc(n.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(n.title)}</span>`),
       ];
       return `<div class="wtop">${items.join("")}</div>`;
@@ -99,8 +99,8 @@ const WocheView = (() => {
           rows.push(`<li class="wl-row wl-row--holiday" style="--c:var(--holiday)"><span class="wl-time">Feiertag</span><span class="wl-title">${esc(a.title)}</span></li>`);
           continue;
         }
-        rows.push(`<li class="wl-row" data-id="${esc(a.id)}" data-date="${iso}" role="button" tabindex="0" style="--c:var(--cat-einmalig)">
-          <span class="wl-time">ganztägig</span><span class="wl-title">${esc(a.title)}</span></li>`);
+        rows.push(`<li class="wl-row" data-id="${esc(a.id)}" data-date="${iso}" role="button" tabindex="0" style="--c:${a.color || "var(--cat-einmalig)"}">
+          <span class="wl-time">${a.kind === "vorgang" ? "Vorgang" : "ganztägig"}</span><span class="wl-title">${esc(a.title)}${a.kind === "vorgang" && a.sub ? `<small>${esc(a.sub)}</small>` : ""}</span></li>`);
       }
       for (const b of plan.timed.filter((x) => x.kind !== "sperr")) {
         rows.push(`<li class="wl-row ${b.cancelled ? "wl-row--cancelled" : ""} ${b.option ? "wl-row--option" : ""}" data-id="${esc(b.id)}" data-date="${iso}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""} role="button" tabindex="0" style="--c:${colorOf(b)}">

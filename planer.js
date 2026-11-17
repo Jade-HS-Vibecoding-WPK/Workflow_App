@@ -310,7 +310,7 @@ const Planner = (() => {
     running = true;
     let result = null;
     try {
-      const entries = await Store.list();
+      const entries = await Store.list(null, { area: "privat" });
       const before = Object.fromEntries(entries.map((e) => [e.id, JSON.stringify(e)]));
       const now = new Date();
       result = computePlan(entries, now, { full, place: autoPlan || full });
@@ -394,7 +394,7 @@ const Planner = (() => {
     const when = `${S.parseDate(slot.date).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}, ${slot.start}–${slot.end}`;
     let info = "";
     if (!isTask) {
-      const r = CPM.computeGoal(entry, await Store.list());
+      const r = CPM.computeGoal(entry, await Store.list(null, { area: "privat" }));
       const n = !r.cycle && r.nodes[holder.id];
       const rest = Math.round((Model.restzeitStunden(holder) || 0) * 60);
       info = `Noch ${fmtH(rest)} für dieses Unterziel${n && n.level ? ` · <b class="lvl lvl--${n.level}">${n.level}</b>` : ""}${n ? ` · spätestens fertig ${fmtDay(n.latestEnd)}` : ""}`;
@@ -444,7 +444,7 @@ const Planner = (() => {
 
   // Alle Optionen eines Tages bestätigen (Hinweis am Vortag)
   async function confirmDay(iso) {
-    const entries = await Store.list();
+    const entries = await Store.list(null, { area: "privat" });
     const changed = [];
     for (const e of entries) {
       let hit = false;
@@ -495,7 +495,7 @@ const Planner = (() => {
   }
 
   async function whatNow() {
-    const entries = await Store.list();
+    const entries = await Store.list(null, { area: "privat" });
     const now = new Date();
     const sit = nowSituation(entries, now);
     let cands = collectItems(entries, now).filter((it) => it.need > 0 && startable(it));

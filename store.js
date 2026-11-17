@@ -64,9 +64,25 @@ const Store = (() => {
 
   // ---------- öffentlich: das darf die App benutzen ----------
 
-  // Alle Einträge einer Art, z. B. Store.list(Model.TYPES.AUFGABE)
-  async function list(type) {
-    const all = Object.values(data.entries);
+  // ---------- Bereiche: "privat" oder "bau" (Baustelle) ----------
+  // Die App zeigt immer nur einen Bereich. Im privaten Bereich erscheinen
+  // zusätzlich Baustellen-Termine mit "Auch im Wochenplan anzeigen".
+  const areaOf = (e) => e.area || "privat";
+  const getArea = () => (data.settings.bereich === "bau" ? "bau" : "privat");
+  function visibleIn(e, area) {
+    if (areaOf(e) === area) return true;
+    return area === "privat" && e.showInPrivate === true;
+  }
+  async function setArea(area) {
+    await saveSettings({ bereich: area === "bau" ? "bau" : "privat" });
+  }
+
+  // Alle Einträge einer Art im aktiven Bereich, z. B. Store.list(Model.TYPES.AUFGABE)
+  // opts.area = anderer Bereich, opts.all = alle Bereiche
+  async function list(type, opts = {}) {
+    const area = opts.area || getArea();
+    let all = Object.values(data.entries);
+    if (!opts.all) all = all.filter((e) => visibleIn(e, area));
     return copy(type ? all.filter((e) => e.type === type) : all);
   }
 
@@ -80,6 +96,8 @@ const Store = (() => {
     if (!entry || !entry.id || !entry.type) throw new Error("Eintrag braucht id und type");
     const isNew = !data.entries[entry.id];
     const stored = { ...copy(entry), updatedAt: new Date().toISOString() };
+    if (isNew && !entry.areaFixed) stored.area = getArea(); // neue Einträge landen im aktiven Bereich
+    delete stored.areaFixed;
     data.entries[stored.id] = stored;
     if (!persist()) throw new Error("Speichern fehlgeschlagen");
     notify({ action: isNew ? "neu" : "geändert", entry: copy(stored) });
@@ -156,5 +174,5 @@ const Store = (() => {
     notify({ action: "extern" });
   });
 
-  return { list, get, save, saveMany, remove, getSettings, saveSettings, subscribe, exportJSON, importJSON, clearAll };
+  return { list, get, save, saveMany, remove, getArea, setArea, getSettings, saveSettings, subscribe, exportJSON, importJSON, clearAll };
 })();

@@ -133,12 +133,13 @@ const HeuteView = (() => {
       ...plan.notes.map((n) => `<div class="daynote" data-id="${esc(n.id)}" role="button" tabindex="0">${esc(n.title)}</div>`),
       ...plan.allDay.map((a) => a.kind === "feiertag"
         ? `<div class="allday allday--holiday" style="--c:var(--holiday)">${esc(a.title)} <span>Feiertag</span></div>`
-        : `<div class="allday" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>ganztägig</span></div>`),
+        : `<div class="allday" style="--c:${a.color || "var(--cat-einmalig)"}" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>${esc(a.sub || "ganztägig")}</span></div>`),
     ].join("");
 
     // Hinweis am Vortag (A5): Vorschläge für morgen – passt das?
     const tomorrowIso = Schedule.isoDate(Schedule.addDays(now, 1));
-    const tomorrowOpts = isToday && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
+    const privat = Store.getArea() !== "bau";
+    const tomorrowOpts = isToday && privat && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
     const tomorrowHtml = tomorrowOpts.length ? `
       <div class="tomorrow">
         <div class="tomorrow__head"><b>Morgen eingeplant</b><span>passt das?</span></div>
@@ -161,7 +162,7 @@ const HeuteView = (() => {
         ${tile("ziele", "Ziele & Aufgaben", c.open, "#7f77dd", "#ziele")}
         ${tile("warn", "Hängt hinterher", c.behind, c.behind ? "var(--warn)" : "#8e8e93", "#ziele")}
       </div>
-      ${isToday ? `
+      ${isToday && privat ? `
         <div class="plan-actions">
           <button class="pill pill--primary" data-whatnow>Was mache ich jetzt?</button>
           <button class="pill" data-replan aria-label="Vorschläge neu berechnen">↻ Neu planen</button>
