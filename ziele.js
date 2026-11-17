@@ -155,7 +155,8 @@ const Goals = (() => {
     });
   }
 
-  const newGoal = () => goalForm(Model.neuesZiel(), true);
+  // Neues Ziel gehört zum aktiven Bereich (Baustelle → Projekt-Formular mit Baubeginn)
+  const newGoal = () => goalForm(Model.neuesZiel({ area: Store.getArea() }), true);
 
   async function editGoal(goalId) {
     const goal = await Store.get(goalId);
