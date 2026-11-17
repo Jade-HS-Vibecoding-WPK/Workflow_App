@@ -11,10 +11,10 @@ const VIEWS = {
   kalender:     { title: "Kalender",     text: "Hier erscheint die Monatsübersicht.",                         feature: "später (Could)" },
   ziele:        { title: "Ziele",        text: "Hier erscheinen deine Ziele mit Unterzielen und Fortschritt.", feature: "Feature 6" },
   aufgaben:     { title: "Aufgaben",     text: "Hier erscheinen deine Aufgaben zum Abhaken.",                 feature: "Feature 5" },
-  sperrzeiten:  { title: "Sperrzeiten",  text: "Hier legst du Zeiten fest, in denen nichts geplant wird.",    feature: "später (Should)" },
-  tagesnotizen: { title: "Tagesnotizen", text: "Hier hängst du kurze Notizen an bestimmte Tage.",             feature: "später (Could)" },
+  sperrzeiten:  { title: "Sperrzeiten",  text: "", feature: "" },
+  tagesnotizen: { title: "Tagesnotizen", text: "", feature: "" },
   einstellungen:{ title: "Einstellungen",text: "Hier stellst du z. B. Schriftgröße und Baumanagement-Modus ein.", feature: "später" },
-  daten:        { title: "Daten",        text: "Hier sicherst du deine Daten als Datei oder spielst sie zurück.", feature: "später (Should)" },
+  daten:        { title: "Daten sichern", text: "", feature: "" },
   erledigt:     { title: "Erledigt",     text: "Hier landen abgehakte Aufgaben und Ziele.",                    feature: "später (Should)" },
   // Detailseite eines Ziels: Adresse #ziel/<id>, in der Leiste bleibt "Ziele" markiert
   ziel:         { title: "Ziel",         text: "", feature: "", tab: "ziele" },
@@ -44,6 +44,9 @@ const RENDERERS = {
   einstellungen: EinstellungenView,
   ziele: ZieleView,
   ziel: ZielDetailView,
+  sperrzeiten: SperrzeitenView,
+  tagesnotizen: TagesnotizenView,
+  daten: DatenView,
 };
 let lastView = null;
 

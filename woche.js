@@ -77,7 +77,7 @@ const WocheView = (() => {
         ...plan.allDay.map((a) => a.kind === "feiertag"
           ? `<span class="wtag wtag--holiday" title="${esc(a.title)}">${esc(a.title)}</span>`
           : `<span class="wtag" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(a.title)}</span>`),
-        ...plan.notes.map((n) => `<span class="wtag wtag--note">${esc(n.title)}</span>`),
+        ...plan.notes.map((n) => `<span class="wtag wtag--note" data-id="${esc(n.id)}" data-date="${S.isoDate(d)}" role="button" tabindex="0">${esc(n.title)}</span>`),
       ];
       return `<div class="wtop">${items.join("")}</div>`;
     });

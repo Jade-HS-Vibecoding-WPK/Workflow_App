@@ -542,6 +542,18 @@ body.no-scroll { overflow: hidden; }
 }
 .form-error[hidden] { display: none; }
 @media (prefers-color-scheme: dark) { .form-error { color: #ff6961; } }
+/* Warnung beim Eintragen (Sperrzeit / Überschneidung) */
+.form-warn {
+  display: flex; flex-direction: column; gap: 4px;
+  margin: 0 0 16px; padding: 10px 14px; border-radius: 10px;
+  background: color-mix(in srgb, var(--warn) 16%, transparent);
+  border-left: 3px solid var(--warn);
+  font-size: 0.9rem;
+}
+.form-warn[hidden] { display: none; }
+.form-warn b { color: var(--warn); }
+.form-warn small { color: var(--text-2); }
+.daynote[data-id], .wtag--note[data-id] { cursor: pointer; }
 .notice { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--surface); color: var(--text-2); font-size: 0.9rem; }
 
 .form-actions .action {

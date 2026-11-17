@@ -58,7 +58,13 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Wunsch: Auf „Heute“ zwischen Tagen wischen (links = nächster Tag, rechts = vorheriger), zusätzlich ‹ › und „Heute“-Knopf. Titel/erste Kachel zeigen den Tag („Morgen“, „Mittwoch“ …), Jetzt-Linie nur heute, „+“ legt für den angezeigten Tag an, Scrollposition bleibt beim Blättern. Adresse `#heute/<Datum>`.
 - ✅ Wunsch: „kritisch“ nur bei echter Enge. **Auslastung** = nötige Stunden (Unterziel + alle Vorgänger) ÷ freie Stunden bis zu seinem spätesten Ende. Unter 50 % kein Hinweis, **50–80 % „eng“** (orange), **ab 80 % oder wenn es nicht reicht „kritisch“** (rot). Die längste Kette heißt jetzt **„Hauptpfad“** (grau, unabhängig von Deadlines berechnet). Ziel-Status: im Plan / eng / kritisch / hängt hinterher (= reicht nicht); Hinweistext nennt die engen Unterziele.
 - ✅ Ideenliste besprochen (`docs/Ideenliste.md`), Reihenfolge vorgeschlagen
-- ⏳ Etappe 1: Grundlagen-Paket
+- ✅ Etappe 1 Grundlagen-Paket (Di 17.11. vormittags), im Browser getestet:
+  - **A1 Sperrzeiten** (Menü → Sperrzeiten): Name, Wochentage, von/bis, auch **über Nacht** (z. B. 23–7 Uhr) und „bis Mitternacht“ (00:00), **pausierbar** (Schalter „Aktiv“). Zählen als nicht verfügbar.
+  - **A2 + B5 Warnung**: Beim Sichern eines Termins prüft die App Sperrzeiten und Überschneidungen (feste Termine: nächste 4 Wochen) und zeigt einen Hinweis. Zweites Tippen auf „Sichern“ = trotzdem eintragen. Optionen zählen nicht.
+  - **A10 Tagesnotizen**: über „+“ → Tagesnotiz oder Menü → Tagesnotizen; antippen in Heute/Woche öffnet sie zum Ändern.
+  - **A3 Daten sichern**: Sicherung als JSON-Datei (Handy: Teilen-Menü, Computer: Download), Sicherung laden (mit Rückfrage und „Rückgängig“), Anzeige „letzte Sicherung“ mit Erinnerung nach 14 Tagen, „Alle Daten löschen“ (mit Rückgängig).
+  - **B3 + B4 Grundgerüst** (`statistik.js`): Aufgaben merken Erledigung + Schätzung im Verlauf, Unterziele die erste Schätzung. Im Ordner „Erledigt“ steht oben „Diese Woche: …“ und wie gut die Schätzungen passen.
+- ⏳ Etappe 2: Planungs-Kern
 
 ## Entscheidungen
 

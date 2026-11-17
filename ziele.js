@@ -369,6 +369,8 @@ const Goals = (() => {
       const updated = {
         ...sg,
         progressPercent: pct,
+        // Erste Schätzung merken (Statistik: "Schätzung lernen")
+        initialEstimateHours: sg.initialEstimateHours ?? sg.estimateHours,
         log: [...(sg.log || []), { date: S.isoDate(new Date()), hours, percent: pct }],
         done,
         doneAt: done ? new Date().toISOString() : null,

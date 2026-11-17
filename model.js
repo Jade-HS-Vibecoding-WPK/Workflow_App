@@ -136,6 +136,7 @@ const Model = (() => {
       deadline: null,       // Zwischen-Deadline (optional)
       progressPercent: 0,
       log: [],              // Fortschritt: [{ date, hours, percent }]
+      initialEstimateHours: null, // erste Schätzung, gemerkt beim ersten Eintrag (Statistik)
       // Abhängigkeiten: zeigen NUR auf IDs anderer Unterziele
       dependencies: [],     // [{ fromId, type: "ende-anfang", lagDays: 0 }] (lag auch negativ)
       slots: [],            // geplante Arbeitsblöcke (wie bei Aufgaben)
@@ -151,7 +152,8 @@ const Model = (() => {
       title: "Freizeit",
       weekdays: [0, 1, 2, 3, 4, 5, 6],
       start: "20:00",
-      end: "23:59",
+      end: "00:00",         // 00:00 = bis Mitternacht; Ende vor Beginn = über Nacht (z. B. 22:00–06:00)
+      active: true,         // false = pausiert (zählt nicht)
       ...fields,
     });
   }

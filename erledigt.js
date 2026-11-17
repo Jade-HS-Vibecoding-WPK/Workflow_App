@@ -25,7 +25,20 @@ const ErledigtView = (() => {
       .filter((e) => e.done && (e.type === Model.TYPES.AUFGABE || e.type === Model.TYPES.ZIEL))
       .sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt)));
 
+    // Kleiner Wochenrückblick (Grundgerüst, wird später ausgebaut)
+    const all = await Store.list();
+    const w = Stats.weekSummary(all, Schedule.startOfWeek(new Date()));
+    const acc = Stats.accuracyText(Stats.estimateAccuracy(all));
+    const fmtH = (h) => String(h).replace(".", ",") + " Std.";
+    const weekParts = [
+      w.goalHours ? `${fmtH(w.goalHours)} an Zielen gearbeitet` : "",
+      w.subgoalsDone ? `${w.subgoalsDone} Unterziel${w.subgoalsDone === 1 ? "" : "e"} fertig` : "",
+      w.tasksDone ? `${w.tasksDone} Aufgabe${w.tasksDone === 1 ? "" : "n"} erledigt` : "",
+    ].filter(Boolean);
+
     container.innerHTML = `
+      ${weekParts.length || acc ? `
+        <div class="notice notice--week"><b>Diese Woche</b> ${weekParts.length ? weekParts.join(" · ") : "noch nichts erledigt"}${acc ? `<br><small>${acc}</small>` : ""}</div>` : ""}
       <p class="plan-hint">Erledigtes bleibt hier 6 Monate und wird dann automatisch gelöscht.</p>
       ${done.length === 0 ? `
         <section class="empty">

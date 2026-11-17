@@ -37,7 +37,7 @@ const Tasks = (() => {
     let after;
 
     if (before.done) {
-      after = { ...before, done: false, doneAt: null };
+      after = { ...before, done: false, doneAt: null, history: (before.history || []).filter((h) => h.doneAt !== before.doneAt) };
       await Store.save(after);
       Toast.show(`„${before.title}“ ist wieder offen`);
       return;
@@ -49,12 +49,14 @@ const Tasks = (() => {
       after = {
         ...before,
         deadline: next,
-        history: [...(before.history || []), { doneAt: new Date().toISOString(), deadlineWas: before.deadline }],
+        history: [...(before.history || []), { doneAt: new Date().toISOString(), deadlineWas: before.deadline, estimateMin: before.durationMin }],
       };
       await Store.save(after);
       Toast.show(`Erledigt · nächstes Mal ${S.deadlineLabel(next)}`, () => Store.save(before));
     } else {
-      after = { ...before, done: true, doneAt: new Date().toISOString() };
+      const doneAt = new Date().toISOString();
+      // Verlauf für Statistik (Wochenrückblick, Schätzung lernen)
+      after = { ...before, done: true, doneAt, history: [...(before.history || []), { doneAt, deadlineWas: before.deadline, estimateMin: before.durationMin }] };
       await Store.save(after);
       Toast.show(`„${before.title}“ erledigt`, () => Store.save(before));
     }

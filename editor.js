@@ -86,6 +86,10 @@ const Editor = (() => {
             <span class="choice__dot" style="background:#7f77dd"></span>
             <span class="choice__text"><b>Ziel</b><small>mit Deadline und Unterzielen, z. B. Uni-Abgabe</small></span>
           </button>
+          <button class="choice" data-new="${T.TAGESNOTIZ}">
+            <span class="choice__dot" style="background:var(--text-3)"></span>
+            <span class="choice__text"><b>Tagesnotiz</b><small>kurzer Hinweis am Tag, blockiert keine Zeit</small></span>
+          </button>
         </div>
       </div>`);
 
@@ -94,6 +98,10 @@ const Editor = (() => {
       btn.onclick = () => {
         if (btn.dataset.new === T.ZIEL) {
           Goals.newGoal();
+          return;
+        }
+        if (btn.dataset.new === T.TAGESNOTIZ) {
+          Manage.openNoteForm(Model.neueTagesnotiz({ date: S.isoDate(date) }), true);
           return;
         }
         if (btn.dataset.new === T.AUFGABE) {
@@ -115,7 +123,9 @@ const Editor = (() => {
     if (!entry) return;
     if (entry.type === T.AUFGABE) { openTaskForm(entry, { isNew: false }); return; }
     if (entry.type === T.ZIEL) { location.hash = "#ziel/" + encodeURIComponent(entry.id); return; }
-    if (entry.type !== T.FEST && entry.type !== T.EINMALIG) return; // andere Arten folgen in späteren Features
+    if (entry.type === T.SPERRZEIT) { Manage.openSperrForm(entry, false); return; }
+    if (entry.type === T.TAGESNOTIZ) { Manage.openNoteForm(entry, false); return; }
+    if (entry.type !== T.FEST && entry.type !== T.EINMALIG) return;
     openForm(entry, { isNew: false, date: dateIso });
   }
 
@@ -214,12 +224,16 @@ const Editor = (() => {
           <textarea name="notes" rows="3" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
         </div>
 
+        <div class="form-warn" role="alert" hidden></div>
         <p class="form-error" role="alert" hidden></p>
         ${actions}
       </form>`);
 
     const form = layer.querySelector("form");
     const errorEl = form.querySelector(".form-error");
+    const warnEl = form.querySelector(".form-warn");
+    let warned = false; // zweites "Sichern" = trotzdem eintragen
+    form.addEventListener("input", () => { warned = false; warnEl.hidden = true; });
 
     // Felder je nach Auswahl ein-/ausblenden
     function updateVisibility() {
@@ -264,6 +278,17 @@ const Editor = (() => {
         else errorEl.scrollIntoView({ block: "nearest" });
         return;
       }
+      // Sperrzeit oder Überschneidung? Erst warnen, beim zweiten Tippen speichern
+      if (!warned) {
+        const html = conflictHtml(S.conflicts(await Store.list(), result.entry));
+        if (html) {
+          warned = true;
+          warnEl.innerHTML = html;
+          warnEl.hidden = false;
+          warnEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          return;
+        }
+      }
       try {
         await Store.save(result.entry);
         close();
@@ -290,6 +315,20 @@ const Editor = (() => {
         }
       };
     });
+  }
+
+  // Warntext für Sperrzeiten / Überschneidungen
+  function conflictHtml(c) {
+    if (!c.sperr.length && !c.overlap.length) return "";
+    const when = (x) => (x.kind === "fest" || x.kind === "sperr" ? "" : fmtDate(x.date) + ", ") + `${x.start}–${x.end === "24:00" ? "24:00" : x.end}`;
+    const list = (arr) => {
+      const first = arr.slice(0, 3).map((x) => `„${esc(x.title)}“ (${when(x)})`).join(", ");
+      return first + (arr.length > 3 ? ` und ${arr.length - 3} weitere` : "");
+    };
+    const lines = [];
+    if (c.sperr.length) lines.push(`Liegt in deiner Sperrzeit ${list(c.sperr)}.`);
+    if (c.overlap.length) lines.push(`Überschneidet sich mit ${list(c.overlap)}.`);
+    return `<b>Achtung</b>${lines.map((l) => `<span>${l}</span>`).join("")}<small>Tippe noch einmal auf „Sichern“, um trotzdem einzutragen.</small>`;
   }
 
   // Formular auslesen und prüfen

@@ -130,7 +130,7 @@ const HeuteView = (() => {
     }
 
     const extras = [
-      ...plan.notes.map((n) => `<div class="daynote">${esc(n.title)}</div>`),
+      ...plan.notes.map((n) => `<div class="daynote" data-id="${esc(n.id)}" role="button" tabindex="0">${esc(n.title)}</div>`),
       ...plan.allDay.map((a) => a.kind === "feiertag"
         ? `<div class="allday allday--holiday" style="--c:var(--holiday)">${esc(a.title)} <span>Feiertag</span></div>`
         : `<div class="allday" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>ganztägig</span></div>`),
@@ -173,7 +173,7 @@ const HeuteView = (() => {
       el.addEventListener("click", open);
       el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
-    container.querySelectorAll(".allday[data-id]").forEach((el) => {
+    container.querySelectorAll(".allday[data-id], .daynote[data-id]").forEach((el) => {
       el.addEventListener("click", () => Editor.edit(el.dataset.id, isoToday));
     });
 

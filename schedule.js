@@ -103,11 +103,19 @@ const Schedule = (() => {
           }
           break;
         }
-        case T.SPERRZEIT:
-          if ((e.weekdays || []).includes(date.getDay())) {
-            timed.push(block(e, "sperr", e.start, e.end));
+        case T.SPERRZEIT: {
+          if (e.active === false) break; // pausiert
+          const wds = e.weekdays || [];
+          const overnight = toMin(e.end) <= toMin(e.start); // z. B. 22:00–06:00
+          if (wds.includes(date.getDay())) {
+            timed.push(block(e, "sperr", e.start, overnight ? "24:00" : e.end));
+          }
+          // Teil nach Mitternacht gehört zum Vortag
+          if (overnight && toMin(e.end) > 0 && wds.includes((date.getDay() + 6) % 7)) {
+            timed.push(block(e, "sperr", "00:00", e.end));
           }
           break;
+        }
         case T.AUFGABE:
           for (const s of e.slots || []) {
             if (s.date !== iso) continue;
@@ -215,6 +223,44 @@ const Schedule = (() => {
     return blocks;
   }
 
+  // ---------- Warnung beim Eintragen: Sperrzeit / Überschneidung ----------
+  // Prüft einen (noch nicht gespeicherten) Termin gegen alles andere im Plan.
+  // Feste Termine: die nächsten 4 Wochen. Optionen (unbestätigte Vorschläge)
+  // zählen nicht, die plant die App selbst um.
+  // Ergebnis: { sperr: [...], overlap: [...] } mit { title, date, start, end }
+  function conflicts(entries, cand, now = new Date()) {
+    const out = { sperr: [], overlap: [] };
+    if (cand.type !== T.FEST && cand.type !== T.EINMALIG) return out;
+    if (cand.type === T.EINMALIG && cand.allDay) return out;
+    const others = entries.filter((e) => e.id !== cand.id);
+    const s = toMin(cand.start), e = toMin(cand.end);
+    const dates = [];
+    if (cand.type === T.EINMALIG) {
+      if (cand.date) dates.push(parseDate(cand.date));
+    } else {
+      const rec = cand.recurrence || {};
+      let d = parseDate(rec.from && rec.from > isoDate(now) ? rec.from : isoDate(now));
+      for (let i = 0; i < 28; i++, d = addDays(d, 1)) {
+        const iso = isoDate(d);
+        if (!recursOn(rec, d, iso)) continue;
+        if ((cand.exceptions || []).some((x) => x.date === iso && x.status === "abgesagt")) continue;
+        dates.push(d);
+      }
+    }
+    const seen = new Set();
+    for (const d of dates) {
+      for (const b of dayPlan(others, d).timed) {
+        if (b.cancelled || b.option) continue;
+        if (!(b.startMin < e && s < b.endMin)) continue;
+        const key = b.id + "|" + (b.kind === "fest" || b.kind === "sperr" ? b.start : isoDate(d));
+        if (seen.has(key)) continue; // gleiche Serie nur einmal nennen
+        seen.add(key);
+        (b.kind === "sperr" ? out.sperr : out.overlap).push({ title: b.title, date: isoDate(d), start: b.start, end: b.end, kind: b.kind });
+      }
+    }
+    return out;
+  }
+
   // ---------- Wiederkehrende Aufgaben: nächster Termin ----------
   // Sucht den nächsten Tag NACH "afterIso", an dem die Wiederholung greift.
   function nextOccurrence(rec, afterIso) {
@@ -239,5 +285,5 @@ const Schedule = (() => {
     return d.toLocaleDateString("de-DE", { weekday: "short" }) + " " + short;
   }
 
-  return { isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel };
+  return { isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
 })();
