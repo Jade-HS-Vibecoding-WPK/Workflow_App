@@ -94,7 +94,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - **B7 Semesterzeiten**: Einstellungen → Semester (Vorlesungszeit ab/bis, optional vorlesungsfrei ab/bis). Feste Termine mit Haken **„Uni-Veranstaltung“** finden nur in der Vorlesungszeit statt (auch für Warnungen und freie Zeit).
   - **Abhängigkeiten im Netzplan verbinden**: „+“-Griff rechts am Kästchen antippen → Kästchen antippen, das danach kommt (mögliche Ziele gestrichelt, Kreise werden verhindert) – oder „+“ auf ein Kästchen ziehen. Mit Rückgängig. Entfernen im Kästchen-Blatt („Wartet auf: … Entfernen“). Neue Verbindung = Normalfolge, Art/Wartezeit im Formular änderbar.
   - Kleinigkeiten: Umschalter im Ziel bricht auf schmalen Handys um; doppelter Punkt in „fertig Fr 27.11..“ behoben.
-- ⏳ Als Nächstes: Handy-Test der Extras, Feinschliff, README ergänzen (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
+- ✅ Extras getestet (Niklas, Di 17.11.): funktioniert.
+- ⏳ Als Nächstes: Feinschliff, README ergänzen (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
 
 ## Entscheidungen
 
