@@ -25,6 +25,10 @@ const Planner = (() => {
   const DEP = Model.DEP_TYPES;
   const STEP = 30;      // Raster in Minuten
   const HORIZON = 42;   // so viele Tage im Voraus wird geplant
+  const MIN_GOAL = 90;  // Ziel-Arbeit: kürzester sinnvoller Block (1,5 Std.) – Wunsch Niklas
+  const MIN_TASK = 60;  // Aufgaben: Blöcke möglichst ab 1 Std., kleinere Lücken nur wenn nötig
+  // Mindestlänge eines Blocks für diesen Posten (nie mehr als die ganze Restzeit)
+  const minLenOf = (it, rest) => Math.min(it.kind === "sub" ? MIN_GOAL : STEP, Math.max(rest, STEP));
 
   let autoPlan = true;  // Einstellung "Vorschläge automatisch einplanen"
   let running = false, again = false, timer = null;
@@ -151,7 +155,8 @@ const Planner = (() => {
         // Läuft gerade (heute schon begonnen) → darf vor "from" liegen
         const inWindow = day && !day.blocked && a >= S.toMin(cfg.workFrom) && b <= day.to;
         const hitsFixed = !day || day.blocked || day.busy.some(([x, y]) => overlaps(a, b, x, y));
-        const ok = inWindow && !hitsFixed && isFree(day, a, b) && !declinedHit(it, s.date, a, b) && day.load + (b - a) <= maxMin && kept < it.need;
+        const tooShort = it.kind === "sub" && b - a < minLenOf(it, it.need) && !(s.date === todayIso && a < nm); // z. B. alte 30-Min.-Blöcke
+        const ok = inWindow && !hitsFixed && !tooShort && isFree(day, a, b) && !declinedHit(it, s.date, a, b) && day.load + (b - a) <= maxMin && kept < it.need;
         if (!ok) {
           // Nur melden, wenn ein Termin/Sperrzeit/Urlaub im Weg ist
           if (hitsFixed && day) moved.add(it.key);
@@ -197,10 +202,12 @@ const Planner = (() => {
       return best;
     }
 
-    // Stücke in freie Lücken legen; untilIso = nur bis zu diesem Tag
-    // Erst nur Lücken ab 1 Std., dann (falls nötig) auch kleinere
+    // Stücke in freie Lücken legen; untilIso = nur bis zu diesem Tag.
+    // Ziel-Arbeit: nur Lücken ab 1,5 Std. Aufgaben: erst Lücken ab 1 Std.,
+    // dann (falls nötig) auch kleinere.
     function fill(it, start, untilIso) {
-      fillRuns(it, start, untilIso, 2);
+      if (it.kind === "sub") { fillRuns(it, start, untilIso, MIN_GOAL / STEP); return; }
+      fillRuns(it, start, untilIso, MIN_TASK / STEP);
       if (remaining(it) > 0) fillRuns(it, start, untilIso, 1);
     }
 
@@ -209,6 +216,7 @@ const Planner = (() => {
       if (rem <= 0) return 0;
       let chunks = Math.ceil(rem / STEP);
       const total = chunks;
+      let placedChunks = 0;
       const blocks = [];
       for (let i = 0; i < HORIZON && chunks > 0; i++) {
         const iso = S.isoDate(S.addDays(now, i));
@@ -226,9 +234,15 @@ const Planner = (() => {
           let run = 0;
           while (t + (run + 1) * STEP <= day.to && usable(t + run * STEP)) run++;
           const room = Math.floor((maxMin - day.load) / STEP);
-          const take = Math.min(run, chunks, room);
+          let take = Math.min(run, chunks, room);
           if (take <= 0) break; // Tageslimit erreicht
           if (take < Math.min(minRun, chunks)) { t += run * STEP; continue; }
+          // Ziel-Arbeit: keinen Rest unter der Mindestlänge übrig lassen
+          const left = chunks - take;
+          if (it.kind === "sub" && left > 0 && left < minRun) {
+            if (chunks - minRun >= minRun) take = chunks - minRun; // Rest wird genau ein Mindestblock
+            else chunks = take + minRun;                           // lieber etwas mehr einplanen
+          }
           const cur = { iso, a: t, b: t + take * STEP, parts: [] };
           for (let k = 0; k < take; k++) {
             const o = { a: t + k * STEP, b: t + (k + 1) * STEP, key: it.key };
@@ -237,14 +251,18 @@ const Planner = (() => {
           }
           day.load += take * STEP;
           chunks -= take;
+          placedChunks += take;
           blocks.push(cur);
           t += run * STEP;
         }
       }
-      // Letzten Block auf die echte Restzeit kürzen (z. B. 45 Min. statt 60)
+      // Letzten Block auf die echte Restzeit kürzen (z. B. 45 Min. statt 60),
+      // aber nie unter die Mindestlänge
       if (chunks === 0 && blocks.length) {
-        const extra = total * STEP - rem;
-        blocks[blocks.length - 1].b -= extra;
+        const last = blocks[blocks.length - 1];
+        const extra = placedChunks * STEP - rem;
+        const keep = blocks.length === 1 ? minLenOf(it, rem) : minLenOf(it, Infinity);
+        if (extra > 0) last.b -= Math.max(0, Math.min(extra, (last.b - last.a) - keep));
       }
       for (const bl of blocks) {
         const slot = { id: Model.newId(), date: bl.iso, start: S.fromMin(bl.a), end: S.fromMin(bl.b), confirmed: false };
@@ -499,6 +517,9 @@ const Planner = (() => {
     const now = new Date();
     const sit = nowSituation(entries, now);
     let cands = collectItems(entries, now).filter((it) => it.need > 0 && startable(it));
+    // Ziel-Arbeit lohnt sich erst ab 1,5 Std. (außer es ist nur noch weniger übrig)
+    const shortForGoals = sit.gap < MIN_GOAL && cands.some((it) => it.kind === "sub" && it.need > sit.gap);
+    cands = cands.filter((it) => !(it.kind === "sub" && sit.gap < MIN_GOAL && it.need > sit.gap));
     // Kurze Lücke: was hineinpasst zuerst
     if (sit.gap < 60) cands = [...cands.filter((it) => it.need <= sit.gap), ...cands.filter((it) => it.need > sit.gap)];
     let idx = 0;
@@ -515,13 +536,15 @@ const Planner = (() => {
         head = sit.sperr ? `Gerade ist deine Sperrzeit „${esc(sit.sperr.title)}“. Gönn dir die Pause!` : "Gerade ist außerhalb deiner Arbeitszeit. Gönn dir die Pause!";
         buttons = `<button class="action" data-a="force">Trotzdem etwas vorschlagen</button>`;
       } else if (!cands.length) {
-        head = "Nichts offen – alles erledigt. Genieß die freie Zeit!";
+        head = shortForGoals
+          ? `Nur ${fmtH(sit.gap)} bis ${esc(sit.nextLabel)} – für Ziel-Arbeit lohnt sich erst ein Block ab 1,5 Std. Kurze Pause?`
+          : "Nichts offen – alles erledigt. Genieß die freie Zeit!";
       } else if (sit.gap < 10 && !force) {
         head = `Nur ${sit.gap} Min. bis ${esc(sit.nextLabel)} – kurz durchatmen.`;
       } else {
         const gap = force && (sit.sperr || sit.outside) ? 60 : sit.gap;
         const it = cands[idx % cands.length];
-        const len = Math.max(15, Math.min(gap, it.need));
+        const len = Math.max(it.kind === "sub" ? Math.min(MIN_GOAL, it.need) : 15, Math.min(gap, it.need));
         const lvl = it.level === 0 ? "kritisch" : it.level === 1 ? "eng" : "";
         head = `Du hast ${fmtH(gap)} bis ${esc(sit.nextLabel)}.`;
         card = `
