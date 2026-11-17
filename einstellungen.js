@@ -30,6 +30,9 @@ const EinstellungenView = (() => {
         </label>
         <label class="row"><span>Arbeitszeit ab</span><input type="time" name="von" value="${cfg.workFrom}"></label>
         <label class="row"><span>Arbeitszeit bis</span><input type="time" name="bis" value="${cfg.workTo}"></label>
+        <label class="row"><span>Vorschläge automatisch einplanen <small class="muted">Aufgaben und Ziel-Arbeit als gestrichelte Option in freie Lücken</small></span>
+          <input type="checkbox" class="switch" name="auto" ${settings.autoPlanen !== false ? "checked" : ""}>
+        </label>
         <p class="hint">Die App rechnet mit deiner freien Zeit in diesem Fenster (ohne Termine und Sperrzeiten), höchstens mit dem Maximum pro Tag. Gerade: Ø ${GoalMath.fmtHours(CPM.averageCapacity(await Store.list()))} pro Tag.</p>
         <label class="row"><span>Baumanagement-Modus <small class="muted">alle Abhängigkeitsarten, Wartezeiten, Überlappung</small></span>
           <input type="checkbox" class="switch" name="bau" ${cfg.bau ? "checked" : ""}>
@@ -68,6 +71,7 @@ const EinstellungenView = (() => {
       await render(container);
     });
     container.querySelector('[name="maxH"]').addEventListener("change", (e) => Store.saveSettings({ maxStundenProTag: Number(e.target.value) }));
+    container.querySelector('[name="auto"]').addEventListener("change", (e) => Store.saveSettings({ autoPlanen: e.target.checked }));
     container.querySelector('[name="bau"]').addEventListener("change", (e) => Store.saveSettings({ bauModus: e.target.checked }));
     const von = container.querySelector('[name="von"]'), bis = container.querySelector('[name="bis"]');
     const saveTimes = () => {

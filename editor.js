@@ -118,7 +118,8 @@ const Editor = (() => {
   }
 
   // ---------- 2. Vorhandenen Eintrag bearbeiten ----------
-  async function edit(id, dateIso) {
+  async function edit(id, dateIso, slotId = null, subId = null) {
+    if (slotId) { Planner.openSlot(id, slotId, subId || null); return; }
     const entry = await Store.get(id);
     if (!entry) return;
     if (entry.type === T.AUFGABE) { openTaskForm(entry, { isNew: false }); return; }
@@ -279,8 +280,9 @@ const Editor = (() => {
         return;
       }
       // Sperrzeit oder Überschneidung? Erst warnen, beim zweiten Tippen speichern
+      const found = S.conflicts(await Store.list(), result.entry);
       if (!warned) {
-        const html = conflictHtml(S.conflicts(await Store.list(), result.entry));
+        const html = conflictHtml(found);
         if (html) {
           warned = true;
           warnEl.innerHTML = html;
@@ -292,6 +294,12 @@ const Editor = (() => {
       try {
         await Store.save(result.entry);
         close();
+        // Bestätigte Blöcke (Aufgaben/Ziele) im Weg? Nur nach Rückfrage verschieben
+        for (const x of found.overlap.filter((o) => o.slotId)) {
+          if (confirm(`„${x.title}“ ist ein bestätigter Block (${fmtDate(x.date)}, ${x.start}–${x.end}).\n\nNeu einplanen?`)) {
+            await Planner.releaseSlot(x.id, x.slotId, x.subgoalId);
+          }
+        }
       } catch (err) {
         errorEl.textContent = "Speichern hat nicht geklappt. Ist der Speicher des Browsers voll oder im privaten Modus?";
         errorEl.hidden = false;

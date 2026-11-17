@@ -64,7 +64,14 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - **A10 Tagesnotizen**: über „+“ → Tagesnotiz oder Menü → Tagesnotizen; antippen in Heute/Woche öffnet sie zum Ändern.
   - **A3 Daten sichern**: Sicherung als JSON-Datei (Handy: Teilen-Menü, Computer: Download), Sicherung laden (mit Rückfrage und „Rückgängig“), Anzeige „letzte Sicherung“ mit Erinnerung nach 14 Tagen, „Alle Daten löschen“ (mit Rückgängig).
   - **B3 + B4 Grundgerüst** (`statistik.js`): Aufgaben merken Erledigung + Schätzung im Verlauf, Unterziele die erste Schätzung. Im Ordner „Erledigt“ steht oben „Diese Woche: …“ und wie gut die Schätzungen passen.
-- ⏳ Etappe 2: Planungs-Kern
+- ✅ Etappe 2 Planungs-Kern (Di 17.11.), im Browser getestet (`planer.js`):
+  - **A4 + A9 Vorschläge in freie Zeit**: Aufgaben und Unterziele (Aufwand) werden als gestrichelte Optionen in freie Lücken gelegt (Arbeitsfenster minus Termine inkl. Puffer, Sperrzeiten, bestätigte Blöcke; max. Std./Tag; Urlaub = frei). 30-Min.-Raster, zusammenhängende Stücke = ein Block, Blöcke möglichst ab 1 Std. (kleinere Lücken nur, wenn nötig), letzter Block auf die echte Restzeit gekürzt. Bis zu 6 Wochen im Voraus.
+  - **Reihenfolge nach CPM**: kritisch → eng → Rest, dann wenig Puffer, dann Priorität. Abhängigkeiten werden beachtet (Nachfolger erst nach dem Vorgänger, inkl. Wartezeit). Kritische/enge Posten dürfen Optionen weniger wichtiger Posten vor ihrer Deadline verdrängen.
+  - **A8 Umplanen**: Bei jeder Änderung prüft die App: vergangene Optionen verschwinden, Optionen im Weg eines Termins ziehen automatisch um (Meldung „… verschoben auf …“, bei Zeitnot mit Warnung). Der übrige Plan bleibt stehen. Bestätigte Blöcke im Weg: Rückfrage „Neu einplanen?“. Knopf **„↻ Neu planen“** auf Heute verteilt alle Optionen neu. Schalter „Vorschläge automatisch einplanen“ in den Einstellungen.
+  - **Option antippen** (Heute/Woche): Bestätigen · Anderer Zeitpunkt (dort nicht mehr vorschlagen) · öffnen. Fester Block: Erledigt/Fortschritt · wieder zum Vorschlag · entfernen.
+  - **A5 Hinweis am Vortag**: auf Heute „Morgen eingeplant – passt das?“ mit den Optionen von morgen und „Alle bestätigen“.
+  - **B1 „Was mache ich jetzt?“**: Knopf auf Heute; zeigt die freie Zeit bis zum nächsten Termin/Block/Feierabend und schlägt das Wichtigste vor (kurze Lücke: was hineinpasst zuerst). „Los, jetzt machen“ trägt einen festen Block ab jetzt ein. Bei Termin/Sperrzeit/Feierabend: Hinweis auf Pause.
+- ⏳ Etappe 3: Monatskalender + Netzplan
 
 ## Entscheidungen
 

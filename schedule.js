@@ -255,7 +255,10 @@ const Schedule = (() => {
         const key = b.id + "|" + (b.kind === "fest" || b.kind === "sperr" ? b.start : isoDate(d));
         if (seen.has(key)) continue; // gleiche Serie nur einmal nennen
         seen.add(key);
-        (b.kind === "sperr" ? out.sperr : out.overlap).push({ title: b.title, date: isoDate(d), start: b.start, end: b.end, kind: b.kind });
+        (b.kind === "sperr" ? out.sperr : out.overlap).push({
+          title: b.title, date: isoDate(d), start: b.start, end: b.end, kind: b.kind,
+          id: b.id, slotId: b.slotId || null, subgoalId: b.subgoalId || null,
+        });
       }
     }
     return out;

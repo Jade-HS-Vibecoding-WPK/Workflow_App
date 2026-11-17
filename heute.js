@@ -75,7 +75,7 @@ const HeuteView = (() => {
 
     return buffer + `
       <div class="${classes}" style="top:${top}px;height:${height}px;left:${left};width:${width};--c:${color}"
-        data-id="${esc(b.id)}" role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}">
+        data-id="${esc(b.id)}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""} role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.option ? ", Vorschlag" : ""}">
         ${isTodo ? '<span class="block__check" aria-hidden="true"></span>' : ""}
         <span class="block__text">
           <span class="block__title">${esc(b.title)}</span>
@@ -136,6 +136,20 @@ const HeuteView = (() => {
         : `<div class="allday" style="--c:var(--cat-einmalig)" data-id="${esc(a.id)}" role="button" tabindex="0">${esc(a.title)} <span>ganztägig</span></div>`),
     ].join("");
 
+    // Hinweis am Vortag (A5): Vorschläge für morgen – passt das?
+    const tomorrowIso = Schedule.isoDate(Schedule.addDays(now, 1));
+    const tomorrowOpts = isToday && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
+    const tomorrowHtml = tomorrowOpts.length ? `
+      <div class="tomorrow">
+        <div class="tomorrow__head"><b>Morgen eingeplant</b><span>passt das?</span></div>
+        ${tomorrowOpts.slice(0, 4).map((b) => `
+          <button class="tomorrow__row" data-id="${esc(b.id)}" data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}" style="--c:${b.color || "var(--accent)"}">
+            <span>${b.start}–${b.end}</span><b>${esc(b.title)}</b>
+          </button>`).join("")}
+        ${tomorrowOpts.length > 4 ? `<small>+ ${tomorrowOpts.length - 4} weitere</small>` : ""}
+        <button class="link-btn" data-confirm-tomorrow>Alle bestätigen</button>
+      </div>` : "";
+
     const emptyHint = entries.length === 0
       ? `<p class="plan-hint">Noch keine Einträge. Tippe oben auf „+“, um deinen ersten Termin anzulegen.</p>`
       : "";
@@ -147,6 +161,12 @@ const HeuteView = (() => {
         ${tile("ziele", "Ziele & Aufgaben", c.open, "#7f77dd", "#ziele")}
         ${tile("warn", "Hängt hinterher", c.behind, c.behind ? "var(--warn)" : "#8e8e93", "#ziele")}
       </div>
+      ${isToday ? `
+        <div class="plan-actions">
+          <button class="pill pill--primary" data-whatnow>Was mache ich jetzt?</button>
+          <button class="pill" data-replan aria-label="Vorschläge neu berechnen">↻ Neu planen</button>
+        </div>` : ""}
+      ${tomorrowHtml}
       <div class="day-nav">
         <a class="icon-btn" href="#heute/${prev}" aria-label="Vorheriger Tag">‹</a>
         <span class="day-nav__label">${esc(day.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" }))}</span>
@@ -169,12 +189,30 @@ const HeuteView = (() => {
     // Antippen eines Eintrags öffnet ihn zum Bearbeiten
     const isoToday = dayIso; // der angezeigte Tag
     container.querySelectorAll(".block[data-id]").forEach((el) => {
-      const open = () => Editor.edit(el.dataset.id, isoToday);
+      const open = () => Editor.edit(el.dataset.id, isoToday, el.dataset.slot, el.dataset.sub);
       el.addEventListener("click", open);
       el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
     container.querySelectorAll(".allday[data-id], .daynote[data-id]").forEach((el) => {
       el.addEventListener("click", () => Editor.edit(el.dataset.id, isoToday));
+    });
+
+    // Planer-Knöpfe
+    const wn = container.querySelector("[data-whatnow]");
+    if (wn) wn.addEventListener("click", () => Planner.whatNow());
+    const rp = container.querySelector("[data-replan]");
+    if (rp) rp.addEventListener("click", async () => {
+      const r = await Planner.sync({ full: true, silent: true });
+      const n = r ? r.items.filter((it) => it.need > 0).length : 0;
+      Toast.show(n ? `Vorschläge neu berechnet (${n} offen)` : "Nichts zu planen – alles erledigt");
+    });
+    container.querySelectorAll(".tomorrow__row").forEach((el) => {
+      el.addEventListener("click", () => Planner.openSlot(el.dataset.id, el.dataset.slot, el.dataset.sub || null));
+    });
+    const ct = container.querySelector("[data-confirm-tomorrow]");
+    if (ct) ct.addEventListener("click", async () => {
+      await Planner.confirmDay(tomorrowIso);
+      Toast.show("Morgen ist bestätigt");
     });
 
     // Rote Linie jede Minute nachrücken

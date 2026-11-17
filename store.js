@@ -86,6 +86,19 @@ const Store = (() => {
     return copy(stored);
   }
 
+  // Mehrere Einträge auf einmal speichern (z. B. wenn der Planer viele
+  // Vorschläge verschiebt) – nur EIN Mal schreiben und Bescheid geben.
+  async function saveMany(entries, meta = {}) {
+    if (!entries.length) return;
+    const stamp = new Date().toISOString();
+    for (const entry of entries) {
+      if (!entry || !entry.id || !entry.type) throw new Error("Eintrag braucht id und type");
+      data.entries[entry.id] = { ...copy(entry), updatedAt: stamp };
+    }
+    if (!persist()) throw new Error("Speichern fehlgeschlagen");
+    notify({ action: "mehrere", count: entries.length, ...meta });
+  }
+
   // Löschen
   async function remove(id) {
     const entry = data.entries[id];
@@ -143,5 +156,5 @@ const Store = (() => {
     notify({ action: "extern" });
   });
 
-  return { list, get, save, remove, getSettings, saveSettings, subscribe, exportJSON, importJSON, clearAll };
+  return { list, get, save, saveMany, remove, getSettings, saveSettings, subscribe, exportJSON, importJSON, clearAll };
 })();

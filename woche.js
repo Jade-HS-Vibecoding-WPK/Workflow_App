@@ -37,7 +37,7 @@ const WocheView = (() => {
     const cols = b.cols || 1;
     const cls = ["wblock", b.option ? "wblock--option" : "", b.cancelled ? "wblock--cancelled" : "", b.done ? "wblock--done" : ""].join(" ");
     return `
-      <div class="${cls}" role="button" tabindex="0" data-id="${esc(b.id)}" data-date="${iso}"
+      <div class="${cls}" role="button" tabindex="0" data-id="${esc(b.id)}" data-date="${iso}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""}
         style="top:${top}px;height:${height}px;left:calc(${(b.col || 0) / cols} * 100%);width:calc(${1 / cols} * 100% - 1px);--c:${colorOf(b)}"
         aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.cancelled ? ", abgesagt" : ""}">
         <span class="wblock__time">${b.start}</span>
@@ -102,7 +102,7 @@ const WocheView = (() => {
           <span class="wl-time">ganztägig</span><span class="wl-title">${esc(a.title)}</span></li>`);
       }
       for (const b of plan.timed.filter((x) => x.kind !== "sperr")) {
-        rows.push(`<li class="wl-row ${b.cancelled ? "wl-row--cancelled" : ""} ${b.option ? "wl-row--option" : ""}" data-id="${esc(b.id)}" data-date="${iso}" role="button" tabindex="0" style="--c:${colorOf(b)}">
+        rows.push(`<li class="wl-row ${b.cancelled ? "wl-row--cancelled" : ""} ${b.option ? "wl-row--option" : ""}" data-id="${esc(b.id)}" data-date="${iso}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""} role="button" tabindex="0" style="--c:${colorOf(b)}">
           <span class="wl-time">${b.start}–${b.end}</span>
           <span class="wl-title">${esc(b.title)}${b.option ? "<small>Vorschlag, noch nicht bestätigt</small>" : b.sub ? `<small>${esc(b.sub)}</small>` : ""}</span></li>`);
       }
@@ -173,7 +173,7 @@ const WocheView = (() => {
 
     // Einträge antippen → bearbeiten
     container.querySelectorAll("[data-id]").forEach((el) => {
-      const open = (e) => { e.stopPropagation(); Editor.edit(el.dataset.id, el.dataset.date || el.closest("[data-date]")?.dataset.date); };
+      const open = (e) => { e.stopPropagation(); Editor.edit(el.dataset.id, el.dataset.date || el.closest("[data-date]")?.dataset.date, el.dataset.slot, el.dataset.sub); };
       el.addEventListener("click", open);
       el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(e); } });
     });

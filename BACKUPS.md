@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-17-0945
+- **Zeit:** Di 17.11.2026, 09:45 Uhr
+- **Zustand der App:** Feature 1–10 + Etappe 1 + Etappe 2 (Planer: Vorschläge in freie Zeit, Umplanen, Hinweis am Vortag, „Was mache ich jetzt?“). Im Browser getestet, lauffähig.
+- **Zuletzt gemacht:** Etappe 2 Planungs-Kern gebaut (`planer.js`).
+- **Als Nächstes:** Etappe 3 Monatskalender + Netzplan.
+
 ## backup-2026-11-17-0935
 - **Zeit:** Di 17.11.2026, 09:35 Uhr
 - **Zustand der App:** Feature 1–10 + Etappe 1 (Sperrzeiten, Warnung bei Sperrzeit/Überschneidung, Tagesnotizen, Daten sichern/laden, Statistik-Grundgerüst). Im Browser getestet, lauffähig.
