@@ -36,7 +36,17 @@ const GoalMath = (() => {
   const round1 = (n) => Math.round(n * 10) / 10;
   const fmtHours = (h) => String(round1(h)).replace(".", ",") + " Std.";
 
-  return { progress, remainingHours, workedHours, fmtHours, fmtDays, round1 };
+  // Kennzeichnung eines Unterziels: kritisch (rot) / eng (orange) / Hauptpfad (grau)
+  const pct = (u) => (u === Infinity ? "über 100 %" : Math.round(u * 100) + " %");
+  function levelBadges(n) {
+    if (!n || n.done) return "";
+    const lvl = n.level === "kritisch" ? `<b class="badge badge--crit" title="${pct(n.utilization)} der freien Zeit nötig">kritisch</b>`
+      : n.level === "eng" ? `<b class="badge badge--warn" title="${pct(n.utilization)} der freien Zeit nötig">eng</b>` : "";
+    const main = n.mainPath ? `<span class="badge badge--main" title="Längste Kette: bestimmt, wann das Ziel frühestens fertig ist">Hauptpfad</span>` : "";
+    return lvl + main;
+  }
+
+  return { progress, remainingHours, workedHours, fmtHours, fmtDays, round1, pct, levelBadges };
 })();
 
 // ---------- Formulare ----------
@@ -192,7 +202,7 @@ const Goals = (() => {
     return `
       <div class="form-group">
         <div class="row row--stack">
-          <span>Zeitplan ${levelBadges(n)}</span>
+          <span>Zeitplan ${GoalMath.levelBadges(n)}</span>
           <dl class="cpm-values">
             <dt>Dauer</dt><dd>${GoalMath.fmtDays(n.D)}</dd>
             <dt>Frühester Anfang (FAZ)</dt><dd>${d(n.startDate)}</dd>
@@ -200,7 +210,7 @@ const Goals = (() => {
             <dt>Spätester Anfang (SAZ)</dt><dd>${d(n.latestStart)}</dd>
             <dt>Spätestes Ende (SEZ)</dt><dd>${d(n.latestEnd)}</dd>
             <dt>Gesamtpuffer (GP)</dt><dd class="${n.TF < -0.05 ? "meta--warn" : ""}">${n.TF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.TF)}</dd>
-            <dt>Auslastung</dt><dd class="${n.level === "kritisch" ? "meta--warn" : ""}">${n.neededHours > 0 ? `${pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)` : "–"}</dd>
+            <dt>Auslastung</dt><dd class="${n.level === "kritisch" ? "meta--warn" : ""}">${n.neededHours > 0 ? `${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)` : "–"}</dd>
             <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.FF)}</dd>
           </dl>
         </div>
@@ -461,15 +471,9 @@ const ZielDetailView = (() => {
   const S = Schedule;
   const esc = (s) => Editor.esc(s);
 
-  // Kennzeichnung eines Unterziels: kritisch (rot) / eng (orange) / Hauptpfad (grau)
-  const pct = (u) => (u === Infinity ? "über 100 %" : Math.round(u * 100) + " %");
-  function levelBadges(n) {
-    if (!n || n.done) return "";
-    const lvl = n.level === "kritisch" ? `<b class="badge badge--crit" title="${pct(n.utilization)} der freien Zeit nötig">kritisch</b>`
-      : n.level === "eng" ? `<b class="badge badge--warn" title="${pct(n.utilization)} der freien Zeit nötig">eng</b>` : "";
-    const main = n.mainPath ? `<span class="badge badge--main" title="Längste Kette: bestimmt, wann das Ziel frühestens fertig ist">Hauptpfad</span>` : "";
-    return lvl + main;
-  }
+  // Kennzeichnung kommt aus GoalMath (wird auch im Unterziel-Formular gebraucht)
+  const pct = GoalMath.pct;
+  const levelBadges = GoalMath.levelBadges;
 
   // "Heute"/"Morgen" mitten im Satz klein schreiben
   const inline = (lbl) => (lbl === "Heute" || lbl === "Morgen" ? lbl.toLowerCase() : lbl);

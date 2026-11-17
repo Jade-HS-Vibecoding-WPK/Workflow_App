@@ -71,6 +71,7 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   - **Option antippen** (Heute/Woche): Bestätigen · Anderer Zeitpunkt (dort nicht mehr vorschlagen) · öffnen. Fester Block: Erledigt/Fortschritt · wieder zum Vorschlag · entfernen.
   - **A5 Hinweis am Vortag**: auf Heute „Morgen eingeplant – passt das?“ mit den Optionen von morgen und „Alle bestätigen“.
   - **B1 „Was mache ich jetzt?“**: Knopf auf Heute; zeigt die freie Zeit bis zum nächsten Termin/Block/Feierabend und schlägt das Wichtigste vor (kurze Lücke: was hineinpasst zuerst). „Los, jetzt machen“ trägt einen festen Block ab jetzt ein. Bei Termin/Sperrzeit/Feierabend: Hinweis auf Pause.
+- ✅ Fehler behoben (Di 17.11.): Unterziel-Zeile antippen öffnete das Bearbeiten-Formular nicht mehr (seit der Umstellung auf „eng/kritisch“ fehlte dem Formular die Kennzeichnungs-Funktion). Liegt jetzt gemeinsam in `GoalMath`.
 - ⏳ Etappe 3: Monatskalender + Netzplan
 
 ## Entscheidungen
