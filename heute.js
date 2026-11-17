@@ -78,7 +78,7 @@ const HeuteView = (() => {
         data-id="${esc(b.id)}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""} role="button" tabindex="0" aria-label="${esc(b.title)}, ${b.start} bis ${b.end}${b.option ? ", Vorschlag" : ""}">
         ${isTodo ? '<span class="block__check" aria-hidden="true"></span>' : ""}
         <span class="block__text">
-          <span class="block__title">${esc(b.title)}</span>
+          <span class="block__title">${short ? `<span class="block__time">${b.start}</span>` : ""}${esc(b.title)}</span>
           ${short ? "" : `<span class="block__sub">${esc(sub)}</span>`}
         </span>
       </div>`;

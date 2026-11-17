@@ -28,9 +28,10 @@
   color-scheme: light dark;
 }
 
-/* Dunkelmodus: folgt automatisch der Handy-Einstellung */
+/* Dunkelmodus: folgt der Handy-Einstellung („Automatisch“) oder der
+   Wahl in den Einstellungen (data-theme="light" / "dark" am <html>) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #000000;
     --surface: #1c1c1e;
     --surface-2: #2c2c2e;
@@ -41,6 +42,18 @@
     --accent: #0a84ff;
   }
 }
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --text: #f2f2f7;
+  --text-2: #a1a1a6;
+  --text-3: #6c6c70;
+  --line: rgba(84, 84, 88, 0.6);
+  --accent: #0a84ff;
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
 
 /* ============================================================
    Grundaufbau
@@ -541,7 +554,8 @@ body.no-scroll { overflow: hidden; }
   font-size: 0.9rem;
 }
 .form-error[hidden] { display: none; }
-@media (prefers-color-scheme: dark) { .form-error { color: #ff6961; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .form-error { color: #ff6961; } }
+:root[data-theme="dark"] .form-error { color: #ff6961; }
 /* Warnung beim Eintragen (Sperrzeit / Überschneidung) */
 .form-warn {
   display: flex; flex-direction: column; gap: 4px;
@@ -696,7 +710,8 @@ body.no-scroll { overflow: hidden; }
 }
 .toast--show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 .toast button { border: 0; background: none; color: #64d2ff; font: inherit; font-weight: 600; cursor: pointer; }
-@media (prefers-color-scheme: dark) { .toast { background: #3a3a3c; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .toast { background: #3a3a3c; } }
+:root[data-theme="dark"] .toast { background: #3a3a3c; }
 
 /* ============================================================
    Ziele
@@ -909,7 +924,8 @@ body.no-scroll { overflow: hidden; }
 .badge--crit { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
 .badge--warn { background: color-mix(in srgb, #ba7517 18%, transparent); color: #ba7517; }
 .badge--ok { background: color-mix(in srgb, #34c759 18%, transparent); color: #248a3d; }
-@media (prefers-color-scheme: dark) { .badge--ok { color: #30d158; } .badge--warn { color: #ef9f27; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .badge--ok { color: #30d158; } :root:not([data-theme="light"]) .badge--warn { color: #ef9f27; } }
+:root[data-theme="dark"] .badge--ok { color: #30d158; } :root[data-theme="dark"] .badge--warn { color: #ef9f27; }
 
 .advice {
   margin: 10px 0 0;
@@ -1106,3 +1122,10 @@ body.no-scroll { overflow: hidden; }
 .din-row small, .din-name small { color: var(--text-2); font-size: 0.7rem; font-weight: 600; }
 .din-name { padding: 8px 10px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; background: color-mix(in srgb, var(--c) 10%, transparent); }
 .din-name b { display: block; font-size: 1rem; }
+
+/* Kurze Blöcke (z. B. 30 Min.): Zeit und Titel in EINER Zeile */
+.block__time { margin-right: 5px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; }
+/* Woche: Spalten sind schmal → bei kurzen Blöcken nur der Titel (Zeit steht links an der Leiste) */
+.wblock--short { flex-direction: row; align-items: center; white-space: nowrap; }
+.wblock--short .wblock__time { display: none; }
+.wblock--short .wblock__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; hyphens: none; }

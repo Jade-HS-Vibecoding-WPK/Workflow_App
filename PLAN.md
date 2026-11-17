@@ -75,6 +75,9 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Etappe 3 Ansichten (Di 17.11.), im Browser getestet (Handy-Format, hell/dunkel):
   - **A11 Monatskalender** (Leiste unten „Kalender“, `kalender.js`): Monatsraster Mo–So, heute rot, Feiertage rote Zahl, Punkte für Termine (Vorschläge gestrichelt), ⚑ für Deadlines, ✎ für Tagesnotizen, Streifen für ganztägige Termine (Urlaub). Tag antippen = Liste des Tages darunter (Einträge antippbar), nochmal antippen oder „Tagesplan ›“ = Tag in Heute. Blättern mit ‹ › oder Wischen. „+“ legt für den gewählten Tag an.
   - **A6 Netzplan** (`netzplan.js`): im Ziel umschaltbar **Liste | Netzplan** (wird gemerkt). Kästchen mit Nr., Name, Dauer (Std. ≈ Tage), Puffer, Zeitraum; Rahmen rot = kritisch, orange = eng, grau dick = Hauptpfad; erledigt blass. Pfeile je nach Art an Anfang/Ende, beschriftet mit NF/AF/EF/SF und Wartezeit; Unterziele ohne Nachfolger führen zum Kreis „Ziel“ mit Deadline. Seitlich scrollbar. Kästchen antippen = **Netzplan-Kästchen nach DIN 69900** (FAZ · Dauer · FEZ / Name / SAZ · GP · SEZ) + freier Puffer, Auslastung, Vorgänger; Knöpfe Fortschritt/Bearbeiten. Abhängigkeiten weiter im Formular (Pfeil-Ziehen = Ausblick).
+- ✅ Wünsche Niklas (Di 17.11.):
+  - **Hell / Dunkel einstellbar**: Einstellungen → Darstellung: Automatisch (wie das Handy) · Hell · Dunkel. Technisch: `data-theme` am `<html>`, Statusleisten-Farbe passt sich an.
+  - **Kurze Blöcke lesbar**: Heute zeigt bei kurzen Blöcken (z. B. 30 Min.) Zeit und Titel in einer Zeile („13:00 Reisepass“). In der Woche (schmale Spalten) steht bei Blöcken unter 50 Min. nur der Titel, die Zeit sieht man an der Stundenleiste.
 - ⏳ Etappe 4: Baustellen-Bereich (D1) + Vorlage (B8)
 
 ## Entscheidungen

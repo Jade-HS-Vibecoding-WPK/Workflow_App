@@ -138,6 +138,25 @@ const setTopbarHeight = () => document.documentElement.style.setProperty("--topb
 window.addEventListener("resize", setTopbarHeight);
 setTopbarHeight();
 
+// ---------- Hell / Dunkel (Einstellungen → Darstellung) ----------
+// "auto" = wie das Handy, "hell" oder "dunkel" = immer so
+function applyTheme(mode) {
+  const root = document.documentElement;
+  if (mode === "hell") root.dataset.theme = "light";
+  else if (mode === "dunkel") root.dataset.theme = "dark";
+  else delete root.dataset.theme;
+  // Farbe der Statusleiste (Handy) passend setzen
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+    const isDarkMeta = m.media.includes("dark");
+    m.content = mode === "hell" ? "#f2f2f7" : mode === "dunkel" ? "#000000" : (isDarkMeta ? "#000000" : "#f2f2f7");
+  });
+}
+Store.getSettings().then((st) => applyTheme(st.farbmodus));
+Store.subscribe((change) => {
+  if (change.settings) applyTheme(change.settings.farbmodus);
+  else if (change.action === "importiert" || change.action === "geleert") Store.getSettings().then((st) => applyTheme(st.farbmodus));
+});
+
 // ---------- Start ----------
 window.addEventListener("hashchange", render);
 // Wenn sich Daten ändern (Speicher-Baustein meldet sich), Ansicht neu zeichnen

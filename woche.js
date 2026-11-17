@@ -35,7 +35,8 @@ const WocheView = (() => {
       return `<div class="wblock wblock--sperr" style="top:${top}px;height:${height}px" title="${esc(b.title)}"></div>`;
     }
     const cols = b.cols || 1;
-    const cls = ["wblock", b.option ? "wblock--option" : "", b.cancelled ? "wblock--cancelled" : "", b.done ? "wblock--done" : ""].join(" ");
+    const short = b.endMin - b.startMin < 50; // zu niedrig für zwei Zeilen → Zeit und Titel nebeneinander
+    const cls = ["wblock", short ? "wblock--short" : "", b.option ? "wblock--option" : "", b.cancelled ? "wblock--cancelled" : "", b.done ? "wblock--done" : ""].join(" ");
     return `
       <div class="${cls}" role="button" tabindex="0" data-id="${esc(b.id)}" data-date="${iso}" ${b.slotId ? `data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}"` : ""}
         style="top:${top}px;height:${height}px;left:calc(${(b.col || 0) / cols} * 100%);width:calc(${1 / cols} * 100% - 1px);--c:${colorOf(b)}"

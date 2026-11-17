@@ -22,7 +22,19 @@ const EinstellungenView = (() => {
 
     const cfg = CPM.cfg;
     const hourOpts = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map((h) => `<option value="${h}" ${cfg.maxHoursPerDay === h ? "selected" : ""}>${h} Std.</option>`).join("");
+    const theme = settings.farbmodus || "auto";
     container.innerHTML = `
+      <h3 class="list-group">Darstellung</h3>
+      <div class="form-group settings">
+        <div class="row row--stack">
+          <span>Hell / Dunkel <small class="muted">„Automatisch“ folgt der Einstellung deines Handys</small></span>
+          <div class="segmented" role="radiogroup" aria-label="Farbmodus">
+            ${[["auto", "Automatisch"], ["hell", "Hell"], ["dunkel", "Dunkel"]].map(([v, l]) => `
+              <label class="seg"><input type="radio" name="theme" value="${v}" ${theme === v ? "checked" : ""}><span>${l}</span></label>`).join("")}
+          </div>
+        </div>
+      </div>
+
       <h3 class="list-group">Planung</h3>
       <div class="form-group settings">
         <label class="row"><span>Höchstens pro Tag an Zielen arbeiten</span>
@@ -71,6 +83,7 @@ const EinstellungenView = (() => {
       await render(container);
     });
     container.querySelector('[name="maxH"]').addEventListener("change", (e) => Store.saveSettings({ maxStundenProTag: Number(e.target.value) }));
+    container.querySelectorAll('[name="theme"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ farbmodus: r.value })));
     container.querySelector('[name="auto"]').addEventListener("change", (e) => Store.saveSettings({ autoPlanen: e.target.checked }));
     container.querySelector('[name="bau"]').addEventListener("change", (e) => Store.saveSettings({ bauModus: e.target.checked }));
     const von = container.querySelector('[name="von"]'), bis = container.querySelector('[name="bis"]');
