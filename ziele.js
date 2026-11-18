@@ -236,7 +236,7 @@ const Goals = (() => {
             <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${res.bau ? `${Math.abs(n.FF)} Arbeitstage` : GoalMath.fmtDays(n.FF)}</dd>
           </dl>
         </div>
-        <p class="hint">${res.bau ? "Baustelle nach DIN 69900: Dauer und Puffer in Arbeitstagen (Mo–Fr, ohne Feiertage), Zeitabstände in Kalendertagen. Kritischer Weg = Vorgänge mit dem kleinsten Gesamtpuffer; „eng“ = höchstens 3 Arbeitstage mehr Puffer." : `Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.`}</p>
+        <p class="hint">${res.bau ? "Baustelle nach DIN 69900: Dauer und Puffer in Arbeitstagen (Mo–Fr, ohne Feiertage), Zeitabstände in Kalendertagen. Kritischer Weg = längster Weg vom Baubeginn bis zum Projektende (kleinste Gesamtpufferzeit); „eng“ = höchstens 3 Arbeitstage mehr Puffer. Weil Wartezeiten in Kalendertagen laufen, kann der Puffer entlang des kritischen Wegs um ein paar Arbeitstage schwanken (Wochenenden)." : `Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.`}</p>
       </div>
       </details>`;
   }

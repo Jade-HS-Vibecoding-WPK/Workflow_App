@@ -150,15 +150,22 @@ const CPM = (() => {
     for (const id of order) {
       const n = nodes[id];
       let es = start0;
+      const cands = [];
       for (const d of n.preds) {
         const p = nodes[d.fromId], lag = Number(d.lagDays) || 0, t = d.type || DEP.EA;
-        if (t === DEP.EA) es = Math.max(es, p.EF + lag);
-        if (t === DEP.AA) es = Math.max(es, p.ES + lag);
-        if (t === DEP.EE) es = Math.max(es, subW(p.EF + lag, n.D));
-        if (t === DEP.AE) es = Math.max(es, subW(p.ES + lag, n.D));
+        let c = -Infinity;
+        if (t === DEP.EA) c = p.EF + lag;
+        if (t === DEP.AA) c = p.ES + lag;
+        if (t === DEP.EE) c = subW(p.EF + lag, n.D);
+        if (t === DEP.AE) c = subW(p.ES + lag, n.D);
+        cands.push([d.fromId, c]);
+        es = Math.max(es, c);
       }
       n.ES = n.D > 0 ? nextWork(es) : es;
       n.EF = n.D > 0 ? addW(n.ES, n.D) : n.ES;
+      // "Treibende" Vorgänger: die den frühesten Anfang wirklich festlegen
+      const at = (c) => (n.D > 0 ? nextWork(c) : c);
+      n.drivers = cands.filter(([, c]) => c > -Infinity && at(c) === n.ES && c >= start0 - 1e-9).map(([id]) => id);
     }
     const projectEnd = Math.max(start0, ...Object.values(nodes).map((n) => n.EF));
     const deadlineEx = goal.deadline ? days(goal.deadline) + 1 : projectEnd;
@@ -197,11 +204,24 @@ const CPM = (() => {
       n.FF = Math.min(ff, n.TF);
     }
     const minTF = open.length ? Math.min(...open.map((n) => n.TF)) : 0;
+    // Kritischer Weg (DIN 69900: Weg mit der kleinsten Gesamtpufferzeit = längster Weg).
+    // Weil Dauern in Arbeitstagen und Zeitabstände in Kalendertagen laufen, wird er
+    // über die treibenden Abhängigkeiten bestimmt: vom Projektende rückwärts.
+    const crit = new Set();
+    const lastEF = open.length ? Math.max(...open.map((n) => n.EF)) : -Infinity;
+    const stack = open.filter((n) => n.EF === lastEF).map((n) => n.id);
+    while (stack.length) {
+      const id = stack.pop();
+      if (crit.has(id) || nodes[id].done) continue;
+      crit.add(id);
+      for (const p of nodes[id].drivers || []) stack.push(p);
+    }
+    const critMaxTF = crit.size ? Math.max(...[...crit].map((id) => nodes[id].TF)) : minTF;
     for (const n of Object.values(nodes)) {
       const active = !n.done;
       n.behind = active && n.TF < 0;
-      n.mainPath = active && n.TF - minTF <= EPS; // kritischer Weg nach DIN 69900 (kleinste GP)
-      n.level = !active ? null : n.mainPath || n.TF <= 0 ? "kritisch" : n.TF - minTF <= BAU_ENG_TAGE ? "eng" : null;
+      n.mainPath = active && crit.has(n.id);
+      n.level = !active ? null : n.mainPath || n.TF <= 0 ? "kritisch" : n.TF - critMaxTF <= BAU_ENG_TAGE ? "eng" : null;
       n.critical = n.level === "kritisch";
       n.utilization = 0; n.neededHours = 0; n.availableHours = 0;
       n.startDate = S.isoDate(dayDate(n.ES));
