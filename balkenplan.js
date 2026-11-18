@@ -19,6 +19,18 @@ const Balkenplan = (() => {
 
   const dayDiff = (a, b) => Math.round((S.parseDate(b) - S.parseDate(a)) / 86400000);
 
+  // Gesamter Zeitraum des Plans
+  function range(goal, res) {
+    const nodes = (res && res.nodes) || {};
+    const today = S.isoDate(new Date());
+    let from = today;
+    if (goal.startDate && goal.startDate < from) from = goal.startDate;
+    const ends = [goal.deadline, res && res.projectEndDate, ...Object.values(nodes).map((n) => n.latestEnd), ...(goal.subgoals || []).map((s) => s.deadline)].filter(Boolean);
+    let to = ends.reduce((m, d) => (d > m ? d : m), today);
+    to = S.isoDate(S.addDays(S.parseDate(to), 2));
+    return { from, to };
+  }
+
   function html(goal, res, opts = {}) {
     const DAY = opts.dayW || DAY0;
     const tiny = DAY < 18; // Druck: Tageszahlen weglassen, nur Monate
@@ -30,11 +42,10 @@ const Balkenplan = (() => {
     const today = S.isoDate(new Date());
 
     // Zeitraum: von heute (bzw. Baubeginn) bis Deadline/spätestes Ende + 2 Tage
-    let from = today;
-    if (goal.startDate && goal.startDate < from) from = goal.startDate;
-    const ends = [goal.deadline, res && res.projectEndDate, ...Object.values(nodes).map((n) => n.latestEnd), ...subs.map((s) => s.deadline)].filter(Boolean);
-    let to = ends.reduce((m, d) => (d > m ? d : m), today);
-    to = S.isoDate(S.addDays(S.parseDate(to), 2));
+    // (beim Drucken in Abschnitten: opts.from/opts.to)
+    let { from, to } = range(goal, res);
+    if (opts.from) from = opts.from;
+    if (opts.to) to = opts.to;
     let n = Math.min(dayDiff(from, to) + 1, MAX_DAYS);
     const x = (iso) => dayDiff(from, iso) * DAY;
     const width = n * DAY;
@@ -99,7 +110,7 @@ const Balkenplan = (() => {
     const deadlineLine = goal.deadline && goal.deadline >= from ? `<i class="gt-deadline" style="left:${LABEL + x(goal.deadline) + DAY}px" title="${bau ? "Fertigstellung" : "Deadline"}"></i>` : "";
 
     return `
-      <div class="gt-wrap" data-gantt style="--goal-c:${goal.color}">
+      <div class="gt-wrap ${opts.from || opts.to ? "gt-wrap--seg" : ""}" data-gantt style="--goal-c:${goal.color}">
         <div class="gt" style="width:${LABEL + width}px">
           <div class="gt-head">
             <span class="gt-corner"></span>
@@ -136,26 +147,5 @@ const Balkenplan = (() => {
     if (wrap && now) wrap.scrollLeft = Math.max(0, now.offsetLeft - LABEL - 3 * DAY0);
   }
 
-  // Drucken / als PDF (B6): Balkenplan so schmal zeichnen, dass er auf A4 quer passt
-  function printPlan(container, goal, res) {
-    const wrap = container.querySelector("[data-gantt]");
-    if (!wrap) { window.print(); return; }
-    const before = wrap.outerHTML;
-    const days = wrap.querySelectorAll(".gt-day").length || 1;
-    const dayW = Math.max(3, Math.min(DAY0, Math.floor((1000 - LABEL) / days)));
-    const tmp = document.createElement("div");
-    tmp.innerHTML = html(goal, res, { dayW });
-    wrap.replaceWith(tmp.querySelector("[data-gantt]"));
-    document.body.classList.add("printing");
-    const restore = () => {
-      const cur = container.querySelector("[data-gantt]");
-      if (cur) { const t2 = document.createElement("div"); t2.innerHTML = before; cur.replaceWith(t2.firstElementChild); wire(container, goal, res); }
-      document.body.classList.remove("printing");
-      window.removeEventListener("afterprint", restore);
-    };
-    window.addEventListener("afterprint", restore);
-    window.print();
-  }
-
-  return { html, wire, printPlan };
+  return { html, wire, range, LABEL, DAY0 };
 })();

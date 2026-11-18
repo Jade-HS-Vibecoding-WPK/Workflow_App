@@ -1348,7 +1348,6 @@ body.no-scroll { overflow: hidden; }
 
 /* ---------- Drucken / als PDF (B6) ---------- */
 @media print {
-  @page { size: A4 landscape; margin: 10mm; }
   body { background: #fff !important; color: #000 !important; zoom: 1 !important; }
   .topbar, .tabbar, .tabs, nav, .menu, .menu-backdrop, .toast, .sheet-layer, .add-row, .sub-mode, .back-link,
   .goal-head .link-btn, .plan-hint, .nz-handle, .nz-connect-bar, [data-edit-goal], .demo-bar { display: none !important; }
@@ -1359,3 +1358,16 @@ body.no-scroll { overflow: hidden; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 .advice__strong { font-weight: 700; }
+
+/* ---------- Druckformate (druck.js) ---------- */
+.print-only { display: none; }
+.gt-wrap--seg .gt-track { overflow: hidden; }
+@media print {
+  .print-only { display: block; }
+  .print-head { margin: 0 0 6px; font-size: 9pt; color: #555; }
+  .print-seg { break-after: page; }
+  .print-seg:last-child { break-after: auto; }
+  .print-seg__head { margin: 0 0 4px; font-size: 10pt; font-weight: 700; }
+  .gt-row { break-inside: avoid; }
+  .goal-head .progress { display: none; }
+}

@@ -6,7 +6,7 @@
 // WICHTIG: Bei jeder Änderung an den App-Dateien die Versionsnummer
 // erhöhen, sonst sehen Handys weiter die alte Version.
 // ============================================================
-const CACHE = "workflow-v43";
+const CACHE = "workflow-v44";
 
 const FILES = [
   "./",
@@ -34,6 +34,7 @@ const FILES = [
   "./vorlagen.js",
   "./demo.js",
   "./hilfe.js",
+  "./druck.js",
   "./app.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",

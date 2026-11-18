@@ -145,7 +145,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Baustelle B1–B8 (Mi 18.11., Entscheidung Niklas: alle), im Browser getestet:
   B1 DIN-Begriffe (NF/AF/EF/SF, Zeitabstand in Kal.-Tagen) · B2 Meilensteine (Dauer 0, ◆, Datum = Ende des Vorgängers) · B3 Warnung bei doppelt eingeplantem Gewerk (`res.clashes`) · B4 Gewerke-Vorschläge nach VOB/C (ATV DIN 18299 ff.) · B5 EFH-Vorlage: 26 Vorgänge + 3 Meilensteine (Gerüst, Klempner, Tischler, Bauendreinigung; Estrich +28 Kal.-Tage als Faustwert) · B6 Bauzeitenplan drucken/als PDF (A4 quer, auf Seitenbreite gestaucht) · B7 FRP und UP im Netzplan-Kästchen · B8 „Samstag ist Arbeitstag“ pro Projekt (`goal.samstag`).
   Bitte vor der Abgabe die DIN-Nummern der VOB/C kurz gegen eine aktuelle Quelle prüfen.
-- ⏳ Als Nächstes: Handy-Test (Niklas), letzter Feinschliff; Freeze Do 19.11. 12–16 Uhr, danach Poster., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ✅ Druckformate (Wunsch Niklas, Mi 18.11.): `druck.js` – Papier A4/A3 quer/hoch; Balkenplan „alles auf eine Seite“ (gestaucht) oder „gut lesbar“ (Zeitachse in gleich lange Abschnitte, je eine Seite, ab Baubeginn); Netzplan auf Seitenbreite eingepasst (bei langen Ketten klein – A3 quer empfehlen); Kopfzeile mit Titel/Datum. Getestet.
+- ⏳ Als Nächstes: Ideen Baustelle (Liste im Chat) – Entscheidung Niklas; Handy-Test; Freeze Do 19.11. 12–16 Uhr, danach Poster., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 

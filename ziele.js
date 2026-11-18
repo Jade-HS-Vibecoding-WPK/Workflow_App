@@ -717,7 +717,7 @@ const ZielDetailView = (() => {
         <p class="plan-hint">Teile dein Ziel in Schritte auf, z. B. Grundriss, Lageplan, Details. Schätze für jeden den Aufwand.</p>`}
       <button class="add-row" data-add><span class="add-row__plus">+</span> ${bau ? "Vorgang" : "Unterziel"}</button>
       <button class="add-row" data-save-template><span class="add-row__plus add-row__plus--alt">▤</span> Als Vorlage speichern</button>
-      ${subs.length ? `<button class="add-row" data-print><span class="add-row__plus add-row__plus--alt">⎙</span> ${mode === "balken" ? (bau ? "Bauzeitenplan" : "Balkenplan") : mode === "netz" ? "Netzplan" : "Übersicht"} drucken / als PDF</button>` : ""}
+      ${subs.length ? `<button class="add-row" data-print><span class="add-row__plus add-row__plus--alt">⎙</span> ${mode === "balken" ? (bau ? "Bauzeitenplan" : "Balkenplan") : mode === "netz" ? "Netzplan" : "Übersicht"} drucken / als PDF <small class="muted">A4/A3, quer/hoch</small></button>` : ""}
       ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}`;
     container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
     if (mode === "netz") Netzplan.wire(container, goal, res);
@@ -728,7 +728,7 @@ const ZielDetailView = (() => {
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));
     container.querySelector("[data-save-template]").addEventListener("click", () => Templates.saveFromGoal(goal));
     const pr = container.querySelector("[data-print]");
-    if (pr) pr.addEventListener("click", () => (mode === "balken" ? Balkenplan.printPlan(container, goal, res) : window.print()));
+    if (pr) pr.addEventListener("click", () => Druck.open(container, goal, res, mode));
     container.querySelectorAll("[data-progress]").forEach((b) => b.addEventListener("click", () => Goals.openProgress(goal.id, b.dataset.progress)));
     container.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => Goals.editSubgoal(goal.id, b.dataset.sub)));
     container.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => Editor.edit(b.dataset.open, b.dataset.date)));

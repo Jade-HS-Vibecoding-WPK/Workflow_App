@@ -68,7 +68,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 - **Meilensteine** (Dauer 0, z. B. Richtfest, Rohbau dicht, Übergabe) als ◆.
 - **Warnung, wenn ein Gewerk doppelt eingeplant** ist (gleiches Gewerk, gleiche Zeit).
 - Laufende Vorgänge erscheinen als Zeitblöcke im Tages- und Wochenplan (Arbeitszeit der Gewerke, Standard 7–16 Uhr). Baustellen-Termine erscheinen privat nur mit dem Schalter „Auch im Wochenplan anzeigen“.
-- **Bauzeitenplan drucken / als PDF** (Balkenplan auf A4 quer).
+- **Bauzeitenplan und Netzplan drucken / als PDF** in A4 oder A3, quer oder hoch – Balkenplan wahlweise auf einer Seite oder gut lesbar in Abschnitten.
 
 **Vorlagen:** „Einfamilienhaus – Bauablauf“ (26 Vorgänge, 3 Meilensteine, Gewerke nach VOB/C, Aushärte- und Trockenzeiten als Faustwerte) und „Uni-Abgabe (Architektur)“. Jedes Ziel/Projekt lässt sich auch **als eigene Vorlage speichern**.
 
@@ -125,7 +125,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 | `editor.js` | Formulare für Termine und Aufgaben |
 | `verwalten.js` | Sperrzeiten, Tagesnotizen, Daten sichern |
 | `vorlagen.js` | Vorlagen (Einfamilienhaus, Uni-Abgabe, eigene) |
-| `demo.js`, `hilfe.js` | Beispiel ansehen, „?“-Hilfe |
+| `demo.js`, `hilfe.js`, `druck.js` | Beispiel ansehen, „?“-Hilfe, Drucken in Formaten |
 | `netzplan.js`, `balkenplan.js` | Netzplan (DIN 69900) und Balkenplan im Ziel |
 | `statistik.js` | Wochenrückblick und Schätzgenauigkeit |
 | `heute.js`, `woche.js`, `kalender.js`, `aufgaben.js`, `ziele.js`, `erledigt.js`, `einstellungen.js` | die einzelnen Ansichten |
