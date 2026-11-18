@@ -117,7 +117,7 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Ideen 1, 2, 4 aus Testrunde 2 umgesetzt (Mi 18.11.), im Browser getestet.
 - ✅ Idee 3 umgesetzt (Regel A + Erinnerung alle 2 Tage), im Browser getestet (Handy-Format).
 - ✅ README neu geschrieben (Mi 18.11.): Ansichten, Einträge, Planer, CPM inkl. Auslastung, Netz-/Balkenplan, Baustelle + Vorlagen, Sonstiges, Dateiliste vollständig, Ausblick aktualisiert (erledigte Punkte raus).
-- ✅ Testrunde 3 (Claude, Mi 18.11.): Alltag Student + Baustelle im Handy-Format, alle Ansichten und Abläufe. 1 Fehler behoben (Tippfehler-Warnung über Mitternacht), 11 Ideen offen (siehe oben).
+- ✅ Testrunde 3 (Claude, Mi 18.11.): Alltag Student + Baustelle im Handy-Format, alle Ansichten und Abläufe. 1 Fehler behoben (Tippfehler-Warnung über Mitternacht), 11 Ideen – inzwischen alle umgesetzt (siehe oben).
 - ✅ Alle 11 Ideen aus Testrunde 3 umgesetzt (Mi 18.11.), im Browser getestet (Handy-Format; Planer stabil, Urlaub hin und zurück → Plan wie vorher).
 - ⏳ Als Nächstes: Handy-Test (Niklas), Übersicht/Bedienbarkeit weiter verbessern (Wunsch Niklas); Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
