@@ -49,7 +49,8 @@ const Balkenplan = (() => {
       if (i === 0 || d.getDate() === 1) months.push({ i, label: d.toLocaleDateString("de-DE", { month: "long", year: "numeric" }) });
       days.push(`<span class="gt-day ${wd === 0 || wd === 6 ? "gt-day--we" : ""} ${hol ? "gt-day--hol" : ""} ${iso === today ? "gt-day--today" : ""}" ${hol ? `title="${esc(hol)}"` : ""}>
         <small>${"SMDMDFS"[wd]}</small>${d.getDate()}</span>`);
-      if (wd === 0 || wd === 6 || hol) shade.push(`<i class="gt-shade ${hol ? "gt-shade--hol" : ""}" style="left:${i * DAY}px"></i>`);
+      const pause = bau && S.inBauPause(iso); // Winterpause der Baustelle
+      if (wd === 0 || wd === 6 || hol || pause) shade.push(`<i class="gt-shade ${hol ? "gt-shade--hol" : ""}" style="left:${i * DAY}px" ${pause ? 'title="Winterpause"' : ""}></i>`);
     }
     const monthHtml = months.map((m, k) => {
       const next = months[k + 1] ? months[k + 1].i : n;
@@ -73,6 +74,10 @@ const Balkenplan = (() => {
             ${s.progressPercent ? `<i class="gt-progress" style="width:${s.progressPercent}%"></i>` : ""}
           </button>`;
       }
+      // Tage, an denen tatsächlich daran gearbeitet werden soll (Planer-Blöcke) – Testrunde 3
+      const slotDays = {};
+      if (!bau && !s.done) for (const sl of s.slots || []) if (sl.date >= today && dayDiff(from, sl.date) < n) slotDays[sl.date] = slotDays[sl.date] || sl.confirmed;
+      const dots = Object.entries(slotDays).map(([d, ok]) => `<i class="gt-slot ${ok ? "gt-slot--ok" : ""}" style="left:${x(d) + DAY / 2 - 3}px" title="${ok ? "eingeplant" : "Vorschlag"} ${esc(d)}"></i>`).join("");
       const dl = s.deadline && s.deadline >= from ? `<i class="gt-dl" style="left:${x(s.deadline) + DAY / 2 - 6}px" title="Zwischen-Deadline">◆</i>` : "";
       return `
         <div class="gt-row ${s.done ? "gt-row--done" : ""}">
@@ -80,7 +85,7 @@ const Balkenplan = (() => {
             <span><span class="nz-num">${i + 1}</span>${s.done ? "✓ " : ""}${esc(s.title)}</span>
             ${gewerk ? `<small>${esc(gewerk)}</small>` : nd && !s.done ? `<small>${esc(S.parseDate(nd.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(nd.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}</small>` : ""}
           </button>
-          <div class="gt-track" style="width:${width}px">${bars}${dl}</div>
+          <div class="gt-track" style="width:${width}px">${bars}${dots}${dl}</div>
         </div>`;
     }).join("");
 
@@ -112,8 +117,9 @@ const Balkenplan = (() => {
         <span><i class="gt-key-now"></i>heute</span>
         <span><i class="gt-key-dl"></i>${bau ? "Fertigstellung" : "Deadline"}</span>
         <span>◆ Zwischen-Deadline</span>
+        ${bau ? "" : `<span><i class="gt-slot gt-slot--key"></i>Arbeit eingeplant</span>`}
       </p>
-      <p class="plan-hint plan-hint--small">Balken = frühester Anfang bis frühestes Ende${bau ? " (Arbeitstage, Wochenende/Feiertage grau)" : ""} · antippen = alle Werte</p>`;
+      <p class="plan-hint plan-hint--small">Balken = frühester Anfang bis frühestes Ende${bau ? " (Arbeitstage, Wochenende/Feiertage grau)" : " · Punkte = Tage mit eingeplanter Arbeit (gefüllt = bestätigt)"} · antippen = alle Werte</p>`;
   }
 
   function wire(container, goal, res) {

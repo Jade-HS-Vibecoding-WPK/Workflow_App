@@ -46,7 +46,12 @@ const GoalMath = (() => {
     return lvl + main;
   }
 
-  return { progress, remainingHours, workedHours, fmtHours, fmtDays, round1, pct, levelBadges };
+  // Angezeigter Puffer eines Unterziels: nie mehr als der Puffer des ganzen Ziels
+  // (der berücksichtigt, dass du allein arbeitest) – sonst stehen zwei
+  // verschiedene Zahlen auf einer Seite (Testrunde 3). Die DIN-Werte bleiben klassisch.
+  const shownTF = (n, res) => (res && !res.bau && res.slack >= 0 ? Math.min(n.TF, res.slack) : n.TF);
+
+  return { progress, remainingHours, workedHours, fmtHours, fmtDays, round1, pct, levelBadges, shownTF };
 })();
 
 // ---------- Formulare ----------
@@ -379,7 +384,8 @@ const Goals = (() => {
   }
 
   // ===== Fortschritt eintragen: "Wie lange gearbeitet? Wie viel % geschafft?" =====
-  function progressForm(goal, sg) {
+  // hoursHint: Länge des Blocks, von dem man kommt (Testrunde 3) – vorausgefüllt, änderbar
+  function progressForm(goal, sg, hoursHint = null) {
     const worked = GoalMath.workedHours(sg);
     const isAufwand = sg.mode !== "dauer";
 
@@ -388,7 +394,7 @@ const Goals = (() => {
       <p class="notice">Bisher: ${GoalMath.fmtHours(worked)} gearbeitet · ${sg.progressPercent} % geschafft${isAufwand ? ` · Schätzung ${GoalMath.fmtHours(sg.estimateHours)}` : ` · Dauer ${String(sg.durationDays).replace(".", ",")} Tage`}</p>
       <div class="form-group">
         <label class="row"><span>Heute gearbeitet</span>
-          <span class="unit-input"><input type="number" name="hours" min="0" step="0.25" inputmode="decimal" value="" placeholder="0" autofocus> Std.</span>
+          <span class="unit-input"><input type="number" name="hours" min="0" step="0.25" inputmode="decimal" value="${hoursHint ? GoalMath.round1(hoursHint) : ""}" placeholder="0" autofocus> Std.</span>
         </label>
         <div class="row row--stack">
           <span>Insgesamt geschafft: <b data-pct>${sg.progressPercent} %</b></span>
@@ -442,10 +448,10 @@ const Goals = (() => {
     });
   }
 
-  async function openProgress(goalId, sgId) {
+  async function openProgress(goalId, sgId, hoursHint = null) {
     const goal = await Store.get(goalId);
     const sg = goal && goal.subgoals.find((x) => x.id === sgId);
-    if (sg) progressForm(goal, sg);
+    if (sg) progressForm(goal, sg, hoursHint);
   }
 
   return { newGoal, editGoal, newSubgoal, editSubgoal, openProgress };
@@ -549,7 +555,7 @@ const ZielDetailView = (() => {
       n && !sg.done && !bau ? `<span>fertig frühestens ${esc(inline(S.deadlineLabel(n.endDate)))}</span>` : "",
       n && !sg.done ? (n.behind
         ? `<span class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</span>`
-        : `<span>Puffer ${GoalMath.fmtDays(n.TF)}</span>`) : "",
+        : `<span>Puffer ${GoalMath.fmtDays(GoalMath.shownTF(n, res))}</span>`) : "",
       n && !sg.done && n.neededHours > 0 && n.level ? `<span class="${n.level === "kritisch" ? "meta--warn" : ""}">${pct(n.utilization)} der freien Zeit</span>` : "",
     ].filter(Boolean).join("");
     const badge = levelBadges(n);

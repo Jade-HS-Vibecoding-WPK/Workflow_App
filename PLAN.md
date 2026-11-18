@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, ~11:30 Uhr. Niklas will alle 11 Ideen aus Testrunde 3 – Umsetzung läuft (Sicherungspunkt davor: `backup-2026-11-18-1140`).*
+*Stand: Mi 18.11.2026, 10:19 Uhr. Alle 11 Ideen aus Testrunde 3 umgesetzt, Sicherungspunkt `backup-2026-11-18-1019`.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -15,24 +15,22 @@
   - **Regel A** (`Planner.notBefore`): Vorschlag erst in der zweiten Hälfte des Abstands (jede Woche → ab 4 Tage vor der Deadline, alle 2 Wochen → 7, monatlich → 15). Passt es dort nicht (z. B. Urlaub), plant die App früher.
   - **Erinnerung** (`Tasks.reminders`, Box „Zur Erinnerung“ oben auf Heute): offene Aufgaben mit Deadline (ab übermorgen), die nicht heute/morgen eingeplant sind – mit „fällig in X Tagen · geplant …“. Erscheint **alle 2 Tage**: „Okay“ blendet sie 2 Tage aus (Einstellung `erinnerungOk`), nach dem Abhaken ebenfalls 2 Tage Ruhe. Antippen öffnet die Aufgabe. Höchstens 3 Zeilen.
 
-### ➜ Testrunde 3 (Claude, Mi 18.11.): Ideen – Niklas entscheidet
-Behoben: Tippfehler 14:00–13:00 ergab still einen 23-Std.-Termin → jetzt Warnung „Ende liegt vor dem Beginn … Tippfehler?“ (ab 12 Std. über Nacht).
+### Testrunde 3 (Mi 18.11.) – alle 11 Ideen umgesetzt (Entscheidung Niklas: alle)
+1. **Pause** nach 3 Std. Arbeit am Stück, auch über verschiedene Posten hinweg (`chainBefore/After` in `planer.js`).
+2. **Gleichmäßig verteilen:** Ziele mit Spielraum (alle Unterziele „im Plan“, Puffer ≥ 7 Tage) bekommen ein Tagespensum = Reststunden ÷ (Werktage bis Deadline × 0,6), mind. 1,5 Std. (`PACE`, `goalCap`). Reihenfolge der Durchgänge: Werktage mit Pensum → auch Wochenende → ohne Pensum. Aufgaben mit ≥ 3 Tagen Spielraum: Werktage zuerst.
+   - Nebenbei behoben: Beim Nachrücken blieben Ketten (Unterziel wartet auf Vorgänger) hinten hängen, bis man „Neu planen“ drückte – jetzt rücken Vorgänger mit nach.
+3. **Heute übersichtlicher:** Kacheln in einer Reihe („Fällig (Woche)“), „Morgen eingeplant“ erst ab 14 Uhr, Knöpfe „Alle bestätigen“/„Okay“ in der Kopfzeile der Boxen, Erinnerungszeilen kompakter.
+4. **„Hängt hinterher“** zählt überfällige Aufgaben mit (Kachel führt dann zu Aufgaben).
+5. **Aufgabenliste:** „Vorschlag heute 14:00“ bzw. „geplant …“ unter jeder Aufgabe.
+6. **Ein Puffer:** Unterziele/Netzplan zeigen höchstens den Puffer des ganzen Ziels (`GoalMath.shownTF`); DIN-Kästchen bleiben klassisch.
+7. **Balkenplan:** Punkte an Tagen mit eingeplanter Arbeit (gefüllt = bestätigt).
+8. **Urlaub:** Schalter „Feste Termine fallen aus“ bei ganztägigen Terminen (Feld `cancelFixed`).
+9. **Fortschritt:** „Heute gearbeitet“ mit der Blocklänge vorausgefüllt, wenn man vom Block kommt.
+10. **Baustelle: Winterpause** (Einstellungen → Baustelle, `bauPauseVon/Bis`): keine Arbeitstage, Wartezeiten laufen weiter, im Balkenplan grau.
+11. Kleinigkeiten: Vorlagen-Deadline rechnet mit der eigenen freien Zeit und liegt nie im Urlaub; „Was mache ich jetzt?“ sagt „überfällig“; Namen im Balkenplan zweizeilig.
+Außerdem: Warnung bei Tippfehler über Mitternacht (14:00–13:00).
 
-| # | Was nervt / fehlt | Vorschlag |
-|---|---|---|
-| 1 | Keine Pause zwischen verschiedenen Vorschlägen (heute 10:00–15:30 am Stück: Bücher, Wäsche, Reisepass, Recherche) | Nach 3 Std. Arbeit am Stück (egal welcher Posten) 30 Min. Pause |
-| 2 | Planer stopft alles nach vorne: Uni-Ziel mit 3 Wochen Puffer → jeder Tag bis 6 Std. voll, auch Sa/So | Bei viel Puffer gleichmäßig verteilen, Wochenende nur wenn nötig |
-| 3 | Heute oben überladen (Kacheln, Knöpfe, Morgen-Box, Erinnerung) → Tagesplan erst nach Scrollen | Boxen kompakter/einklappbar, „Morgen eingeplant“ erst ab Nachmittag |
-| 4 | Überfällige Aufgaben zählen nicht bei „Hängt hinterher“ | mitzählen |
-| 5 | Aufgabenliste zeigt nicht, wann eine Aufgabe eingeplant ist | „geplant Mi 13:00“ unter dem Titel |
-| 6 | Zwei Puffer-Zahlen beim Ziel (Box 21,8 Tage, Unterziele 24,3 Tage) | vereinheitlichen bzw. erklären |
-| 7 | Balkenplan zeigt Rechenzeitraum, nicht die echten Blöcke | eingeplante Tage im Balken markieren |
-| 8 | Feste Termine (Nebenjob) laufen im Urlaub weiter | Schalter beim Urlaub „feste Termine fallen aus“ |
-| 9 | Fortschritt: „Heute gearbeitet“ leer, auch vom erledigten Block aus | Blocklänge vorausfüllen |
-| 10 | Baustelle: Vorgänge laufen über Weihnachten | Einstellung Winterpause/Betriebsferien |
-| 11 | Kleinigkeiten: Vorlagen-Deadline fiel in den Urlaub; „Was mache ich jetzt?“ nennt Überfälliges „kritisch“; Namen im Balkenplan abgeschnitten | einzeln beheben |
-
-**Danach:** Handy-Test (Niklas), letzte Kleinigkeiten. **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
+**Danach:** Handy-Test (Niklas), dann Übersicht und Bedienbarkeit gemeinsam anschauen (Wunsch Niklas). **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
 
 Noch offen (unwichtig fürs Bauen): Was soll die App am Freitag live zeigen? Eher anstupsen oder eher ruhig?
 
@@ -120,7 +118,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Idee 3 umgesetzt (Regel A + Erinnerung alle 2 Tage), im Browser getestet (Handy-Format).
 - ✅ README neu geschrieben (Mi 18.11.): Ansichten, Einträge, Planer, CPM inkl. Auslastung, Netz-/Balkenplan, Baustelle + Vorlagen, Sonstiges, Dateiliste vollständig, Ausblick aktualisiert (erledigte Punkte raus).
 - ✅ Testrunde 3 (Claude, Mi 18.11.): Alltag Student + Baustelle im Handy-Format, alle Ansichten und Abläufe. 1 Fehler behoben (Tippfehler-Warnung über Mitternacht), 11 Ideen offen (siehe oben).
-- ⏳ Als Nächstes: Entscheidung zu den Ideen aus Testrunde 3, Handy-Test; Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ✅ Alle 11 Ideen aus Testrunde 3 umgesetzt (Mi 18.11.), im Browser getestet (Handy-Format; Planer stabil, Urlaub hin und zurück → Plan wie vorher).
+- ⏳ Als Nächstes: Handy-Test (Niklas), Übersicht/Bedienbarkeit weiter verbessern (Wunsch Niklas); Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 

@@ -78,13 +78,23 @@ const Templates = (() => {
   }
 
   // Vorschlag für die Fertigstellung: frühestes Ende + etwas Puffer
-  function suggestDeadline(tpl, startDate) {
+  // entries: eigene Termine – privat rechnet der Vorschlag mit der echten freien
+  // Zeit und legt die Deadline nicht in einen Urlaub (Testrunde 3)
+  function suggestDeadline(tpl, startDate, entries = []) {
+    const bau = tpl.area === "bau";
     const probe = build(tpl, { title: "x", deadline: null, startDate });
     probe.id = "probe-" + Date.now();
-    const res = CPM.computeGoal(probe, []);
+    const res = CPM.computeGoal(probe, bau ? [] : entries);
     if (res.cycle) return S.isoDate(S.addDays(new Date(), 30));
-    const end = S.parseDate(res.projectEndDate);
-    return S.isoDate(S.addDays(end, tpl.area === "bau" ? 14 : 3));
+    let iso = S.isoDate(S.addDays(S.parseDate(res.projectEndDate), bau ? 14 : 3));
+    if (!bau) {
+      for (let k = 0; k < 10; k++) {
+        const v = entries.find((e) => e.type === Model.TYPES.EINMALIG && e.allDay && e.date <= iso && iso <= (e.endDate || e.date));
+        if (!v) break;
+        iso = S.isoDate(S.addDays(S.parseDate(v.endDate || v.date), 1)); // erster Tag nach dem Urlaub
+      }
+    }
+    return iso;
   }
 
   // ---------- Auswahl ----------
@@ -127,9 +137,10 @@ const Templates = (() => {
   }
 
   // ---------- Name, Baubeginn, Fertigstellung → anlegen ----------
-  function applyForm(tpl) {
+  async function applyForm(tpl) {
     if (!tpl) return;
     const bau = tpl.area === "bau";
+    const entries = bau ? [] : await Store.list(null, { area: "privat" });
     // Baubeginn: nächster Montag
     const mon = S.addDays(S.startOfWeek(new Date()), 7);
     const start = bau ? S.isoDate(mon) : null;
@@ -145,8 +156,8 @@ const Templates = (() => {
         </div>
         <div class="form-group">
           ${bau ? `<label class="row"><span>Baubeginn</span><input type="date" name="startDate" value="${start}"></label>` : ""}
-          <label class="row"><span>${bau ? "Fertigstellung bis" : "Deadline"}</span><input type="date" name="deadline" value="${suggestDeadline(tpl, start)}"></label>
-          <p class="hint" data-hint>Vorschlag: frühestes Ende plus ${bau ? "2 Wochen" : "3 Tage"} Puffer.</p>
+          <label class="row"><span>${bau ? "Fertigstellung bis" : "Deadline"}</span><input type="date" name="deadline" value="${suggestDeadline(tpl, start, entries)}"></label>
+          <p class="hint" data-hint>Vorschlag: frühestes Ende plus ${bau ? "2 Wochen" : "3 Tage"} Puffer${bau ? "" : ", gerechnet mit deiner freien Zeit, nicht im Urlaub"}.</p>
         </div>
         <p class="hint hint--plain">Danach ist alles frei änderbar: ${bau ? "Vorgänge, Dauern, Gewerke, Wartezeiten" : "Unterziele, Stunden, Reihenfolge"}.</p>
         <p class="form-error" role="alert" hidden></p>

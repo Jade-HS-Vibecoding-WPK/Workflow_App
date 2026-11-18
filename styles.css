@@ -210,15 +210,16 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 /* ---------- Kacheln ---------- */
 .tiles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(4, 1fr); /* Testrunde 3: eine Reihe, damit der Tagesplan früher sichtbar ist */
+  gap: 8px;
+  margin-bottom: 12px;
 }
 .tile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
   background: var(--surface);
   border-radius: var(--radius);
   color: var(--text);
@@ -230,14 +231,14 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   color: #fff;
 }
-.tile__icon svg { width: 18px; height: 18px; stroke-width: 2.2; }
-.tile__count { font-size: 1.6rem; font-weight: 700; line-height: 1; }
-.tile__label { font-size: 0.9rem; font-weight: 600; color: var(--text-2); }
+.tile__icon svg { width: 15px; height: 15px; stroke-width: 2.2; }
+.tile__count { font-size: 1.3rem; font-weight: 700; line-height: 1; }
+.tile__label { font-size: 0.72rem; font-weight: 600; line-height: 1.2; color: var(--text-2); overflow-wrap: anywhere; }
 
 /* ---------- Tagesnotizen und ganztägige Termine ---------- */
 .day-extras { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
@@ -1015,10 +1016,11 @@ body.no-scroll { overflow: hidden; }
 .tomorrow__row span { color: var(--text-2); font-variant-numeric: tabular-nums; }
 .tomorrow small { color: var(--text-2); }
 /* Erinnerung: kein Vorschlag, deshalb durchgezogener Rand */
-.remind .tomorrow__head { flex-direction: column; gap: 2px; }
-.remind .tomorrow__row { flex-direction: column; gap: 1px; border-style: solid; border-width: 0 0 0 4px; }
+.tomorrow__head .link-btn { font-size: 0.85rem; white-space: nowrap; }
+.tomorrow__head b span { color: var(--text-2); font-weight: 400; font-size: 0.85rem; }
+.remind .tomorrow__row { flex-wrap: wrap; column-gap: 8px; row-gap: 0; justify-content: space-between; border-style: solid; border-width: 0 0 0 4px; padding: 4px 10px; }
 .remind .tomorrow__row span { font-size: 0.8rem; }
-.tomorrow .link-btn { align-self: flex-end; }
+.meta--slot { color: var(--accent); }
 .slot-card {
   display: flex; flex-direction: column; gap: 2px;
   margin: 0 0 12px; padding: 12px 14px; border-radius: 10px;
@@ -1188,7 +1190,11 @@ body.no-scroll { overflow: hidden; }
   padding: 4px 8px; border: 0; border-right: 0.5px solid var(--line);
   background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer;
 }
-.gt-label > span { display: flex; gap: 4px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gt-label > span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.82rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; } /* 2 Zeilen statt abgeschnitten */
+.gt-label > span .nz-num { margin-right: 4px; }
+.gt-slot { position: absolute; top: 33px; width: 6px; height: 6px; border-radius: 50%; border: 1.5px solid var(--goal-c, var(--accent)); background: var(--surface); }
+.gt-slot--ok { background: var(--goal-c, var(--accent)); }
+.gt-slot--key { position: static; display: inline-block; vertical-align: middle; margin-right: 4px; background: var(--accent); border-color: var(--accent); }
 .gt-label small { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gt-row--done .gt-label { color: var(--text-3); }
 .gt-track { position: relative; flex: none; }

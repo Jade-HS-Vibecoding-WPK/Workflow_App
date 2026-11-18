@@ -147,6 +147,16 @@ const AufgabenView = (() => {
     return da.localeCompare(db) || b.priority - a.priority || a.title.localeCompare(b.title);
   }
 
+  // Wann ist die Aufgabe eingeplant? (Testrunde 3) – "Vorschlag" = gestrichelt, noch nicht bestätigt
+  function slotLabel(t, today) {
+    const n = Tasks.nextSlot(t);
+    if (!n) return "";
+    const tomorrow = S.isoDate(S.addDays(S.parseDate(today), 1));
+    const day = n.date === today ? "heute" : n.date === tomorrow ? "morgen"
+      : S.parseDate(n.date).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" });
+    return `<span class="meta--slot">${n.confirmed ? "geplant" : "Vorschlag"} ${esc(day)} ${esc(n.start)}</span>`;
+  }
+
   function row(t, today) {
     const overdue = t.deadline && t.deadline < today;
     const repeats = t.recurrence && t.recurrence.freq !== "einmalig";
@@ -155,6 +165,7 @@ const AufgabenView = (() => {
       `<span>${fmtDuration(t.durationMin)}</span>`,
       repeats ? `<span title="wiederkehrend">↻ ${{ woechentlich: "wöchentlich", zweiwoechentlich: "alle 2 Wochen", monatlich: "monatlich" }[t.recurrence.freq]}</span>` : "",
       t.priority >= 4 ? `<span class="prio">${"!".repeat(t.priority - 2)}</span>` : "",
+      slotLabel(t, today),
     ].filter(Boolean).join("");
     return `
       <li class="task" style="--c:${t.color}">

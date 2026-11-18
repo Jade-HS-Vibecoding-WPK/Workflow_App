@@ -14,31 +14,32 @@ Projekt der Vibecoding KI-Werkstatt (WPK) an der Jade Hochschule, November 2026.
 
 | Ansicht | Was sie zeigt |
 |---|---|
-| **Heute** | 4 Kacheln (Heute · Diese Woche fällig · Ziele & Aufgaben · Hängt hinterher), Tagesplan 0–24 Uhr mit roter Jetzt-Linie. Zwischen Tagen wischen oder ‹ › blättern. Knöpfe **„Was mache ich jetzt?“** und **„↻ Neu planen“**, Hinweis **„Morgen eingeplant – passt das?“** und **„Zur Erinnerung“** für offene Aufgaben |
+| **Heute** | 4 Kacheln in einer Reihe (Heute · Fällig (Woche) · Ziele & Aufgaben · Hängt hinterher – inkl. überfälliger Aufgaben), Tagesplan 0–24 Uhr mit roter Jetzt-Linie. Zwischen Tagen wischen oder ‹ › blättern. Knöpfe **„Was mache ich jetzt?“** und **„↻ Neu planen“**, Hinweis **„Morgen eingeplant – passt das?“** (ab 14 Uhr) und **„Zur Erinnerung“** für offene Aufgaben |
 | **Woche** | Stundenplan (7 Spalten, Kalenderwoche) oder Liste zum Abarbeiten; leere Stelle antippen = neuer Termin |
 | **Kalender** | Monatsraster mit Punkten für Termine, ⚑ für Deadlines, Feiertagen und Urlaub; Tag antippen = Liste des Tages |
 | **Ziele** | Ziele mit Fortschrittsbalken und Status; im Ziel umschaltbar **Liste · Netzplan · Balkenplan** |
-| **Aufgaben** | Liste wie in Erinnerungen, gruppiert nach Deadline, sortierbar nach Deadline, Priorität oder Farbe |
+| **Aufgaben** | Liste wie in Erinnerungen, gruppiert nach Deadline, sortierbar nach Deadline, Priorität oder Farbe; zeigt, wann jede Aufgabe eingeplant ist |
 
 ### Einträge
 
 | Art | Was die App kann |
 |---|---|
 | **Feste Termine** | jede Woche, alle 2 Wochen oder monatlich (Datum oder z. B. „1. Montag“), Zeitraum ab/bis, einzelne Tage absagen („fällt heute aus“), auch **über Mitternacht**, optional „Uni-Veranstaltung“ (nur in der Vorlesungszeit) |
-| **Einmalige Termine** | mit Uhrzeit oder ganztägig/mehrtägig (z. B. Urlaub = keine freie Zeit), Puffer vor/nach dem Termin |
+| **Einmalige Termine** | mit Uhrzeit oder ganztägig/mehrtägig (z. B. Urlaub = keine freie Zeit, optional fallen feste Termine wie Arbeit aus), Puffer vor/nach dem Termin |
 | **Aufgaben** | optionale Deadline, geschätzte Dauer, eigene Farbe, wiederkehrend (z. B. „jede Woche Wäsche“) – abhaken mit „Rückgängig“ |
 | **Ziele** | Deadline + Unterziele mit Aufwand (Std.) oder Dauer (Tage), Zwischen-Deadlines, Abhängigkeiten, Fortschritt eintragen („heute 2 Std., 20 % geschafft“) → **Restzeit-Schätzung** |
 | **Sperrzeiten** | eigene Zeit blockieren (z. B. Schlafen 23–7 Uhr, Training), pausierbar; die App warnt, wenn ein Termin hineinfällt |
 | **Tagesnotizen** | kurze Notiz an einem Datum (z. B. „Semesterstart“), blockiert keine Zeit |
 | **Priorität** | 5 Stufen für alle Einträge – niedrige Priorität darf bei Zeitdruck weichen |
 
-Beim Speichern warnt die App bei **Überschneidungen** und **Sperrzeiten**. Nach jedem Löschen gibt es **„Rückgängig“**.
+Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahrscheinlichen **Tippfehlern** (Ende vor Beginn = über 12 Std. bis zum nächsten Tag). Nach jedem Löschen gibt es **„Rückgängig“**.
 
 ### Der Planer – Vorschläge in deine freie Zeit
 
 - Aufgaben und Arbeit an Unterzielen erscheinen als **gestrichelte Vorschläge** in freien Lücken (30-Minuten-Raster, bis 6 Wochen im Voraus). Antippen = **bestätigen**, anderen Zeitpunkt wählen oder öffnen.
 - **Reihenfolge nach CPM:** kritisch → eng → Rest, dann wenig Puffer, dann Priorität. Abhängigkeiten werden beachtet.
-- **Sinnvolle Blöcke:** Ziel-Arbeit mindestens 1,5 Std. („darunter hat man gerade mal ausgepackt“), höchstens 3 Std. am Stück, dann 30 Min. Pause; nach Terminen mindestens 15 Min. Luft.
+- **Sinnvolle Blöcke:** Ziel-Arbeit mindestens 1,5 Std. („darunter hat man gerade mal ausgepackt“), höchstens 3 Std. Arbeit am Stück – auch über verschiedene Aufgaben hinweg –, dann 30 Min. Pause; nach Terminen mindestens 15 Min. Luft.
+- **Gleichmäßig statt vollgestopft:** Hat ein Ziel genug Puffer, bekommt es ein Tagespensum (Arbeit verteilt auf ca. 60 % der Werktage bis zur Deadline) und das Wochenende bleibt frei, solange es nicht nötig ist.
 - **Wiederkehrende Aufgaben** erst in der zweiten Hälfte des Abstands (Wäsche jede Woche, fällig Do → ab So); wird es eng, früher. Aufgaben ohne Deadline nur sparsam (nächste 7 Tage, max. 1 Std./Tag).
 - **Automatisch umplanen:** Kommt ein Termin dazwischen, ziehen Vorschläge um (mit Meldung); werden früher Lücken frei, rücken sie nach. Bestätigte Blöcke bewegt die App nie ohne Rückfrage.
 - **„Was mache ich jetzt?“** zeigt die freie Zeit bis zum nächsten Termin und schlägt das Wichtigste vor („Los, jetzt machen“).
@@ -54,11 +55,11 @@ Beim Speichern warnt die App bei **Überschneidungen** und **Sperrzeiten**. Nach
 5. **Allein-Prüfung:** Weil eine Person Schritte nicht wirklich parallel erledigt, prüft die App zusätzlich, ob die gesamte freie Zeit bis zur Deadline reicht.
 6. **Status** jedes Ziels: *im Plan · eng · kritisch · hängt hinterher* – mit Hinweis, welche Unterziele eng sind und welche Termine mit niedriger Priorität ausfallen könnten.
 
-**Netzplan** (Kästchen nach DIN 69900, Pfeile mit NF/AF/EF/SF; Abhängigkeiten per „+“-Griff verbinden) und **Balkenplan** (Gantt mit Puffer, Heute-Linie, Wochenenden und Feiertagen) zeigen dasselbe grafisch. Antippen eines Kästchens/Balkens zeigt alle Werte.
+**Netzplan** (Kästchen nach DIN 69900, Pfeile mit NF/AF/EF/SF; Abhängigkeiten per „+“-Griff verbinden) und **Balkenplan** (Gantt mit Puffer, Heute-Linie, Wochenenden und Feiertagen, Punkte für die Tage mit eingeplanter Arbeit) zeigen dasselbe grafisch. Antippen eines Kästchens/Balkens zeigt alle Werte.
 
 ### Zwei Bereiche: Privat und Baustelle
 
-Über das Menü umschaltbar. Die **Baustelle** ist ein Baumanagement-Modus mit eigenen Daten: Projekte statt Ziele, Vorgänge statt Unterziele, **Gewerke** arbeiten Mo–Fr ohne Feiertage (Standard 7–16 Uhr), **Wartezeiten zählen Kalendertage** (z. B. Estrich trocknet auch am Wochenende), optionaler Baubeginn. Laufende Vorgänge erscheinen als Zeitblöcke im Tages- und Wochenplan. Baustellen-Termine erscheinen privat nur mit dem Schalter „Auch im Wochenplan anzeigen“.
+Über das Menü umschaltbar. Die **Baustelle** ist ein Baumanagement-Modus mit eigenen Daten: Projekte statt Ziele, Vorgänge statt Unterziele, **Gewerke** arbeiten Mo–Fr ohne Feiertage (Standard 7–16 Uhr), **Wartezeiten zählen Kalendertage** (z. B. Estrich trocknet auch am Wochenende), optionaler Baubeginn und **Winterpause/Betriebsferien** (Einstellungen). Laufende Vorgänge erscheinen als Zeitblöcke im Tages- und Wochenplan. Baustellen-Termine erscheinen privat nur mit dem Schalter „Auch im Wochenplan anzeigen“.
 
 **Vorlagen:** „Einfamilienhaus – Bauablauf“ (21 Vorgänge mit Gewerken, Aushärte- und Trocknungszeiten) und „Uni-Abgabe (Architektur)“. Jedes Ziel/Projekt lässt sich auch **als eigene Vorlage speichern**.
 

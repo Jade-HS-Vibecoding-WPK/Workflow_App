@@ -48,7 +48,13 @@ const Schedule = (() => {
   });
   // Arbeitszeit der Gewerke auf der Baustelle (Einstellungen → Baustelle)
   let bauZeit = { von: "07:00", bis: "16:00" };
-  const readBau = (st) => { bauZeit = { von: (st && st.bauArbeitVon) || "07:00", bis: (st && st.bauArbeitBis) || "16:00" }; };
+  const readBau = (st) => {
+    bauZeit = {
+      von: (st && st.bauArbeitVon) || "07:00", bis: (st && st.bauArbeitBis) || "16:00",
+      // Winterpause/Betriebsferien (Testrunde 3): Gewerke arbeiten nicht
+      pauseVon: (st && st.bauPauseVon) || null, pauseBis: (st && st.bauPauseBis) || null,
+    };
+  };
   Store.getSettings().then(readBau);
   Store.subscribe((c) => {
     if (c.settings) readBau(c.settings);
@@ -104,6 +110,8 @@ const Schedule = (() => {
     // Feiertag (Daten von außen, siehe feiertage.js)
     const holiday = typeof Holidays !== "undefined" ? Holidays.on(iso) : null;
     if (holiday) allDay.push({ id: null, kind: "feiertag", title: holiday });
+    // Ganztägiger Termin mit "Feste Termine fallen aus" (z. B. Urlaub) – Testrunde 3
+    const off = entries.find((x) => x.type === T.EINMALIG && x.allDay && x.cancelFixed && x.date && x.date <= iso && iso <= (x.endDate || x.date));
 
     for (const e of entries) {
       switch (e.type) {
@@ -123,9 +131,9 @@ const Schedule = (() => {
           // damit man die Absage wieder zurücknehmen kann.
           // Einstellung: feste Termine fallen an Feiertagen automatisch aus
           const byHoliday = !!(holiday && Holidays.skipFixed);
-          const cancelled = !!(ex && ex.status === "abgesagt") || byHoliday;
+          const cancelled = !!(ex && ex.status === "abgesagt") || byHoliday || !!off;
           timed.push(block(e, "fest", e.start, night ? "24:00" : e.end, {
-            sub: byHoliday ? "Feiertag" : cancelled ? "abgesagt" : bauSub(e), buffer: cancelled ? 0 : e.bufferMin, cancelled,
+            sub: byHoliday ? "Feiertag" : off ? `fällt aus (${off.title})` : cancelled ? "abgesagt" : bauSub(e), buffer: cancelled ? 0 : e.bufferMin, cancelled,
             range: night ? rangeOf(e) : null,
           }));
           break;
@@ -253,8 +261,13 @@ const Schedule = (() => {
 
     // Kritischer Pfad (cpm.js): Ziele, die ihre Deadline so nicht schaffen
     if (typeof CPM !== "undefined") behind = CPM.behindCount(entries, today);
+    // Überfällige Aufgaben zählen auch (Testrunde 3)
+    const behindTasks = entries.filter((e) => e.type === T.AUFGABE && !e.done && e.deadline && e.deadline < iso).length;
+    const behindGoals = behind;
+    behind += behindTasks;
 
     return {
+      behindTasks, behindGoals,
       today: plan.timed.filter((b) => b.kind !== "sperr" && !b.cancelled).length + plan.allDay.filter((a) => a.kind !== "feiertag").length,
       dueThisWeek,
       open,
@@ -361,5 +374,8 @@ const Schedule = (() => {
     return d.toLocaleDateString("de-DE", { weekday: "short" }) + " " + short;
   }
 
-  return { inLecture, get semester() { return semester; }, get bauZeit() { return bauZeit; }, isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
+  // Liegt der Tag in der Winterpause der Baustelle?
+  const inBauPause = (iso) => !!(bauZeit.pauseVon && bauZeit.pauseBis && bauZeit.pauseVon <= iso && iso <= bauZeit.pauseBis);
+
+  return { inLecture, inBauPause, get semester() { return semester; }, get bauZeit() { return bauZeit; }, isoDate, parseDate, toMin, fromMin, startOfWeek, addDays, recursOn, dayPlan, counts, layoutColumns, nextOccurrence, deadlineLabel, conflicts };
 })();

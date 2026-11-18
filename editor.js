@@ -194,6 +194,7 @@ const Editor = (() => {
         <label class="row"><span>Datum</span><input type="date" name="date" value="${esc(entry.date || date || "")}" required></label>
         <label class="row"><span>Ganztägig</span><input type="checkbox" name="allDay" class="switch" ${entry.allDay ? "checked" : ""}></label>
         <label class="row" data-show="allday"><span>Bis</span><input type="date" name="endDate" value="${esc(entry.endDate || "")}"></label>
+        <label class="row" data-show="allday"><span>Feste Termine fallen aus <small class="muted">z. B. Urlaub: Arbeit, Uni</small></span><input type="checkbox" name="cancelFixed" class="switch" ${entry.cancelFixed ? "checked" : ""}></label>
       </div>`;
 
     const actions = isNew ? "" : `
@@ -429,6 +430,7 @@ const Editor = (() => {
       out.date = val("date") || null;
       out.allDay = form.elements.allDay.checked;
       out.endDate = out.allDay ? (val("endDate") || null) : null;
+      out.cancelFixed = !!(out.allDay && form.elements.cancelFixed && form.elements.cancelFixed.checked);
       if (!out.date) return { error: "Bitte wähle ein Datum." };
       if (out.endDate && out.endDate < out.date) return { error: "Das Enddatum liegt vor dem Startdatum." };
     }

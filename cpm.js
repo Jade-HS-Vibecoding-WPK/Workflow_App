@@ -88,7 +88,7 @@ const CPM = (() => {
 
   function computeBau(goal, now = new Date()) {
     const todayIso = S.isoDate(now);
-    const key = goal.id + "|" + goal.updatedAt + "|" + todayIso + "|" + (typeof Holidays !== "undefined" ? Holidays.state + Holidays.version : "");
+    const key = goal.id + "|" + goal.updatedAt + "|" + todayIso + "|" + (typeof Holidays !== "undefined" ? Holidays.state + Holidays.version : "") + "|" + S.bauZeit.pauseVon + S.bauZeit.pauseBis;
     if (bauCache.has(key)) return bauCache.get(key);
     const res = computeBauRaw(goal, now);
     if (bauCache.size > 50) bauCache.clear();
@@ -104,6 +104,7 @@ const CPM = (() => {
       const d = dayDate(i);
       const wd = d.getDay();
       if (wd === 0 || wd === 6) return false;
+      if (S.inBauPause(S.isoDate(d))) return false; // Winterpause
       return !(typeof Holidays !== "undefined" && Holidays.on(S.isoDate(d)));
     };
     const nextWork = (i) => { let x = Math.ceil(i - 1e-9); while (!isWork(x)) x++; return x; };

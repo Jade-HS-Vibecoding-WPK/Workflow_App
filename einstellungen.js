@@ -70,6 +70,9 @@ const EinstellungenView = (() => {
         <label class="row"><span>Gewerke arbeiten ab</span><input type="time" name="bauVon" value="${esc(settings.bauArbeitVon || "07:00")}"></label>
         <label class="row"><span>Gewerke arbeiten bis</span><input type="time" name="bauBis" value="${esc(settings.bauArbeitBis || "16:00")}"></label>
         <p class="hint">Standard-Arbeitszeit auf der Baustelle (Mo–Fr). Pro Vorgang kannst du eine eigene Zeit eintragen. So erscheinen die Gewerke im Tages- und Wochenplan.</p>
+        <label class="row"><span>Winterpause ab <small class="muted">optional, z. B. Betriebsferien</small></span><input type="date" name="bauPauseVon" value="${esc(settings.bauPauseVon || "")}"></label>
+        <label class="row"><span>Winterpause bis</span><input type="date" name="bauPauseBis" value="${esc(settings.bauPauseBis || "")}"></label>
+        <p class="hint">In der Pause arbeiten die Gewerke nicht (wie an Feiertagen). Wartezeiten wie Estrich-Trocknen laufen weiter.</p>
       </div>
 
       <h3 class="list-group">Semester</h3>
@@ -120,6 +123,14 @@ const EinstellungenView = (() => {
       else { Toast.show("Das Ende muss nach dem Beginn liegen"); render(container); }
     };
     bv.addEventListener("change", saveBau);
+    // Winterpause der Baustelle (Testrunde 3)
+    const pv = container.querySelector('[name="bauPauseVon"]'), pb = container.querySelector('[name="bauPauseBis"]');
+    const savePause = () => {
+      if (pv.value && pb.value && pb.value < pv.value) { Toast.show("Winterpause: „bis“ liegt vor „ab“"); render(container); return; }
+      Store.saveSettings({ bauPauseVon: pv.value || null, bauPauseBis: pb.value || null });
+    };
+    pv.addEventListener("change", savePause);
+    pb.addEventListener("change", savePause);
     bb.addEventListener("change", saveBau);
 
     // Semester speichern (nur gültige Angaben)

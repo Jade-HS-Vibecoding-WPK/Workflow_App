@@ -39,6 +39,7 @@ const Planner = (() => {
     const iso = S.isoDate(S.addDays(S.parseDate(e.deadline), -Math.ceil(days / 2)));
     return iso > todayIso ? iso : null;
   }
+  const PACE = 0.6;     // Ziel mit viel Puffer: Arbeit so verteilen, dass sie nach ca. 60 % der Werktage fertig wäre (Testrunde 3)
   const GAP_AFTER = 15;  // nach Terminen mind. 15 Min. Luft, bevor ein Vorschlag beginnt (Testrunde 2)
   const up5 = (m) => Math.ceil(m / 5) * 5; // Uhrzeiten auf 5 Minuten runden
   // Mindestlänge eines Blocks für diesen Posten (nie mehr als die ganze Restzeit)
@@ -122,6 +123,8 @@ const Planner = (() => {
       if (iso === todayIso) from = Math.max(from, Math.ceil(nowMin(now) / STEP) * STEP);
       const busy = [];
       const soft = []; // Luft nach Terminen: neue Vorschläge halten Abstand, alte müssen deshalb nicht umziehen
+      const work = []; // bestätigte Arbeitsblöcke (für die Pause nach 3 Std. am Stück)
+      const goalLoad = {}; // Ziel-Arbeit pro Ziel an diesem Tag (für gleichmäßiges Verteilen)
       let load = 0;
       for (const b of plan.timed) {
         if (b.cancelled || b.option) continue;
@@ -130,11 +133,14 @@ const Planner = (() => {
           if ((b.buffer || 0) < GAP_AFTER) soft.push([b.endMin + (b.buffer || 0), b.endMin + GAP_AFTER]);
         }
         else if (b.kind === "sperr") busy.push([b.startMin, b.endMin]);
-        else if (b.kind === "aufgabe" || b.kind === "ziel") { busy.push([b.startMin, b.endMin]); load += b.endMin - b.startMin; }
+        else if (b.kind === "aufgabe" || b.kind === "ziel") {
+          busy.push([b.startMin, b.endMin]); work.push([b.startMin, b.endMin]); load += b.endMin - b.startMin;
+          if (b.kind === "ziel") goalLoad[b.id] = (goalLoad[b.id] || 0) + b.endMin - b.startMin;
+        }
       }
       const weekend = d.getDay() === 0 || d.getDay() === 6;
       days[iso] = {
-        iso, from, to, busy, soft, opts: [], load, freeLoad: 0,
+        iso, from, to, busy, soft, work, goalLoad, weekend, opts: [], load, freeLoad: 0,
         // Urlaub (ganztägig) oder Wochenende frei (Einstellung)
         blocked: plan.allDay.some((a) => a.kind !== "feiertag") || (cfg.wochenendeFrei && weekend),
       };
@@ -158,6 +164,33 @@ const Planner = (() => {
     const declinedHit = (it, iso, a, b) => (it.holder.declined || []).some((x) => x.date === iso && overlaps(a, b, S.toMin(x.start), S.toMin(x.end)));
     const optMinutes = (it) => it.holder.slots.filter((s) => !s.confirmed && !ended(s, todayIso, nm)).reduce((a, s) => a + slotLen(s), 0);
     const remaining = (it) => it.need - optMinutes(it);
+    const gl = (day, it, delta) => { if (it && it.kind === "sub") day.goalLoad[it.entry.id] = (day.goalLoad[it.entry.id] || 0) + delta; };
+
+    // Pause: höchstens 3 Std. Arbeit am Stück – egal an welchem Posten (Testrunde 3)
+    const workAt = (day, x) => day.opts.some((o) => o.a <= x && x < o.b) || day.work.some(([p, q]) => p <= x && x < q);
+    const chainBefore = (day, x) => { let m = 0; while (m < 1440 && workAt(day, x - m - STEP)) m += STEP; return m; };
+    const chainAfter = (day, y) => { let m = 0; while (m < 1440 && workAt(day, y + m)) m += STEP; return m; };
+
+    // Gleichmäßig verteilen: Ziele mit viel Puffer bekommen ein Tagespensum statt
+    // "so viel wie möglich" (z. B. 51 Std. in 30 Tagen → 3 Std./Tag statt 6)
+    const goalCap = {};
+    {
+      const byGoal = {};
+      for (const it of items) if (it.kind === "sub") (byGoal[it.entry.id] = byGoal[it.entry.id] || []).push(it);
+      for (const [gid, its] of Object.entries(byGoal)) {
+        const g = its[0].entry;
+        if (its.some((it) => it.level <= 1) || !g.deadline || g.deadline < todayIso) { goalCap[gid] = Infinity; continue; }
+        let wd = 0;
+        const total = Math.round((S.parseDate(g.deadline) - S.parseDate(todayIso)) / 86400000) + 1;
+        for (let i = 0; i < total; i++) {
+          const iso = S.isoDate(S.addDays(now, i));
+          const d = days[iso];
+          if (d ? !d.blocked && !d.weekend : ![0, 6].includes(S.addDays(now, i).getDay())) wd++;
+        }
+        const need = its.reduce((a, it) => a + it.need, 0);
+        goalCap[gid] = Math.max(MIN_GOAL, Math.ceil(need / Math.max(1, wd * PACE) / STEP) * STEP);
+      }
+    }
 
     // Erledigte/abgelehnte Vergangenheit aufräumen
     for (const it of items) {
@@ -199,6 +232,7 @@ const Planner = (() => {
         }
         day.opts.push({ a, b, key: it.key, slot: s });
         day.load += b - a;
+        gl(day, it, b - a);
         if (it.noDL) day.freeLoad += b - a;
         kept += b - a;
         keep.push(s);
@@ -223,7 +257,7 @@ const Planner = (() => {
         const pi = byKey[p.key];
         let t = null;
         if (pi) {
-          if (!placed.has(pi.key) && !visiting.has(pi.key)) placeItem(pi);
+          if (!placed.has(pi.key) && !visiting.has(pi.key)) ensure(pi);
           const ss = pi.holder.slots.filter((s) => !ended(s, todayIso, nm)).sort((x, y) => (x.date + x.start).localeCompare(y.date + y.start));
           if (ss.length) {
             const s = p.type === DEP.AA ? ss[0] : ss[ss.length - 1];
@@ -242,13 +276,21 @@ const Planner = (() => {
     // Stücke in freie Lücken legen; untilIso = nur bis zu diesem Tag.
     // Ziel-Arbeit: nur Lücken ab 1,5 Std. Aufgaben: erst Lücken ab 1 Std.,
     // dann (falls nötig) auch kleinere.
+    // Genug Puffer (nicht eng/kritisch): erst nur Werktage mit Tagespensum,
+    // dann auch Wochenende, zuletzt ohne Pensum (Testrunde 3).
     function fill(it, start, untilIso) {
-      if (it.kind === "sub") { fillRuns(it, start, untilIso, MIN_GOAL / STEP); return; }
-      fillRuns(it, start, untilIso, MIN_TASK / STEP);
-      if (remaining(it) > 0) fillRuns(it, start, untilIso, 1);
+      // nur bei echtem Spielraum – sonst schiebt das Verteilen Nachfolger über die Deadline
+      const calm = it.level === 2 && untilIso && it.slack >= (it.kind === "sub" ? 7 : 3);
+      const passes = calm ? [{ weekend: false, cap: true }, { weekend: true, cap: true }, { weekend: true, cap: false }] : [{ weekend: true, cap: false }];
+      for (const p of passes) {
+        if (remaining(it) <= 0) break;
+        if (it.kind === "sub") { fillRuns(it, start, untilIso, MIN_GOAL / STEP, p); continue; }
+        fillRuns(it, start, untilIso, MIN_TASK / STEP, p);
+        if (remaining(it) > 0) fillRuns(it, start, untilIso, 1, p);
+      }
     }
 
-    function fillRuns(it, start, untilIso, minRun) {
+    function fillRuns(it, start, untilIso, minRun, { weekend = true, cap = false } = {}) {
       let rem = remaining(it);
       if (rem <= 0) return 0;
       let chunks = Math.ceil(rem / STEP);
@@ -262,6 +304,7 @@ const Planner = (() => {
         if (untilIso && iso > untilIso) break;
         const day = days[iso];
         if (!day || day.blocked) continue;
+        if (!weekend && day.weekend) continue;
         // Zusammenhängende freie Stücke suchen ("Läufe"). Ein Lauf wird nur
         // genommen, wenn er mindestens minRun Stücke lang ist (außer der
         // Rest ist kleiner) – so entstehen keine 30-Min.-Krümel.
@@ -273,8 +316,16 @@ const Planner = (() => {
           while (t + (run + 1) * STEP <= day.to && usable(t + run * STEP)) run++;
           let room = Math.floor((maxMin - day.load) / STEP);
           if (it.noDL) room = Math.min(room, Math.floor((NODL_PER_DAY - day.freeLoad) / STEP));
+          if (cap && it.kind === "sub") room = Math.min(room, Math.floor((goalCap[it.entry.id] - (day.goalLoad[it.entry.id] || 0)) / STEP));
           let take = Math.min(run, chunks, room, MAX_BLOCK / STEP);
           if (take <= 0) break; // Tageslimit erreicht
+          // Pause nach 3 Std. Arbeit am Stück (auch über verschiedene Posten hinweg)
+          const before = chainBefore(day, t);
+          if (before >= MAX_BLOCK) { t += STEP; continue; }
+          const take0 = take;
+          take = Math.min(take, Math.floor((MAX_BLOCK - before) / STEP));
+          if (take === run && workAt(day, t + take * STEP) && before + take * STEP + chainAfter(day, t + take * STEP) > MAX_BLOCK) take = run - 1;
+          if (take < take0 && take < Math.min(minRun, chunks)) { t += STEP; continue; } // nach der Pause weiter versuchen
           if (take < Math.min(minRun, chunks)) { t += run * STEP; continue; }
           // Ziel-Arbeit: keinen Rest unter der Mindestlänge übrig lassen
           const left = chunks - take;
@@ -289,6 +340,7 @@ const Planner = (() => {
             cur.parts.push(o);
           }
           day.load += take * STEP;
+          gl(day, it, take * STEP);
           if (it.noDL) day.freeLoad += take * STEP;
           chunks -= take;
           placedChunks += take;
@@ -328,6 +380,7 @@ const Planner = (() => {
           if (!other || other.rank <= it.rank || !o.slot || o.slot.confirmed) return true;
           other.holder.slots = other.holder.slots.filter((s) => s !== o.slot);
           day.load -= o.b - o.a;
+          gl(day, other, -(o.b - o.a));
           freed += o.b - o.a;
           placed.delete(other.key); // wird gleich neu eingeplant
           return false;
@@ -362,7 +415,13 @@ const Planner = (() => {
     // auf den eigenen alten Platz (andere werden nicht verdrängt). Ändert sich
     // nichts, bleiben die alten Vorschläge (gleiche IDs) erhalten.
     const sig = (arr) => arr.map((s) => s.date + s.start + s.end).sort().join("|");
+    // Vorgänger zuerst einplanen – beim Nachrücken ebenfalls nachrücken lassen,
+    // sonst bleibt eine ganze Kette hinten hängen (Testrunde 3)
+    let nachruecken = false;
+    function ensure(it) { if (nachruecken) reflow(it); else placeItem(it); }
+
     function reflow(it) {
+      if (placed.has(it.key) || visiting.has(it.key)) return;
       const old = it.holder.slots.filter((s) => !s.confirmed && !ended(s, todayIso, nm));
       const runningNow = old.some((s) => s.date === todayIso && S.toMin(s.start) < nm);
       if (!old.length || runningNow) { placeItem(it); return; }
@@ -370,14 +429,16 @@ const Planner = (() => {
         day.opts = day.opts.filter((o) => {
           if (o.key !== it.key || !old.includes(o.slot)) return true;
           day.load -= o.b - o.a;
+          gl(day, it, -(o.b - o.a));
           if (it.noDL) day.freeLoad -= o.b - o.a;
           return false;
         });
       }
       it.holder.slots = it.holder.slots.filter((s) => !old.includes(s));
+      const prevNoEvict = noEvict; // kann verschachtelt laufen (Vorgänger-Kette)
       noEvict = true;
       placeItem(it);
-      noEvict = false;
+      noEvict = prevNoEvict;
       const neu = it.holder.slots.filter((s) => !s.confirmed && !old.includes(s));
       if (sig(neu) === sig(old)) {
         // gleicher Plan → alte Vorschläge behalten (keine unnötigen Änderungen)
@@ -391,7 +452,9 @@ const Planner = (() => {
     if (place) {
       // Verdrängte Posten landen wieder in "placed = nein" → zweite Runde
       for (let round = 0; round < 3; round++) {
-        for (const it of items) if (!placed.has(it.key)) (full || round > 0 ? placeItem(it) : reflow(it));
+        nachruecken = !full && round === 0;
+        for (const it of items) if (!placed.has(it.key)) (nachruecken ? reflow(it) : placeItem(it));
+        nachruecken = false;
         if (items.every((it) => placed.has(it.key))) break;
       }
     } else {
@@ -533,7 +596,8 @@ const Planner = (() => {
         if (a === "option") await makeOption(entryId, slotId, subId);
         if (a === "release") await releaseSlot(entryId, slotId, subId);
         if (a === "done") await Tasks.toggleDone(entryId);
-        if (a === "progress") Goals.openProgress(entryId, subId);
+        // Block heute oder früher → seine Länge als "heute gearbeitet" vorschlagen
+        if (a === "progress") Goals.openProgress(entryId, subId, slot.date <= S.isoDate(new Date()) ? slotLen(slot) / 60 : null);
         if (a === "open") { if (isTask) Editor.edit(entryId); else location.hash = "#ziel/" + encodeURIComponent(entryId); }
       };
     });
@@ -633,7 +697,8 @@ const Planner = (() => {
         const gap = force && (sit.sperr || sit.outside || weekend) ? 60 : sit.gap;
         const it = cands[idx % cands.length];
         const len = Math.max(it.kind === "sub" ? Math.min(MIN_GOAL, it.need) : 15, Math.min(gap, it.need));
-        const lvl = it.level === 0 ? "kritisch" : it.level === 1 ? "eng" : "";
+        const overdue = it.kind === "task" && it.entry.deadline && it.entry.deadline < S.isoDate(now);
+        const lvl = overdue ? "überfällig" : it.level === 0 ? "kritisch" : it.level === 1 ? "eng" : "";
         head = intro + (later ? `Danach (ab ${S.fromMin(sit.from)} Uhr) hast du ${fmtH(gap)} bis ${esc(sit.nextLabel)}.` : `Du hast ${fmtH(gap)} bis ${esc(sit.nextLabel)}.`);
         card = `
           <div class="slot-card" style="--c:${it.color || "var(--accent)"}">

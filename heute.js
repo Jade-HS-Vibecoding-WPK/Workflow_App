@@ -141,16 +141,16 @@ const HeuteView = (() => {
     const privat = Store.getArea() !== "bau";
     // "Was mache ich jetzt?" / "Neu planen" nur, wenn es etwas zu planen gibt
     const hasWork = entries.some((e) => !e.done && (e.type === Model.TYPES.AUFGABE || e.type === Model.TYPES.ZIEL));
-    const tomorrowOpts = isToday && privat && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
+    // erst ab 14 Uhr – vormittags zählt der heutige Tag (Testrunde 3: Heute übersichtlicher)
+    const tomorrowOpts = isToday && privat && now.getHours() >= 14 && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
     const tomorrowHtml = tomorrowOpts.length ? `
       <div class="tomorrow">
-        <div class="tomorrow__head"><b>Morgen eingeplant</b><span>passt das?</span></div>
+        <div class="tomorrow__head"><b>Morgen eingeplant – passt das?</b><button class="link-btn" data-confirm-tomorrow>Alle bestätigen</button></div>
         ${tomorrowOpts.slice(0, 4).map((b) => `
           <button class="tomorrow__row" data-id="${esc(b.id)}" data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}" style="--c:${b.color || "var(--accent)"}">
             <span>${b.start}–${b.end}</span><b>${esc(b.title)}</b>
           </button>`).join("")}
         ${tomorrowOpts.length > 4 ? `<small>+ ${tomorrowOpts.length - 4} weitere</small>` : ""}
-        <button class="link-btn" data-confirm-tomorrow>Alle bestätigen</button>
       </div>` : "";
 
     // Erinnerung: offen, aber noch nicht im Plan (alle 2 Tage)
@@ -158,13 +158,12 @@ const HeuteView = (() => {
     const daysTo = (iso) => Math.round((Schedule.parseDate(iso) - Schedule.parseDate(Schedule.isoDate(now))) / 86400000);
     const remindHtml = remind.length ? `
       <div class="tomorrow remind">
-        <div class="tomorrow__head"><b>Zur Erinnerung</b><span>Noch ist Zeit – nur damit nichts untergeht.</span></div>
+        <div class="tomorrow__head"><b>Zur Erinnerung <span>– noch ist Zeit</span></b><button class="link-btn" data-remind-ok>Okay</button></div>
         ${remind.map((e) => `
           <button class="tomorrow__row" data-remind="${esc(e.id)}" style="--c:${e.color || "var(--accent)"}">
             <b>${esc(e.title)}</b>
-            <span>fällig in ${daysTo(e.deadline)} Tagen · ${Tasks.nextSlot(e, now) ? "geplant " + esc(Schedule.parseDate(Tasks.nextSlot(e, now).date).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" })) : "noch nicht eingeplant"}</span>
+            <span>in ${daysTo(e.deadline)} Tagen fällig${Tasks.nextSlot(e, now) ? " · geplant " + esc(Schedule.parseDate(Tasks.nextSlot(e, now).date).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" })) : ""}</span>
           </button>`).join("")}
-        <button class="link-btn" data-remind-ok>Okay</button>
       </div>` : "";
 
     const emptyHint = entries.length === 0
@@ -174,9 +173,9 @@ const HeuteView = (() => {
     container.innerHTML = `
       <div class="tiles">
         ${tile("heute", name, dayCount, "#378add", "#heute")}
-        ${tile("woche", "Diese Woche fällig", c.dueThisWeek, "#ba7517", "#aufgaben")}
+        ${tile("woche", "Fällig (Woche)", c.dueThisWeek, "#ba7517", "#aufgaben")}
         ${tile("ziele", "Ziele & Aufgaben", c.open, "#7f77dd", "#ziele")}
-        ${tile("warn", "Hängt hinterher", c.behind, c.behind ? "var(--warn)" : "#8e8e93", "#ziele")}
+        ${tile("warn", "Hängt hinterher", c.behind, c.behind ? "var(--warn)" : "#8e8e93", c.behindGoals ? "#ziele" : c.behindTasks ? "#aufgaben" : "#ziele")}
       </div>
       ${isToday && privat && hasWork ? `
         <div class="plan-actions">

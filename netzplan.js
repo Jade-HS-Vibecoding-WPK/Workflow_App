@@ -195,7 +195,7 @@ const Netzplan = (() => {
       const p = pos[s.id];
       const cls = ["nz-node", s.done ? "nz-node--done" : "", n && n.level ? "nz-node--" + n.level : "", n && n.mainPath ? "nz-node--main" : ""].join(" ");
       const fmtD = (d) => (bau ? `${d} ${Math.abs(d) === 1 ? "Tag" : "Tage"}` : GoalMath.fmtDays(d));
-      const puffer = s.done || !n ? "" : n.behind ? `<b class="meta--warn">${fmtD(-n.TF)} zu spät</b>` : `Puffer ${fmtD(n.TF)}`;
+      const puffer = s.done || !n ? "" : n.behind ? `<b class="meta--warn">${fmtD(-n.TF)} zu spät</b>` : `Puffer ${fmtD(GoalMath.shownTF(n, res))}`;
       return `
         <button class="${cls}" data-node="${esc(s.id)}" style="left:${p.x}px;top:${p.y}px;width:${W}px;height:${H}px;--c:${goal.color}"
           aria-label="${esc(s.title)}: ${esc(durationText(s, n, bau))}${puffer ? ", " + puffer.replace(/<[^>]+>/g, "") : ""}">
