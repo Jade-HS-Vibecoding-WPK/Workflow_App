@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, 10:19 Uhr. Alle 11 Ideen aus Testrunde 3 umgesetzt, Sicherungspunkt `backup-2026-11-18-1019`.*
+*Stand: Mi 18.11.2026. Neue Etappe: App aufräumen/intuitiver (läuft: Bestandsaufnahme), danach Azure (Login + Abgleich). Siehe Entscheidung in CLAUDE.md.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -119,7 +119,7 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ README neu geschrieben (Mi 18.11.): Ansichten, Einträge, Planer, CPM inkl. Auslastung, Netz-/Balkenplan, Baustelle + Vorlagen, Sonstiges, Dateiliste vollständig, Ausblick aktualisiert (erledigte Punkte raus).
 - ✅ Testrunde 3 (Claude, Mi 18.11.): Alltag Student + Baustelle im Handy-Format, alle Ansichten und Abläufe. 1 Fehler behoben (Tippfehler-Warnung über Mitternacht), 11 Ideen – inzwischen alle umgesetzt (siehe oben).
 - ✅ Alle 11 Ideen aus Testrunde 3 umgesetzt (Mi 18.11.), im Browser getestet (Handy-Format; Planer stabil, Urlaub hin und zurück → Plan wie vorher).
-- ⏳ Als Nächstes: Handy-Test (Niklas), Übersicht/Bedienbarkeit weiter verbessern (Wunsch Niklas); Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ⏳ Als Nächstes (Entscheidung 18.11.): 1) App aufräumen und intuitiver machen – Bestandsaufnahme als neuer Nutzer, dann Vorschlagsliste für Niklas. 2) Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 
