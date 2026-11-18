@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, ~10:30 Uhr. Sicherungspunkt `backup-2026-11-18-1030`.*
+*Stand: Mi 18.11.2026, ~11 Uhr. Sicherungspunkt `backup-2026-11-18-1100`.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -15,7 +15,7 @@
   - **Regel A** (`Planner.notBefore`): Vorschlag erst in der zweiten Hälfte des Abstands (jede Woche → ab 4 Tage vor der Deadline, alle 2 Wochen → 7, monatlich → 15). Passt es dort nicht (z. B. Urlaub), plant die App früher.
   - **Erinnerung** (`Tasks.reminders`, Box „Zur Erinnerung“ oben auf Heute): offene Aufgaben mit Deadline (ab übermorgen), die nicht heute/morgen eingeplant sind – mit „fällig in X Tagen · geplant …“. Erscheint **alle 2 Tage**: „Okay“ blendet sie 2 Tage aus (Einstellung `erinnerungOk`), nach dem Abhaken ebenfalls 2 Tage Ruhe. Antippen öffnet die Aufgabe. Höchstens 3 Zeilen.
 
-**Danach:** README ergänzen (alle neuen Funktionen: Planer, Kalender, Netzplan/Balkenplan, Baustelle, Vorlagen, Semester, Zoom …), eventuell weitere Tests. **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
+**Danach:** Handy-Test (Niklas), letzte Kleinigkeiten. **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
 
 Noch offen (unwichtig fürs Bauen): Was soll die App am Freitag live zeigen? Eher anstupsen oder eher ruhig?
 
@@ -101,7 +101,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Testrunde 2 (Claude, Di 17.11.): Planer stabil (5× hintereinander planen = keine Änderung), Reihenfolge nach Dringlichkeit korrekt; Zusammenspiel Absage/Semester/Feiertag/Baustellen-Termin → Planer reagiert jeweils richtig; wiederkehrende Aufgaben und „Erledigt“ wiederherstellen ok; Dunkelmodus, Zoom 125 % (Ziehen im Netzplan), Kalender, Balkenplan ok; Bearbeiten/Absagen/Löschen ok; Offline-Liste vollständig. Keine Fehler gefunden, 4 Verbesserungsideen offen.
 - ✅ Ideen 1, 2, 4 aus Testrunde 2 umgesetzt (Mi 18.11.), im Browser getestet.
 - ✅ Idee 3 umgesetzt (Regel A + Erinnerung alle 2 Tage), im Browser getestet (Handy-Format).
-- ⏳ Als Nächstes: README ergänzen (alle neuen Funktionen inkl. Testrunde 2); Freeze Do 19.11. 12–16 Uhr
+- ✅ README neu geschrieben (Mi 18.11.): Ansichten, Einträge, Planer, CPM inkl. Auslastung, Netz-/Balkenplan, Baustelle + Vorlagen, Sonstiges, Dateiliste vollständig, Ausblick aktualisiert (erledigte Punkte raus).
+- ⏳ Als Nächstes: Handy-Test der neuen Punkte (Erinnerung, Rückgängig), ggf. letzte Kleinigkeiten; Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 
