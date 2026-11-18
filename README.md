@@ -68,9 +68,11 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 - **Meilensteine** (Dauer 0, z. B. Richtfest, Rohbau dicht, Übergabe) als ◆.
 - **Warnung, wenn ein Gewerk doppelt eingeplant** ist (gleiches Gewerk, gleiche Zeit).
 - Laufende Vorgänge erscheinen als Zeitblöcke im Tages- und Wochenplan (Arbeitszeit der Gewerke, Standard 7–16 Uhr). Baustellen-Termine erscheinen privat nur mit dem Schalter „Auch im Wochenplan anzeigen“.
+- **Werkzeuge auf der Projektseite:** **Basisplan festhalten** und Soll-Ist-Vergleich (Abweichung in Arbeitstagen, Basisplan als Linie im Balkenplan) · **Verzug eintragen** („dauert 3 AT länger“ → zeigt, welche Meilensteine und die Fertigstellung sich verschieben) · **Wetter-Warnung** für Außenarbeiten (Frost, Starkregen, Sturm; 7-Tage-Vorhersage) · **Bautagebuch** (Wetter und Gewerke vorausgefüllt, als CSV exportierbar) · **Mängelliste** je Vorgang · **„Wer ist wann da?“** (Gewerke-Übersicht zum Weitergeben) · **Export der Vorgänge als CSV** für Excel/Numbers.
+- **Maximaler Zeitabstand** (DIN 69900), z. B. „spätestens 5 Tage nach …“, mit Warnung bei Überschreitung.
 - **Bauzeitenplan und Netzplan drucken / als PDF** in A4 oder A3, quer oder hoch – Balkenplan wahlweise auf einer Seite oder gut lesbar in Abschnitten.
 
-**Vorlagen:** „Einfamilienhaus – Bauablauf“ (26 Vorgänge, 3 Meilensteine, Gewerke nach VOB/C, Aushärte- und Trockenzeiten als Faustwerte) und „Uni-Abgabe (Architektur)“. Jedes Ziel/Projekt lässt sich auch **als eigene Vorlage speichern**.
+**Vorlagen:** „Einfamilienhaus – Bauablauf“ (26 Vorgänge, 3 Meilensteine, Gewerke nach VOB/C, Aushärte- und Trockenzeiten als Faustwerte), „Badsanierung“, „Dachsanierung“ und „Uni-Abgabe (Architektur)“. Jedes Ziel/Projekt lässt sich auch **als eigene Vorlage speichern**.
 
 *Hinweis:* Normen-Nummern und Trockenzeiten sind Orientierungswerte (z. B. Zementestrich ca. 1 Woche je cm Dicke bis 4 cm; Belegreife vor dem Belegen per CM-Messung prüfen) – im echten Projekt gelten die aktuellen Normen und Herstellerangaben.
 
@@ -101,7 +103,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 ## Datenschutz
 
 - Alle Daten bleiben **nur auf deinem Gerät** (im Browser-Speicher). Es gibt keinen Login und keinen Server.
-- Die einzige Verbindung nach außen ist das Laden der Feiertage. Dabei werden **nur Jahr und Land (DE)** abgefragt, keine persönlichen Daten.
+- Verbindungen nach außen: das Laden der **Feiertage** (nur Jahr und Land) und – nur wenn du bei einem Bauprojekt einen Ort einträgst – die **Wettervorhersage** (nur der Ortsname bzw. seine Koordinaten). Keine persönlichen Daten.
 - Hinweis: Wenn du die Browserdaten löschst, sind auch die Einträge weg – deshalb gibt es *Menü → Daten sichern*.
 
 ---
@@ -126,6 +128,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 | `verwalten.js` | Sperrzeiten, Tagesnotizen, Daten sichern |
 | `vorlagen.js` | Vorlagen (Einfamilienhaus, Uni-Abgabe, eigene) |
 | `demo.js`, `hilfe.js`, `druck.js` | Beispiel ansehen, „?“-Hilfe, Drucken in Formaten |
+| `baustelle.js` | Baustellen-Werkzeuge: Basisplan/Soll-Ist, Verzug, Wetter, Bautagebuch, Mängel, Gewerke-Übersicht, CSV |
 | `netzplan.js`, `balkenplan.js` | Netzplan (DIN 69900) und Balkenplan im Ziel |
 | `statistik.js` | Wochenrückblick und Schätzgenauigkeit |
 | `heute.js`, `woche.js`, `kalender.js`, `aufgaben.js`, `ziele.js`, `erledigt.js`, `einstellungen.js` | die einzelnen Ansichten |
@@ -138,6 +141,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 ## Datenquellen und Lizenzen
 
 - **Feiertage:** [Nager.Date](https://date.nager.at) – kostenlose, öffentliche API ohne Anmeldung.
+- **Wetter (Baustelle):** [Open-Meteo](https://open-meteo.com) – Vorhersage und Ortssuche, kostenlos ohne Schlüssel (Daten unter CC BY 4.0).
 - **Icons:** App-Icon und alle Symbole in der App sind selbst erstellt.
 - **Code:** MIT-Lizenz, siehe [LICENSE](LICENSE).
 - Die Gestaltung ist an Apples Erinnerungen- und Kalender-App **angelehnt** (Bedienkonzept), es werden keine Apple-Grafiken, -Logos oder -Namen verwendet.

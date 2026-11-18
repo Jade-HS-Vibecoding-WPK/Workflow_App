@@ -255,7 +255,8 @@ const CPM = (() => {
       n.startDate = S.isoDate(dayDate(n.ES));
       n.endDate = S.isoDate(dayDate(Math.max(n.EF - 1, n.ES)));
       n.latestStart = S.isoDate(dayDate(n.LS));
-      n.latestEnd = S.isoDate(dayDate(Math.max(n.LF - 1, n.LS)));
+      // SEZ = letzter Arbeitstag vor dem spätesten Ende (nie Wochenende/Feiertag)
+      n.latestEnd = S.isoDate(dayDate(Math.max(n.D > 0 ? prevWork(n.LF - 1) : n.LF - 1, n.LS)));
       if (n.D === 0 && n.preds.length) {
         // Meilenstein = Zeitpunkt, an dem der Vorgänger fertig ist (Ende des letzten Arbeitstags davor)
         const at = (i) => S.isoDate(dayDate(i > start0 ? prevWork(i - 1) : i));
@@ -264,6 +265,15 @@ const CPM = (() => {
       }
       n.workdays = n.D;
     }
+    // DIN 69900: maximaler Zeitabstand (MaxZ) überschritten? (z. B. spätestens 5 Tage nach X)
+    const maxViolations = [];
+    for (const n of open) for (const d of n.preds) {
+      if (d.maxLagDays == null || d.maxLagDays === "") continue;
+      const p = nodes[d.fromId], t = d.type || DEP.EA;
+      const gap = t === DEP.EA ? n.ES - p.EF : t === DEP.AA ? n.ES - p.ES : t === DEP.EE ? n.EF - p.EF : n.EF - p.ES;
+      if (gap > Number(d.maxLagDays)) maxViolations.push({ from: d.fromId, to: n.id, gap, max: Number(d.maxLagDays) });
+    }
+
     // Gewerke doppelt eingeplant? (gleiches Gewerk, überlappende Arbeitstage)
     const clashes = [];
     const busy = open.filter((n) => n.D > 0 && byId[n.id].assignee && byId[n.id].assignee !== Model.OWNER_LOCAL);
@@ -280,7 +290,7 @@ const CPM = (() => {
     else if (minTF === 0 && goal.deadline) status = "kritisch";
     else if (minTF <= BAU_ENG_TAGE) status = "knapp";
     return {
-      cycle: false, bau: true, cap: 1, nodes, projectEnd, clashes, deadlineDays: deadlineEx, minTF, slack: minTF, status,
+      cycle: false, bau: true, cap: 1, nodes, projectEnd, clashes, maxViolations, deadlineDays: deadlineEx, minTF, slack: minTF, status,
       utilization: 0, neededHours: 0, availableHours: 0, resourceLimited: false, isWork,
       projectEndDate: S.isoDate(dayDate(Math.max(projectEnd - 1, 0))),
     };

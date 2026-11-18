@@ -201,6 +201,7 @@ const Goals = (() => {
                 ${Object.entries(DEP_LABELS).map(([v, l]) => `<option value="${v}" ${(d ? d.type : "ende-anfang") === v ? "selected" : ""}>${l}</option>`).join("")}
               </select>
               <span class="unit-input">Zeitabstand <input type="number" name="depLag-${esc(x.id)}" step="1" inputmode="numeric" value="${d ? d.lagDays || 0 : 0}"> Kal.-Tage</span>
+              ${isBauGoal(goal) ? `<span class="unit-input">höchstens <input type="number" name="depMax-${esc(x.id)}" step="1" inputmode="numeric" placeholder="–" value="${d && d.maxLagDays != null ? d.maxLagDays : ""}"> Tage <small class="muted">optional</small></span>` : ""}
             </div>` : ""}
         </div>`;
     }).join("");
@@ -247,7 +248,7 @@ const Goals = (() => {
   // Häufige Gewerke als Vorschlagsliste (frei eintippbar)
   // Gewerke nach VOB/C (ATV DIN 18299 ff.) – frei eintippbar, die Liste ist nur ein Vorschlag
   const GEWERKE = [
-    "Bauleitung", "Baustelleneinrichtung", "Erdarbeiten (DIN 18300)", "Landschaftsbauarbeiten (DIN 18320)",
+    "Bauleitung", "Baustelleneinrichtung", "Abbruch- und Rückbauarbeiten (DIN 18459)", "Erdarbeiten (DIN 18300)", "Landschaftsbauarbeiten (DIN 18320)",
     "Mauerarbeiten (DIN 18330)", "Betonarbeiten (DIN 18331)", "Zimmer- und Holzbauarbeiten (DIN 18334)",
     "Dachdeckungsarbeiten (DIN 18338)", "Klempnerarbeiten (DIN 18339)", "Trockenbauarbeiten (DIN 18340)",
     "Wärmedämm-Verbundsysteme (DIN 18345)", "Putz- und Stuckarbeiten (DIN 18350)", "Fliesen- und Plattenarbeiten (DIN 18352)",
@@ -302,9 +303,11 @@ const Goals = (() => {
         <p class="hint">Optional. Spätestens die ${bau ? "Fertigstellung des Projekts" : "Deadline des Ziels"} (${esc(S.deadlineLabel(goal.deadline))}).</p>
       </div>
       ${depsHtml(goal, sg, subs)}
+      ${bau && !isNew ? Bau.defectsHtml(sg) : ""}
       ${cpmHtml(res, sg)}`,
       isNew ? "" : `
         <button type="button" class="action" data-action="progress">Fortschritt eintragen</button>
+        ${bau && Number(sg.durationDays) > 0 ? `<button type="button" class="action" data-action="delay">Verzug eintragen <small class="muted">dauert länger als geplant</small></button>` : ""}
         ${idx > 0 ? `<button type="button" class="action" data-action="up">In der Reihenfolge nach oben</button>` : ""}
         ${idx < subs.length - 1 ? `<button type="button" class="action" data-action="down">In der Reihenfolge nach unten</button>` : ""}
         <button type="button" class="action action--danger" data-action="delete">${bau ? "Vorgang" : "Unterziel"} löschen</button>`));
@@ -322,6 +325,7 @@ const Goals = (() => {
     update();
 
     const saveGoal = async (subgoals) => { await Store.save({ ...goal, subgoals }); };
+    const readDefects = bau && !isNew ? Bau.wireDefects(form, sg) : null;
 
     wire(form, async (fail) => {
       const out = { ...sg };
@@ -341,6 +345,7 @@ const Goals = (() => {
         if (!ms && !(out.durationDays >= 1)) return fail("Gib mindestens 1 Arbeitstag ein.", "workdays");
       }
       out.deadline = form.elements.deadline.value || null;
+      if (readDefects) out.defects = readDefects();
       if (!out.title) return fail("Bitte gib einen Titel ein.", "title");
       if (out.mode === "aufwand" && !(out.estimateHours > 0)) return fail("Gib einen Aufwand größer als 0 ein.", "estimateHours");
       if (out.mode === "dauer" && !(out.durationDays > 0) && !(bau && out.durationDays === 0)) return fail("Gib eine Dauer größer als 0 ein.", "durationDays");
@@ -356,6 +361,8 @@ const Goals = (() => {
           fromId: id,
           type: fullDeps && typeEl ? typeEl.value : (old[id] ? old[id].type : "ende-anfang"),
           lagDays: fullDeps && lagEl ? (Number(lagEl.value) || 0) : (old[id] ? old[id].lagDays || 0 : 0),
+          // DIN 69900: maximaler Zeitabstand (optional, nur Baustelle)
+          ...(form.elements["depMax-" + id] ? { maxLagDays: form.elements["depMax-" + id].value === "" ? null : Number(form.elements["depMax-" + id].value) } : old[id] && old[id].maxLagDays != null ? { maxLagDays: old[id].maxLagDays } : {}),
         };
       });
       const list = isNew ? [...goal.subgoals, out] : goal.subgoals.map((x) => (x.id === out.id ? out : x));
@@ -363,6 +370,7 @@ const Goals = (() => {
       Editor.close();
     }, {
       progress: () => progressForm(goal, sg),
+      delay: () => Bau.delayForm(goal, sg.id),
       delete: async () => {
         if (!confirm(`${bau ? "Vorgang" : "Unterziel"} „${sg.title}“ löschen?`)) return;
         const orig = await Store.get(goal.id); // für "Rückgängig" (inkl. Abhängigkeiten)
@@ -573,9 +581,13 @@ const ZielDetailView = (() => {
     else if (openPreds.length) status = `wartet auf ${esc(openPreds.length === 1 ? openPreds[0] : openPreds.length + " Schritte")}`;
     else if (bau && n) status = `${esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(n.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}`;
     else if (n) status = `spätestens fertig ${dShort(n.latestEnd)}`;
+    const late = bau ? Bau.delayOf(goal, res, sg) : null;
+    const defects = bau ? Bau.openDefects(sg) : 0;
+    if (late > 0) status = `${status ? status + " · " : ""}<span class="meta--warn">${late} AT später als Basisplan</span>`;
+    if (defects) status = `${status ? status + " · " : ""}<span class="meta--warn">${defects} ${defects === 1 ? "Mangel" : "Mängel"} offen</span>`;
     const meta = [
       sg.done ? "" : bau && Number(sg.durationDays) === 0 ? `<span>◆ Meilenstein${n ? " · " + esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" })) : ""}</span>`
-        : `<span>${sg.progressPercent} %${rest != null ? ` · noch ca. ${GoalMath.fmtHours(rest)}` : sg.mode === "dauer" ? ` · ${String(sg.durationDays).replace(".", ",")} ${bau ? "Arbeitstage" : "Tage"}` : ""}</span>`,
+        : `<span>${sg.progressPercent} %${rest != null ? ` · noch ca. ${GoalMath.fmtHours(rest)}` : sg.mode === "dauer" ? ` · ${String(sg.durationDays).replace(".", ",")} ${bau ? (Number(sg.durationDays) === 1 ? "Arbeitstag" : "Arbeitstage") : Number(sg.durationDays) === 1 ? "Tag" : "Tage"}` : ""}</span>`,
       gewerk ? `<span><b>${esc(gewerk)}</b></span>` : "",
       status ? `<span>${status}</span>` : "",
     ].filter(Boolean).join("");
@@ -605,8 +617,11 @@ const ZielDetailView = (() => {
     const dd = (iso) => esc(S.parseDate(iso).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }));
     const clashes = (res.clashes || []).slice(0, 3).map((c) =>
       `<li><span class="advice__strong">${esc(c.gewerk)}</span>: „${esc(byId[c.a].title)}“ und „${esc(byId[c.b].title)}“ gleichzeitig (${dd(c.from)}${c.from !== c.to ? "–" + dd(c.to) : ""}, ${days(c.days)})</li>`).join("");
-    const clashHtml = clashes ? `<div class="advice advice--warn"><b>Gewerk doppelt eingeplant</b><ul class="advice__list">${clashes}</ul>
-      <small class="advice__calc">Geht das mit zwei Kolonnen? Sonst nacheinander legen (NF) oder Dauern anpassen.</small></div>` : "";
+    const maxV = (res.maxViolations || []).slice(0, 3).map((v) => `<li>„${esc(byId[v.to].title)}“ beginnt ${v.gap} Tage nach „${esc(byId[v.from].title)}“ – erlaubt sind höchstens ${v.max}</li>`).join("");
+    const maxHtml = maxV ? `<div class="advice advice--crit"><b>Maximaler Zeitabstand überschritten</b><ul class="advice__list">${maxV}</ul>
+      <small class="advice__calc">Den Vorgang früher einplanen (Vorgänger kürzer, Überlappung) oder den Abstand prüfen.</small></div>` : "";
+    const clashHtml = maxHtml + (clashes ? `<div class="advice advice--warn"><b>Gewerk doppelt eingeplant</b><ul class="advice__list">${clashes}</ul>
+      <small class="advice__calc">Geht das mit zwei Kolonnen? Sonst nacheinander legen (NF) oder Dauern anpassen.</small></div>` : "");
     if (res.status === "hinterher") {
       return `<div class="advice advice--crit"><b>Verzug: ca. ${days(tf)}.</b>
         So wird das Projekt erst ${end} fertig. Kritischer Weg: ${crit.slice(0, 4).join(" → ")}. Prüfe Dauern, Überlappungen (negativer Zeitabstand) oder mehr Kolonnen.
@@ -705,6 +720,7 @@ const ZielDetailView = (() => {
       </section>
       ${allDone && !goal.done ? `<button class="banner-btn" data-finish>${bau ? "Alle Vorgänge erledigt · Projekt abschließen" : "Alle Unterziele erledigt · Ziel abschließen"}</button>` : ""}
       ${res && !allDone ? adviceHtml(goal, res, entries) : ""}
+      ${bau && res && !allDone ? Bau.baselineHtml(goal, res) : ""}
       <div class="sub-head">
         <h3 class="list-group">${bau ? "Vorgänge" : "Unterziele"} <span>${subs.length}</span></h3>
         ${subs.length ? `<div class="segmented sub-mode" role="radiogroup" aria-label="Darstellung">
@@ -718,7 +734,8 @@ const ZielDetailView = (() => {
       <button class="add-row" data-add><span class="add-row__plus">+</span> ${bau ? "Vorgang" : "Unterziel"}</button>
       <button class="add-row" data-save-template><span class="add-row__plus add-row__plus--alt">▤</span> Als Vorlage speichern</button>
       ${subs.length ? `<button class="add-row" data-print><span class="add-row__plus add-row__plus--alt">⎙</span> ${mode === "balken" ? (bau ? "Bauzeitenplan" : "Balkenplan") : mode === "netz" ? "Netzplan" : "Übersicht"} drucken / als PDF <small class="muted">A4/A3, quer/hoch</small></button>` : ""}
-      ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}`;
+      ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}
+      ${bau ? Bau.toolsHtml(goal, res) : ""}`;
     container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
     if (mode === "netz") Netzplan.wire(container, goal, res);
     if (mode === "balken") Balkenplan.wire(container, goal, res);
@@ -729,6 +746,7 @@ const ZielDetailView = (() => {
     container.querySelector("[data-save-template]").addEventListener("click", () => Templates.saveFromGoal(goal));
     const pr = container.querySelector("[data-print]");
     if (pr) pr.addEventListener("click", () => Druck.open(container, goal, res, mode));
+    if (bau && res && !res.cycle) Bau.wireTools(container, goal, res);
     container.querySelectorAll("[data-progress]").forEach((b) => b.addEventListener("click", () => Goals.openProgress(goal.id, b.dataset.progress)));
     container.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => Goals.editSubgoal(goal.id, b.dataset.sub)));
     container.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => Editor.edit(b.dataset.open, b.dataset.date)));

@@ -56,6 +56,42 @@ const Templates = (() => {
       ],
     },
     {
+      id: "bad", area: "bau", name: "Badsanierung", color: "#378add",
+      text: "Vom Rückbau bis zur Übergabe – 11 Vorgänge, 2 Meilensteine, mit Druckprüfung und Trocknungszeiten.",
+      items: [
+        { k: "einr", t: "Baustelle einrichten, Schutz auslegen", g: "Bauleitung", d: 1 },
+        { k: "rueck", t: "Rückbau Fliesen und alte Sanitärobjekte", g: "Abbruch- und Rückbauarbeiten (DIN 18459)", d: 2, after: [["einr"]] },
+        { k: "shk", t: "Sanitär-Rohinstallation", g: "Gas-, Wasser- und Entwässerungsanlagen (DIN 18381)", d: 3, after: [["rueck"]] },
+        { k: "elr", t: "Elektro-Rohinstallation", g: "Elektroanlagen (DIN 18382)", d: 1, after: [["rueck"]] },
+        { k: "druck", t: "Druckprüfung Leitungen", g: "Gas-, Wasser- und Entwässerungsanlagen (DIN 18381)", d: 0, after: [["shk"]] }, // Meilenstein
+        { k: "vorw", t: "Vorwandinstallation / Trockenbau", g: "Trockenbauarbeiten (DIN 18340)", d: 2, after: [["druck"], ["elr"]] },
+        { k: "est", t: "Estrich", g: "Estricharbeiten (DIN 18353)", d: 1, after: [["vorw"]] },
+        { k: "abd", t: "Abdichtung im Verbund", g: "Fliesen- und Plattenarbeiten (DIN 18352)", d: 1, after: [["est", EA, 7]] }, // Estrich trocknen (Faustwert, je nach Estrich)
+        { k: "fli", t: "Fliesen Wand und Boden", g: "Fliesen- und Plattenarbeiten (DIN 18352)", d: 4, after: [["abd", EA, 1]] }, // Abdichtung trocknen
+        { k: "mal", t: "Malerarbeiten", g: "Maler- und Lackierarbeiten (DIN 18363)", d: 1, after: [["fli"]] },
+        { k: "ends", t: "Endmontage Sanitär", g: "Gas-, Wasser- und Entwässerungsanlagen (DIN 18381)", d: 1, after: [["fli"]] },
+        { k: "ende", t: "Endmontage Elektro", g: "Elektroanlagen (DIN 18382)", d: 1, after: [["mal"]] },
+        { k: "abn", t: "Abnahme und Übergabe", g: "Bauleitung", d: 0, after: [["ends"], ["ende"]] }, // Meilenstein
+      ],
+    },
+    {
+      id: "dach", area: "bau", name: "Dachsanierung", color: "#ba7517",
+      text: "Gerüst, Abdecken, Dämmung, Neueindeckung, Klempner – 9 Vorgänge, 2 Meilensteine.",
+      items: [
+        { k: "ger", t: "Gerüst stellen", g: "Gerüstarbeiten (DIN 18451)", d: 1 },
+        { k: "abd", t: "Alte Eindeckung abdecken und entsorgen", g: "Dachdeckungsarbeiten (DIN 18338)", d: 2, after: [["ger"]] },
+        { k: "stuhl", t: "Dachstuhl prüfen und ausbessern", g: "Zimmer- und Holzbauarbeiten (DIN 18334)", d: 2, after: [["abd"]] },
+        { k: "daem", t: "Aufsparrendämmung", g: "Zimmer- und Holzbauarbeiten (DIN 18334)", d: 3, after: [["stuhl"]] },
+        { k: "latt", t: "Unterdeckbahn und Lattung", g: "Dachdeckungsarbeiten (DIN 18338)", d: 2, after: [["daem"]] },
+        { k: "fen", t: "Dachfenster einbauen", g: "Zimmer- und Holzbauarbeiten (DIN 18334)", d: 1, after: [["latt"]] },
+        { k: "eind", t: "Neueindeckung", g: "Dachdeckungsarbeiten (DIN 18338)", d: 5, after: [["latt"]] },
+        { k: "dicht", t: "Dach dicht", g: "Bauleitung", d: 0, after: [["eind"], ["fen"]] }, // Meilenstein
+        { k: "kle", t: "Dachrinnen und Anschlüsse", g: "Klempnerarbeiten (DIN 18339)", d: 2, after: [["eind"]] },
+        { k: "gab", t: "Gerüst abbauen", g: "Gerüstarbeiten (DIN 18451)", d: 1, after: [["kle"], ["dicht"]] },
+        { k: "abn", t: "Abnahme", g: "Bauleitung", d: 0, after: [["gab"]] }, // Meilenstein
+      ],
+    },
+    {
       id: "uni", area: "privat", name: "Uni-Abgabe (Architektur)", color: "#7f77dd",
       text: "Von der Recherche bis zum Druck – mit geschätzten Stunden und sinnvoller Reihenfolge.",
       items: [

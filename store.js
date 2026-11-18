@@ -194,7 +194,7 @@ const Store = (() => {
 
   // ---------- Abgleich mit dem Konto (Azure, siehe cloud.js) ----------
   // Diese Einstellungen gehören zum Gerät und werden nicht abgeglichen
-  const LOCAL_SETTINGS = ["bereich", "zoom", "feiertageCache", "letzteSicherung"];
+  const LOCAL_SETTINGS = ["bereich", "zoom", "feiertageCache", "letzteSicherung", "wetterCache"];
   const DELETED_KEEP_DAYS = 90;
 
   // Was an den Server geht: Einträge, Löschungen, geteilte Einstellungen

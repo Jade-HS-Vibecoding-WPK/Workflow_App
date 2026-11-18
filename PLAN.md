@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, 11:40 Uhr. Baustellen-Verbesserungen B1–B8 fertig (Sicherungspunkt `backup-2026-11-18-1140b`). Freeze Do 19.11. 12–16 Uhr.*
+*Stand: Mi 18.11.2026, 11:52 Uhr. Baustellen-Werkzeuge C1–C9 fertig (Sicherungspunkt `backup-2026-11-18-1152`). Freeze Do 19.11. 12–16 Uhr.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -146,7 +146,10 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   B1 DIN-Begriffe (NF/AF/EF/SF, Zeitabstand in Kal.-Tagen) · B2 Meilensteine (Dauer 0, ◆, Datum = Ende des Vorgängers) · B3 Warnung bei doppelt eingeplantem Gewerk (`res.clashes`) · B4 Gewerke-Vorschläge nach VOB/C (ATV DIN 18299 ff.) · B5 EFH-Vorlage: 26 Vorgänge + 3 Meilensteine (Gerüst, Klempner, Tischler, Bauendreinigung; Estrich +28 Kal.-Tage als Faustwert) · B6 Bauzeitenplan drucken/als PDF (A4 quer, auf Seitenbreite gestaucht) · B7 FRP und UP im Netzplan-Kästchen · B8 „Samstag ist Arbeitstag“ pro Projekt (`goal.samstag`).
   Bitte vor der Abgabe die DIN-Nummern der VOB/C kurz gegen eine aktuelle Quelle prüfen.
 - ✅ Druckformate (Wunsch Niklas, Mi 18.11.): `druck.js` – Papier A4/A3 quer/hoch; Balkenplan „alles auf eine Seite“ (gestaucht) oder „gut lesbar“ (Zeitachse in gleich lange Abschnitte, je eine Seite, ab Baubeginn); Netzplan auf Seitenbreite eingepasst (bei langen Ketten klein – A3 quer empfehlen); Kopfzeile mit Titel/Datum. Getestet.
-- ⏳ Als Nächstes: Ideen Baustelle (Liste im Chat) – Entscheidung Niklas; Handy-Test; Freeze Do 19.11. 12–16 Uhr, danach Poster., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ✅ Baustellen-Werkzeuge C1–C9 (Mi 18.11., Entscheidung Niklas: alle), `baustelle.js`, im Browser getestet:
+  C1 Basisplan festhalten + Soll-Ist (Abweichung in AT, Linie im Balkenplan, Zeilen „X AT später als Basisplan“) · C2 Verzug eintragen (Dauer +X AT mit Grund, zeigt Verschiebung von Fertigstellung/Meilensteinen, Rückgängig) · C3 Wetter-Warnung Open-Meteo (Ort pro Projekt, 7 Tage, Frost ≤ 0 °C / Regen ≥ 10 mm / Wind ≥ 50 km/h für Außenarbeiten, Zwischenspeicher 3 Std.) · C4 Bautagebuch (Wetter + Gewerke vorausgefüllt, CSV) · C5 Mängelliste je Vorgang · C6 „Wer ist wann da?“ (kopierbar) · C7 maximaler Zeitabstand mit Warnung · C8 Vorlagen Badsanierung + Dachsanierung · C9 CSV-Export (Excel, Semikolon + BOM).
+  Nebenbei: SEZ fällt nie mehr auf Wochenende/Feiertag.
+- ⏳ Als Nächstes: Handy-Test (Niklas); VOB/C-Nummern prüfen; Freeze Do 19.11. 12–16 Uhr, danach Poster., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 

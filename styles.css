@@ -1371,3 +1371,26 @@ body.no-scroll { overflow: hidden; }
   .gt-row { break-inside: avoid; }
   .goal-head .progress { display: none; }
 }
+
+/* ---------- Baustellen-Werkzeuge (baustelle.js) ---------- */
+.bau-tools { margin: 0 0 16px; }
+.bau-tools button { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 12px 16px; border: 0; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.bau-tools li + li button { border-top: 0.5px solid var(--line); }
+.bau-tools button small { color: var(--text-2); font-size: 0.8rem; }
+.bau-tools button:active { background: var(--surface-2); }
+.wx-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 8px 0 4px; }
+.wx-day { display: flex; flex-direction: column; align-items: center; padding: 4px 0; border-radius: 8px; background: var(--surface-2); font-weight: 600; font-size: 0.9rem; }
+.wx-day small { font-weight: 400; font-size: 0.7rem; color: var(--text-2); }
+.wx-day--frost { box-shadow: inset 0 0 0 1.5px #64d2ff; }
+.wx-day--rain { box-shadow: inset 0 0 0 1.5px #0a84ff; }
+.defects { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.defects li { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.defects label { display: flex; align-items: center; gap: 8px; }
+.defects input:checked + span { text-decoration: line-through; color: var(--text-3); }
+.defects__add { display: flex; gap: 8px; align-items: center; }
+.defects__add input { flex: 1; }
+.diary { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.diary li { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--surface); }
+.diary li .link-btn { align-self: flex-end; font-size: 0.8rem; }
+.gt-base { position: absolute; top: 33px; height: 3px; border-radius: 2px; background: var(--text-3); }
+.gt-key-base { display: inline-block; width: 18px; height: 3px; margin-right: 4px; vertical-align: middle; background: var(--text-3); border-radius: 2px; }

@@ -95,6 +95,9 @@ const Balkenplan = (() => {
       const slotDays = {};
       if (!bau && !s.done) for (const sl of s.slots || []) if (sl.date >= today && dayDiff(from, sl.date) < n) slotDays[sl.date] = slotDays[sl.date] || sl.confirmed;
       const dots = Object.entries(slotDays).map(([d, ok]) => `<i class="gt-slot ${ok ? "gt-slot--ok" : ""}" style="left:${x(d) + DAY / 2 - 3}px" title="${ok ? "eingeplant" : "Vorschlag"} ${esc(d)}"></i>`).join("");
+      // Basisplan (Soll) als dünne Linie unter dem Balken
+      const bl = bau && goal.baseline && goal.baseline.items[s.id] && !s.done ? goal.baseline.items[s.id] : null;
+      const base = bl ? `<i class="gt-base" style="left:${x(bl.s)}px;width:${Math.max(DAY / 2, (dayDiff(bl.s, bl.e) + 1) * DAY - 2)}px" title="Basisplan ${esc(bl.s)} – ${esc(bl.e)}"></i>` : "";
       const dl = s.deadline && s.deadline >= from ? `<i class="gt-dl" style="left:${x(s.deadline) + DAY / 2 - 6}px" title="Zwischen-Deadline">◆</i>` : "";
       return `
         <div class="gt-row ${s.done ? "gt-row--done" : ""}">
@@ -102,7 +105,7 @@ const Balkenplan = (() => {
             <span><span class="nz-num">${i + 1}</span>${s.done ? "✓ " : ""}${esc(s.title)}</span>
             ${gewerk ? `<small>${esc(gewerk)}</small>` : nd && !s.done ? `<small>${esc(S.parseDate(nd.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(nd.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}</small>` : ""}
           </button>
-          <div class="gt-track" style="width:${width}px">${bars}${dots}${dl}</div>
+          <div class="gt-track" style="width:${width}px">${base}${bars}${dots}${dl}</div>
         </div>`;
     }).join("");
 
@@ -134,7 +137,7 @@ const Balkenplan = (() => {
         <span><i class="gt-key-now"></i>heute</span>
         <span><i class="gt-key-dl"></i>${bau ? "Fertigstellung" : "Deadline"}</span>
         <span>◆ ${bau ? "Meilenstein / " : ""}Zwischen-Deadline</span>
-        ${bau ? "" : `<span><i class="gt-slot gt-slot--key"></i>Arbeit eingeplant</span>`}
+        ${bau ? (goal.baseline ? `<span><i class="gt-key-base"></i>Basisplan (Soll)</span>` : "") : `<span><i class="gt-slot gt-slot--key"></i>Arbeit eingeplant</span>`}
       </p>
       <p class="plan-hint plan-hint--small">Balken = frühester Anfang bis frühestes Ende${bau ? " (Arbeitstage, Wochenende/Feiertage grau)" : " · Punkte = Tage mit eingeplanter Arbeit (gefüllt = bestätigt)"} · antippen = alle Werte</p>`;
   }
