@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-18-1131
+- **Zeit:** Mi 18.11.2026, 11:31 Uhr
+- **Zustand der App:** aufgeräumt (A–I), Azure-Code vorbereitet (aus), Baustellen-Rechnung nach DIN 69900 korrigiert (Puffer in Arbeitstagen, kritischer Weg = kleinste GP). Lauffähig.
+- **Zuletzt gemacht:** DIN-Prüfung der Bau-Rechnung.
+- **Als Nächstes:** Verbesserungen Baustelle nach Entscheidung von Niklas.
+
 ## backup-2026-11-18-1043
 - **Zeit:** Mi 18.11.2026, 10:43 Uhr
 - **Zustand der App:** aufgeräumt (A–I): Willkommen + Beispiel, ein „Termin“-Formular, Mehr Optionen, ruhigere Ziel-Seite, Hilfe „?“, Menü/Einstellungen geordnet. Im Browser getestet, lauffähig.

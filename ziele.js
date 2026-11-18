@@ -231,12 +231,12 @@ const Goals = (() => {
             <dt>Frühestes Ende (FEZ)</dt><dd>${d(n.endDate)}</dd>
             <dt>Spätester Anfang (SAZ)</dt><dd>${d(n.latestStart)}</dd>
             <dt>Spätestes Ende (SEZ)</dt><dd>${d(n.latestEnd)}</dd>
-            <dt>Gesamtpuffer (GP)</dt><dd class="${n.TF < -0.05 ? "meta--warn" : ""}">${n.TF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.TF)}</dd>
+            <dt>Gesamtpuffer (GP)</dt><dd class="${n.TF < -0.05 ? "meta--warn" : ""}">${n.TF < -0.05 ? "−" : ""}${res.bau ? `${Math.abs(n.TF)} Arbeitstage` : GoalMath.fmtDays(n.TF)}</dd>
             ${res.bau ? "" : `<dt>Auslastung</dt><dd class="${n.level === "kritisch" ? "meta--warn" : ""}">${n.neededHours > 0 ? `${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)` : "–"}</dd>`}
-            <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${GoalMath.fmtDays(n.FF)}</dd>
+            <dt>Freier Puffer (FP)</dt><dd>${n.FF < -0.05 ? "−" : ""}${res.bau ? `${Math.abs(n.FF)} Arbeitstage` : GoalMath.fmtDays(n.FF)}</dd>
           </dl>
         </div>
-        <p class="hint">${res.bau ? "Baustelle: Arbeitstage Mo–Fr, Feiertage frei. Kein Puffer = kritisch, bis 3 Tage Puffer = eng." : `Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.`}</p>
+        <p class="hint">${res.bau ? "Baustelle nach DIN 69900: Dauer und Puffer in Arbeitstagen (Mo–Fr, ohne Feiertage), Zeitabstände in Kalendertagen. Kritischer Weg = Vorgänge mit dem kleinsten Gesamtpuffer; „eng“ = höchstens 3 Arbeitstage mehr Puffer." : `Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.`}</p>
       </div>
       </details>`;
   }
@@ -582,7 +582,7 @@ const ZielDetailView = (() => {
     const end = esc(S.parseDate(res.projectEndDate).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" }));
     const crit = (goal.subgoals || []).filter((x) => res.nodes[x.id] && res.nodes[x.id].critical && !x.done).map((x) => `„${esc(x.title)}“`);
     const tf = res.minTF;
-    const days = (d) => `${Math.abs(d)} ${Math.abs(d) === 1 ? "Tag" : "Tage"}`;
+    const days = (d) => `${Math.abs(d)} ${Math.abs(d) === 1 ? "Arbeitstag" : "Arbeitstage"}`;
     if (res.status === "hinterher") {
       return `<div class="advice advice--crit"><b>Verzug: ca. ${days(tf)}.</b>
         So wird das Projekt erst ${end} fertig. Kritisch: ${crit.slice(0, 4).join(", ")}. Prüfe Dauern, Überlappungen (negative Wartezeit) oder mehr Kolonnen.
@@ -592,7 +592,7 @@ const ZielDetailView = (() => {
     const head = res.status === "ok" ? "Im Plan." : res.status === "kritisch" ? "Kein Puffer mehr." : "Es wird eng.";
     return `<div class="advice ${cls}"><b>${head}</b>
       Voraussichtlich fertig ${end}, Puffer bis zur Fertigstellung ${days(tf)}.
-      ${crit.length ? `Kritischer Pfad: ${crit.slice(0, 5).join(" → ")}${crit.length > 5 ? " …" : ""}.` : ""}
+      ${crit.length ? `Kritischer Weg (DIN 69900): ${crit.slice(0, 5).join(" → ")}${crit.length > 5 ? " …" : ""}.` : ""}
       <small class="advice__calc">Arbeitstage Mo–Fr, Feiertage frei · Wartezeiten in Kalendertagen</small></div>`;
   }
 

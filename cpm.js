@@ -83,7 +83,11 @@ const CPM = (() => {
   // (z. B. Estrich trocknen) zählen Kalendertage, also auch am
   // Wochenende. Alle Werte: Tage ab heute (0 = heute), Ende exklusiv.
   // ============================================================
-  const BAU_ENG_TAGE = 3; // Puffer bis 3 Kalendertage → "eng"
+  // DIN 69900: Pufferzeiten in Zeiteinheiten des Projektkalenders = Arbeitstage.
+  // Kritischer Weg = Vorgänge mit der KLEINSTEN Gesamtpufferzeit (auch wenn bis
+  // zur Fertigstellung noch Reserve ist). "eng" = höchstens 3 Arbeitstage mehr
+  // Puffer als der kritische Weg.
+  const BAU_ENG_TAGE = 3; // Arbeitstage
   const bauCache = new Map();
 
   function computeBau(goal, now = new Date()) {
@@ -114,6 +118,14 @@ const CPM = (() => {
     // Spätester Start, damit D Arbeitstage bis vor "endExcl" passen
     const subW = (endExcl, D) => { let x = Math.floor(endExcl + 1e-9) - 1, n = D; if (n <= 0) return prevWork(endExcl); while (true) { if (isWork(x)) { n--; if (n <= 0) return x; } x--; } };
     const days = (iso) => Math.round((S.parseDate(iso) - S.parseDate(S.isoDate(now))) / 86400000);
+    // Arbeitstage zwischen zwei Tages-Indizes [a, b) – negativ, wenn b vor a liegt
+    const wdBetween = (a, b) => {
+      a = Math.round(a); b = Math.round(b);
+      if (b < a) return -wdBetween(b, a);
+      let n = 0;
+      for (let x = a; x < b; x++) if (isWork(x)) n++;
+      return n;
+    };
     const start0 = goal.startDate ? Math.max(0, days(goal.startDate)) : 0;
 
     const nodes = {};
@@ -174,11 +186,12 @@ const CPM = (() => {
     // Puffer, Kennzeichnung, Daten
     const open = Object.values(nodes).filter((n) => !n.done);
     for (const n of Object.values(nodes)) {
-      n.TF = n.LS - n.ES;
-      let ff = n.succs.length ? Infinity : deadlineEx - n.EF;
+      // Gesamtpuffer GP = SAZ − FAZ, freier Puffer FP nach DIN 69900 – beides in Arbeitstagen
+      n.TF = wdBetween(n.ES, n.LS);
+      let ff = n.succs.length ? Infinity : wdBetween(n.EF, deadlineEx);
       for (const s of n.succs) {
         const x = nodes[s.toId];
-        const v = { [DEP.EA]: x.ES - s.lag - n.EF, [DEP.AA]: x.ES - s.lag - n.ES, [DEP.EE]: x.EF - s.lag - n.EF, [DEP.AE]: x.EF - s.lag - n.ES }[s.type];
+        const v = { [DEP.EA]: wdBetween(n.EF, x.ES - s.lag), [DEP.AA]: wdBetween(n.ES, x.ES - s.lag), [DEP.EE]: wdBetween(n.EF, x.EF - s.lag), [DEP.AE]: wdBetween(n.ES, x.EF - s.lag) }[s.type];
         ff = Math.min(ff, v);
       }
       n.FF = Math.min(ff, n.TF);
@@ -187,9 +200,9 @@ const CPM = (() => {
     for (const n of Object.values(nodes)) {
       const active = !n.done;
       n.behind = active && n.TF < 0;
-      n.level = !active ? null : n.TF <= 0 ? "kritisch" : n.TF <= BAU_ENG_TAGE ? "eng" : null;
+      n.mainPath = active && n.TF - minTF <= EPS; // kritischer Weg nach DIN 69900 (kleinste GP)
+      n.level = !active ? null : n.mainPath || n.TF <= 0 ? "kritisch" : n.TF - minTF <= BAU_ENG_TAGE ? "eng" : null;
       n.critical = n.level === "kritisch";
-      n.mainPath = active && n.TF - minTF <= EPS; // längste Kette
       n.utilization = 0; n.neededHours = 0; n.availableHours = 0;
       n.startDate = S.isoDate(dayDate(n.ES));
       n.endDate = S.isoDate(dayDate(Math.max(n.EF - 1, n.ES)));

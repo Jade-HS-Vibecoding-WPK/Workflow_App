@@ -194,7 +194,7 @@ const Netzplan = (() => {
       const n = nodes[s.id];
       const p = pos[s.id];
       const cls = ["nz-node", s.done ? "nz-node--done" : "", n && n.level ? "nz-node--" + n.level : "", n && n.mainPath ? "nz-node--main" : ""].join(" ");
-      const fmtD = (d) => (bau ? `${d} ${Math.abs(d) === 1 ? "Tag" : "Tage"}` : GoalMath.fmtDays(d));
+      const fmtD = (d) => (bau ? `${d} AT` : GoalMath.fmtDays(d)); // AT = Arbeitstage
       const puffer = s.done || !n ? "" : n.behind ? `<b class="meta--warn">${fmtD(-n.TF)} zu spät</b>` : `Puffer ${fmtD(GoalMath.shownTF(n, res))}`;
       return `
         <button class="${cls}" data-node="${esc(s.id)}" style="left:${p.x}px;top:${p.y}px;width:${W}px;height:${H}px;--c:${goal.color}"
@@ -259,10 +259,10 @@ const Netzplan = (() => {
       <div class="din-box" style="--c:${goal.color}">
         <div class="din-row"><span><small>FAZ</small>${d(n.startDate)}</span><span><small>Dauer</small>${goal.area === "bau" ? `${n.D} AT` : GoalMath.fmtDays(n.D)}</span><span><small>FEZ</small>${d(n.endDate)}</span></div>
         <div class="din-name"><small>Nr. ${idx}${goal.area === "bau" && sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? ` · ${esc(sg.assignee)}` : ""}</small><b>${esc(sg.title)}</b> ${GoalMath.levelBadges(n)}</div>
-        <div class="din-row"><span><small>SAZ</small>${d(n.latestStart)}</span><span><small>GP</small>${goal.area === "bau" ? `${n.TF} Tg` : GoalMath.fmtDays(n.TF)}</span><span><small>SEZ</small>${d(n.latestEnd)}</span></div>
+        <div class="din-row"><span><small>SAZ</small>${d(n.latestStart)}</span><span><small>GP</small>${goal.area === "bau" ? `${n.TF} AT` : GoalMath.fmtDays(n.TF)}</span><span><small>SEZ</small>${d(n.latestEnd)}</span></div>
       </div>
       <dl class="cpm-values">
-        <dt>Freier Puffer (FP)</dt><dd>${goal.area === "bau" ? `${n.FF} Tage` : GoalMath.fmtDays(n.FF)}</dd>
+        <dt>Freier Puffer (FP)</dt><dd>${goal.area === "bau" ? `${n.FF} AT` : GoalMath.fmtDays(n.FF)}</dd>
         ${n.neededHours > 0 ? `<dt>Auslastung</dt><dd>${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)</dd>` : ""}
         <dt>${sg.mode === "dauer" ? "Dauer" : "Restaufwand"}</dt><dd>${esc(durationText(sg, n, goal.area === "bau"))}</dd>
         ${goal.area === "bau" ? `<dt>Arbeitszeit</dt><dd>${esc(sg.workFrom || Schedule.bauZeit.von)}–${esc(sg.workTo || Schedule.bauZeit.bis)} Uhr, Mo–Fr${sg.workFrom ? "" : " (Standard)"}</dd>` : ""}
@@ -277,7 +277,7 @@ const Netzplan = (() => {
         </div>
         ${box}
         ${deps.length ? `<div class="notice"><b>Wartet auf:</b>${deps.join("")}</div>` : ""}
-        <p class="hint hint--plain">FAZ/FEZ = frühester Anfang/frühestes Ende · SAZ/SEZ = spätester Anfang/spätestes Ende · GP = Gesamtpuffer · FP = freier Puffer (Verzug, ohne den Nachfolger zu verschieben)</p>
+        <p class="hint hint--plain">FAZ/FEZ = frühester Anfang/frühestes Ende · SAZ/SEZ = spätester Anfang/spätestes Ende · GP = Gesamtpuffer · FP = freier Puffer (Verzug, ohne den Nachfolger zu verschieben)${goal.area === "bau" ? " · AT = Arbeitstage (Mo–Fr ohne Feiertage), Werte nach DIN 69900" : ""}</p>
         <div class="form-group form-actions">
           ${sg.done ? "" : `<button class="action" data-a="progress">Fortschritt eintragen</button>`}
           <button class="action" data-a="edit">Bearbeiten</button>
