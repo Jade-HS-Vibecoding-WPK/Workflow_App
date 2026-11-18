@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, 11:31 Uhr. Baustellen-Rechnung nach DIN 69900 korrigiert (Sicherungspunkt `backup-2026-11-18-1131`). Vorschlagsliste Baustelle wartet auf Entscheidung von Niklas.*
+*Stand: Mi 18.11.2026, 11:40 Uhr. Baustellen-Verbesserungen B1–B8 fertig (Sicherungspunkt `backup-2026-11-18-1140`). Freeze Do 19.11. 12–16 Uhr.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -142,7 +142,10 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ⚠️ Azure-Hürde (Mi 18.11.): Das Konto „Azure for Students“ erlaubt nur die Regionen polandcentral, germanywestcentral, austriaeast, norwayeast, belgiumcentral (Richtlinie „Allowed resource deployment regions“). Static Web Apps gibt es dort nicht (nur westeurope, eastus2, centralus, westus2, eastasia) → Erstellen scheitert mit „RequestDisallowedByAzure“. Speicherkonto `workflowdatennb` (Germany West Central, LRS) ist angelegt. GitHub-Freigabe der Organisation für „Azure App Service“ ist erteilt.
   - Möglichkeiten: Plan B = Web-App (App Service F1) in Germany West Central mit eigener Anmeldung (GitHub-OAuth-App) und kleinem Node-Server statt Static Web App; Plan C = Azure nach der Abgabe, Code bleibt vorbereitet (auf GitHub Pages ausgeschaltet). Entscheidung Niklas (18.11.): **Plan C** – Azure nach der Abgabe.
 - ✅ DIN-69900-Prüfung der Baustellen-Rechnung (Mi 18.11.): Vorwärts-/Rückwärtsrechnung und NF/AF/EF/SF mit Zeitabstand korrekt (2 Handrechnungen nachgerechnet). **Zwei Fehler behoben:** (1) GP/FP wurden in Kalendertagen gezählt (Wochenende mit) → jetzt Arbeitstage („AT“). (2) Bei Zeitreserve bis zur Fertigstellung gab es keinen kritischen Weg → jetzt nach DIN: kritischer Weg = längster Weg, bestimmt über die „treibenden“ Abhängigkeiten vom Projektende rückwärts (nötig, weil Dauern in Arbeitstagen und Zeitabstände in Kalendertagen laufen – sonst zerfiel der Weg in der EFH-Vorlage); „eng“ = höchstens 3 AT mehr Puffer als der kritische Weg.
-- ⏳ Als Nächstes: Vorschläge Baustelle (Liste im Chat/unten) – Entscheidung Niklas., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ✅ Baustelle B1–B8 (Mi 18.11., Entscheidung Niklas: alle), im Browser getestet:
+  B1 DIN-Begriffe (NF/AF/EF/SF, Zeitabstand in Kal.-Tagen) · B2 Meilensteine (Dauer 0, ◆, Datum = Ende des Vorgängers) · B3 Warnung bei doppelt eingeplantem Gewerk (`res.clashes`) · B4 Gewerke-Vorschläge nach VOB/C (ATV DIN 18299 ff.) · B5 EFH-Vorlage: 26 Vorgänge + 3 Meilensteine (Gerüst, Klempner, Tischler, Bauendreinigung; Estrich +28 Kal.-Tage als Faustwert) · B6 Bauzeitenplan drucken/als PDF (A4 quer, auf Seitenbreite gestaucht) · B7 FRP und UP im Netzplan-Kästchen · B8 „Samstag ist Arbeitstag“ pro Projekt (`goal.samstag`).
+  Bitte vor der Abgabe die DIN-Nummern der VOB/C kurz gegen eine aktuelle Quelle prüfen.
+- ⏳ Als Nächstes: Handy-Test (Niklas), letzter Feinschliff; Freeze Do 19.11. 12–16 Uhr, danach Poster., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 

@@ -59,9 +59,20 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 
 ### Zwei Bereiche: Privat und Baustelle
 
-Über das Menü umschaltbar. Die **Baustelle** ist ein Baumanagement-Modus mit eigenen Daten: Projekte statt Ziele, Vorgänge statt Unterziele, **Gewerke** arbeiten Mo–Fr ohne Feiertage (Standard 7–16 Uhr), **Wartezeiten zählen Kalendertage** (z. B. Estrich trocknet auch am Wochenende), optionaler Baubeginn und **Winterpause/Betriebsferien** (Einstellungen). Laufende Vorgänge erscheinen als Zeitblöcke im Tages- und Wochenplan. Baustellen-Termine erscheinen privat nur mit dem Schalter „Auch im Wochenplan anzeigen“.
+Über das Menü umschaltbar. Die **Baustelle** ist ein Baumanagement-Modus mit eigenen Daten, gerechnet nach **DIN 69900 (Netzplantechnik)**:
 
-**Vorlagen:** „Einfamilienhaus – Bauablauf“ (21 Vorgänge mit Gewerken, Aushärte- und Trocknungszeiten) und „Uni-Abgabe (Architektur)“. Jedes Ziel/Projekt lässt sich auch **als eigene Vorlage speichern**.
+- **Projekte** statt Ziele, **Vorgänge** statt Unterziele, jeweils mit **Gewerk** – Vorschlagsliste nach **VOB/C** (z. B. „Estricharbeiten (DIN 18353)“), frei eintippbar.
+- **Anordnungsbeziehungen** NF (Normalfolge), AF (Anfangsfolge), EF (Endfolge), SF (Sprungfolge) mit **Zeitabstand** in Kalendertagen (z. B. Estrich trocknen +28), negativ = Überlappung.
+- **Dauern und Puffer in Arbeitstagen** (Mo–Fr, optional auch Samstag; Feiertage und eine einstellbare **Winterpause** sind frei). Netzplan-Kästchen mit FAZ, FEZ, SAZ, SEZ, Gesamtpuffer (GP), freiem Puffer (FP), freiem Rückwärtspuffer (FRP) und unabhängigem Puffer (UP).
+- **Kritischer Weg** = längster Weg vom Baubeginn bis zum Projektende (kleinste Gesamtpufferzeit). Weil Dauern in Arbeitstagen und Zeitabstände in Kalendertagen laufen, bestimmt die App ihn über die „treibenden“ Abhängigkeiten.
+- **Meilensteine** (Dauer 0, z. B. Richtfest, Rohbau dicht, Übergabe) als ◆.
+- **Warnung, wenn ein Gewerk doppelt eingeplant** ist (gleiches Gewerk, gleiche Zeit).
+- Laufende Vorgänge erscheinen als Zeitblöcke im Tages- und Wochenplan (Arbeitszeit der Gewerke, Standard 7–16 Uhr). Baustellen-Termine erscheinen privat nur mit dem Schalter „Auch im Wochenplan anzeigen“.
+- **Bauzeitenplan drucken / als PDF** (Balkenplan auf A4 quer).
+
+**Vorlagen:** „Einfamilienhaus – Bauablauf“ (26 Vorgänge, 3 Meilensteine, Gewerke nach VOB/C, Aushärte- und Trockenzeiten als Faustwerte) und „Uni-Abgabe (Architektur)“. Jedes Ziel/Projekt lässt sich auch **als eigene Vorlage speichern**.
+
+*Hinweis:* Normen-Nummern und Trockenzeiten sind Orientierungswerte (z. B. Zementestrich ca. 1 Woche je cm Dicke bis 4 cm; Belegreife vor dem Belegen per CM-Messung prüfen) – im echten Projekt gelten die aktuellen Normen und Herstellerangaben.
 
 ### Sonstiges
 
