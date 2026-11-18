@@ -9,6 +9,37 @@ const EinstellungenView = (() => {
   const esc = (s) => Editor.esc(s);
   let busy = false;
 
+  // Abschnitte einklappbar (Aufräumen H): Überschrift + Inhalt bis zur nächsten
+  // Überschrift kommen in ein <details>. Fortgeschrittenes ist anfangs zu;
+  // was offen ist, bleibt beim Neuzeichnen offen.
+  const open = new Set(["Planung"]);
+  const SUB = {
+    Darstellung: "Hell/Dunkel, Größe",
+    Planung: "Arbeitszeit, Stunden pro Tag, Wochenende",
+    Baustelle: "Arbeitszeit der Gewerke, Winterpause",
+    Semester: "Vorlesungszeit für Uni-Termine",
+    Feiertage: "Bundesland, Ausfall fester Termine",
+  };
+  function foldSections(container) {
+    let cur = null;
+    for (const el of [...container.children]) {
+      const isHead = el.matches("h3.list-group");
+      const name = isHead ? el.childNodes[0].textContent.trim() : "";
+      // neue Klapp-Gruppe – "Nächste Feiertage" bleibt im Abschnitt Feiertage
+      if (isHead && !name.startsWith("Nächste")) {
+        const d = document.createElement("details");
+        d.className = "fold";
+        d.open = open.has(name);
+        d.innerHTML = `<summary class="fold__head"><b>${esc(name)}</b>${SUB[name] ? `<small>${esc(SUB[name])}</small>` : ""}</summary>`;
+        d.addEventListener("toggle", () => { if (d.open) open.add(name); else open.delete(name); });
+        el.replaceWith(d);
+        cur = d;
+        continue;
+      }
+      if (cur && !el.matches("p.plan-hint")) cur.appendChild(el);
+    }
+  }
+
   async function render(container) {
     const settings = await Store.getSettings();
     const st = Holidays.state;
@@ -56,7 +87,7 @@ const EinstellungenView = (() => {
         <label class="row"><span>Am Wochenende keine Vorschläge <small class="muted">Sa/So zählen dann auch nicht als freie Zeit</small></span>
           <input type="checkbox" class="switch" name="we" ${settings.wochenendeFrei ? "checked" : ""}>
         </label>
-        <label class="row"><span>Vorschläge automatisch einplanen <small class="muted">Aufgaben und Ziel-Arbeit als gestrichelte Option in freie Lücken</small></span>
+        <label class="row"><span>Vorschläge automatisch einplanen <small class="muted">Aufgaben und Ziel-Arbeit als gestrichelte Vorschläge in freie Lücken</small></span>
           <input type="checkbox" class="switch" name="auto" ${settings.autoPlanen !== false ? "checked" : ""}>
         </label>
         <p class="hint">Die App rechnet mit deiner freien Zeit in diesem Fenster (ohne Termine und Sperrzeiten), höchstens mit dem Maximum pro Tag. Gerade: Ø ${GoalMath.fmtHours(CPM.averageCapacity(await Store.list()))} pro Tag.</p>
@@ -107,6 +138,8 @@ const EinstellungenView = (() => {
             <span class="wl-title">${esc(h.name)}</span></li>`).join("")}
         </ul>` : ""}
       <p class="plan-hint plan-hint--small">Quelle: Nager.Date (date.nager.at), kostenlos und ohne Anmeldung. Abgefragt werden nur Jahr und Land, keine persönlichen Daten.</p>`;
+
+    foldSections(container);
 
     container.querySelector('[name="land"]').addEventListener("change", async (e) => {
       busy = true;

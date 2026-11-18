@@ -67,7 +67,7 @@ const HeuteView = (() => {
     }
 
     const sub = [
-      b.option ? "Option" : "",
+      b.option ? "Vorschlag" : "",
       b.range || `${b.start}–${b.end}`,
       b.sub,
       b.kind === "ziel" && b.progress != null ? `${b.progress} %` : "",
@@ -145,7 +145,7 @@ const HeuteView = (() => {
     const tomorrowOpts = isToday && privat && now.getHours() >= 14 && typeof Planner !== "undefined" ? Planner.optionsOn(entries, tomorrowIso) : [];
     const tomorrowHtml = tomorrowOpts.length ? `
       <div class="tomorrow">
-        <div class="tomorrow__head"><b>Morgen eingeplant – passt das?</b><button class="link-btn" data-confirm-tomorrow>Alle bestätigen</button></div>
+        <div class="tomorrow__head"><b>Morgen eingeplant – passt das?</b><button class="link-btn" data-confirm-tomorrow>Alle übernehmen</button></div>
         ${tomorrowOpts.slice(0, 4).map((b) => `
           <button class="tomorrow__row" data-id="${esc(b.id)}" data-slot="${esc(b.slotId)}" data-sub="${esc(b.subgoalId || "")}" style="--c:${b.color || "var(--accent)"}">
             <span>${b.start}–${b.end}</span><b>${esc(b.title)}</b>
@@ -166,11 +166,29 @@ const HeuteView = (() => {
           </button>`).join("")}
       </div>` : "";
 
-    const emptyHint = entries.length === 0
-      ? `<p class="plan-hint">Noch keine Einträge. Tippe oben auf „+“, um deinen ersten Termin anzulegen.</p>`
+    // Erster Start (Aufräumen A): kurz erklären, was die App macht, + Beispiel zum Ansehen
+    const allEntries = await Store.list(null, { all: true });
+    const emptyHint = allEntries.length === 0 ? `
+      <section class="welcome">
+        <h2>Willkommen bei Workflow</h2>
+        <p>Die App plant deine Aufgaben und Ziele in die Zeit, die du wirklich frei hast.</p>
+        <ol>
+          <li><b>Termine eintragen</b> – Uni, Arbeit, Verabredungen. Diese Zeit ist belegt.</li>
+          <li><b>Aufgaben und Ziele anlegen</b> – mit Deadline und geschätzter Dauer.</li>
+          <li><b>Vorschläge übernehmen</b> – die App legt sie gestrichelt in deine Lücken. Antippen = übernehmen.</li>
+        </ol>
+        <div class="welcome__btns">
+          <button class="pill pill--primary" data-first>+ Ersten Eintrag anlegen</button>
+          <button class="pill" data-demo>Beispiel ansehen</button>
+        </div>
+      </section>`
+      : allEntries.some((e) => e.demo) ? `
+      <div class="demo-bar"><span>Du siehst <b>Beispieldaten</b> (erfunden).</span><button class="link-btn" data-demo-off>Beispiel entfernen</button></div>`
       : "";
 
-    container.innerHTML = `
+    // Allererster Start: nur die Willkommens-Karte (keine Nullen, kein leerer 24-Std.-Plan)
+    const first = allEntries.length === 0;
+    container.innerHTML = first ? emptyHint : `
       <div class="tiles">
         ${tile("heute", name, dayCount, "#378add", "#heute")}
         ${tile("woche", "Fällig (Woche)", c.dueThisWeek, "#ba7517", "#aufgaben")}
@@ -215,6 +233,14 @@ const HeuteView = (() => {
       el.addEventListener("click", () => Editor.edit(el.dataset.id, isoToday));
     });
 
+    // Erster Start / Beispiel
+    const fb = container.querySelector("[data-first]");
+    if (fb) fb.addEventListener("click", () => Editor.chooseNew(day));
+    const db = container.querySelector("[data-demo]");
+    if (db) db.addEventListener("click", async () => { db.disabled = true; db.textContent = "Lädt …"; await Demo.load(); Toast.show("Beispiel geladen – schau dich in Ruhe um"); });
+    const dof = container.querySelector("[data-demo-off]");
+    if (dof) dof.addEventListener("click", async () => { if (!confirm("Alle Beispieldaten entfernen? Deine eigenen Einträge bleiben.")) return; await Demo.remove(); Toast.show("Beispiel entfernt"); });
+
     // Planer-Knöpfe
     const wn = container.querySelector("[data-whatnow]");
     if (wn) wn.addEventListener("click", () => Planner.whatNow());
@@ -233,7 +259,7 @@ const HeuteView = (() => {
     const ct = container.querySelector("[data-confirm-tomorrow]");
     if (ct) ct.addEventListener("click", async () => {
       await Planner.confirmDay(tomorrowIso);
-      Toast.show("Morgen ist bestätigt");
+      Toast.show("Morgen ist fest geplant");
     });
 
     // Rote Linie jede Minute nachrücken
@@ -245,7 +271,7 @@ const HeuteView = (() => {
     }, 60 * 1000);
 
     // Beim Öffnen: heute zur aktuellen Uhrzeit, andere Tage zu 7 Uhr springen
-    if (scrollToNow) {
+    if (scrollToNow && allEntries.length) {
       const grid = container.querySelector(".plan__grid");
       const target = isToday ? nowTop() : 7 * HOUR_PX;
       const y = grid.getBoundingClientRect().top + window.scrollY + target * (window.UIZoom || 1) - window.innerHeight / 3;

@@ -70,23 +70,19 @@ const Editor = (() => {
           <span class="sheet__spacer"></span>
         </div>
         <div class="choice-list">
-          <button class="choice" data-new="${T.FEST}">
-            <span class="choice__dot" style="background:var(--cat-fest)"></span>
-            <span class="choice__text"><b>Fester Termin</b><small>wiederkehrend, z. B. Arbeit, Uni</small></span>
-          </button>
           <button class="choice" data-new="${T.EINMALIG}">
             <span class="choice__dot" style="background:var(--cat-einmalig)"></span>
-            <span class="choice__text"><b>Einmaliger Termin</b><small>z. B. Arzt, Verabredung, Urlaub</small></span>
+            <span class="choice__text"><b>Termin</b><small>feste Uhrzeit – einmalig oder wiederkehrend, z. B. Uni, Arzt, Urlaub</small></span>
           </button>
           <button class="choice" data-new="${T.AUFGABE}">
             <span class="choice__dot" style="background:#ba7517"></span>
-            <span class="choice__text"><b>Aufgabe</b><small>einmal erledigen, z. B. Reisepass beantragen</small></span>
+            <span class="choice__text"><b>Aufgabe</b><small>ohne feste Uhrzeit – die App sucht dir Zeit, z. B. Reisepass beantragen</small></span>
           </button>
           <button class="choice" data-new="${T.ZIEL}">
             <span class="choice__dot" style="background:#7f77dd"></span>
             <span class="choice__text">${Store.getArea() === "bau"
               ? "<b>Projekt</b><small>Baustelle mit Vorgängen und Gewerken</small>"
-              : "<b>Ziel</b><small>mit Deadline und Unterzielen, z. B. Uni-Abgabe</small>"}</span>
+              : "<b>Ziel</b><small>großes Vorhaben mit Deadline und Schritten, z. B. Uni-Abgabe</small>"}</span>
           </button>
           <button class="choice" data-new="${T.TAGESNOTIZ}">
             <span class="choice__dot" style="background:var(--text-3)"></span>
@@ -110,10 +106,9 @@ const Editor = (() => {
           openTaskForm(Model.neueAufgabe(), { isNew: true });
           return;
         }
+        // Ein Formular für alle Termine – "Wiederholen" entscheidet fest/einmalig (Aufräumen B)
         const times = defaultTimes(startMin);
-        const entry = btn.dataset.new === T.FEST
-          ? Model.neuerFesterTermin({ ...times, recurrence: { ...Model.neuerFesterTermin().recurrence, weekdays: [date.getDay()] } })
-          : Model.neuerEinmaligerTermin({ ...times, date: S.isoDate(date) });
+        const entry = Model.neuerEinmaligerTermin({ ...times, date: S.isoDate(date) });
         openForm(entry, { isNew: true, date: S.isoDate(date) });
       };
     });
@@ -139,13 +134,15 @@ const Editor = (() => {
 
   // ---------- Formular ----------
   function openForm(entry, { isNew, date }) {
-    const isFest = entry.type === T.FEST;
-    const rec = entry.recurrence || {};
-    const label = isFest ? "Fester Termin" : "Einmaliger Termin";
-    const color = isFest ? "var(--cat-fest)" : "var(--cat-einmalig)";
-    const cancelled = isFest && date && (entry.exceptions || []).some((x) => x.date === date && x.status === "abgesagt");
+    const storedFest = entry.type === T.FEST; // so ist der Termin gespeichert (für Absagen/Löschen)
+    const baseDate = entry.date || date || S.isoDate(new Date());
+    const rec = entry.recurrence || { freq: "nie", weekdays: [S.parseDate(baseDate).getDay()] };
+    const freqNow = storedFest ? rec.freq : "nie";
+    const cancelled = storedFest && date && (entry.exceptions || []).some((x) => x.date === date && x.status === "abgesagt");
     // Termin der Baustelle? (neu im Bereich Baustelle angelegt oder schon dort gespeichert)
     const isBauEntry = isNew ? Store.getArea() === "bau" : entry.area === "bau";
+    // "Mehr Optionen" offen, wenn dort schon etwas eingestellt ist
+    const moreOpen = !isNew && (entry.bufferMin || entry.priority !== 3 || entry.notes || entry.uni || (rec.from || rec.until) || entry.showInPrivate);
 
     const weekdayChips = WD.map(([short, n]) => `
       <label class="chip"><input type="checkbox" name="wd" value="${n}" ${(rec.weekdays || []).includes(n) ? "checked" : ""}><span>${short}</span></label>`).join("");
@@ -153,97 +150,93 @@ const Editor = (() => {
     const prio = [1, 2, 3, 4, 5].map((p) => `
       <label class="seg"><input type="radio" name="priority" value="${p}" ${entry.priority === p ? "checked" : ""}><span>${p}</span></label>`).join("");
 
-    const repeatPart = isFest ? `
-      <div class="form-group">
-        <label class="row"><span>Wiederholung</span>
-          <select name="freq">
-            <option value="woechentlich" ${rec.freq === "woechentlich" ? "selected" : ""}>jede Woche</option>
-            <option value="zweiwoechentlich" ${rec.freq === "zweiwoechentlich" ? "selected" : ""}>alle 2 Wochen</option>
-            <option value="monatlich" ${rec.freq === "monatlich" ? "selected" : ""}>jeden Monat</option>
-          </select>
-        </label>
-        <div class="row row--stack" data-show="monthly">
-          <span>Monatlich am</span>
-          <div class="segmented">
-            <label class="seg"><input type="radio" name="monthlyMode" value="datum" ${rec.monthlyMode !== "wochentag" ? "checked" : ""}><span>Datum</span></label>
-            <label class="seg"><input type="radio" name="monthlyMode" value="wochentag" ${rec.monthlyMode === "wochentag" ? "checked" : ""}><span>Wochentag</span></label>
-          </div>
-        </div>
-        <label class="row" data-show="monthly-datum"><span>Jeden … des Monats</span>
-          <input type="number" name="dayOfMonth" min="1" max="31" inputmode="numeric" value="${esc(rec.dayOfMonth || S.parseDate(date).getDate())}">
-        </label>
-        <label class="row" data-show="monthly-wochentag"><span>Welche Woche</span>
-          <select name="nthWeek">
-            ${[[1, "1."], [2, "2."], [3, "3."], [4, "4."], [-1, "letzter"]].map(([v, t]) => `<option value="${v}" ${rec.nthWeek === v ? "selected" : ""}>${t}</option>`).join("")}
-          </select>
-        </label>
-        <div class="row row--stack" data-show="weekdays">
-          <span data-wd-label>Wochentage</span>
-          <div class="chips">${weekdayChips}</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="row"><span>Uni-Veranstaltung <small class="muted">findet nur in der Vorlesungszeit statt</small></span>
-          <input type="checkbox" class="switch" name="uni" ${entry.uni ? "checked" : ""}></label>
-        <p class="hint" data-uni-hint></p>
-        <label class="row"><span>Ab</span><input type="date" name="from" value="${esc(rec.from || "")}"></label>
-        <label class="row"><span>Bis</span><input type="date" name="until" value="${esc(rec.until || "")}"></label>
-        <p class="hint">Optional, z. B. bis Semesterende. Leer = unbegrenzt.</p>
-      </div>` : `
-      <div class="form-group">
-        <label class="row"><span>Datum</span><input type="date" name="date" value="${esc(entry.date || date || "")}" required></label>
-        <label class="row"><span>Ganztägig</span><input type="checkbox" name="allDay" class="switch" ${entry.allDay ? "checked" : ""}></label>
-        <label class="row" data-show="allday"><span>Bis</span><input type="date" name="endDate" value="${esc(entry.endDate || "")}"></label>
-        <label class="row" data-show="allday"><span>Feste Termine fallen aus <small class="muted">z. B. Urlaub: Arbeit, Uni</small></span><input type="checkbox" name="cancelFixed" class="switch" ${entry.cancelFixed ? "checked" : ""}></label>
-      </div>`;
-
     const actions = isNew ? "" : `
       <div class="form-group form-actions">
-        ${isFest && date ? `<button type="button" class="action" data-action="toggle-cancel">${cancelled ? `Absage am ${fmtDate(date)} zurücknehmen` : `Nur am ${fmtDate(date)} absagen`}</button>` : ""}
-        <button type="button" class="action action--danger" data-action="delete">${isFest ? "Ganze Serie löschen" : "Termin löschen"}</button>
+        ${storedFest && date ? `<button type="button" class="action" data-action="toggle-cancel">${cancelled ? `Absage am ${fmtDate(date)} zurücknehmen` : `Nur am ${fmtDate(date)} absagen`}</button>` : ""}
+        <button type="button" class="action action--danger" data-action="delete">${storedFest ? "Ganze Serie löschen" : "Termin löschen"}</button>
       </div>`;
 
     show(`
       <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" novalidate>
         <div class="sheet__head">
           <button type="button" class="link-btn" data-close>Abbrechen</button>
-          <h2 id="sheet-title"><span class="choice__dot" style="background:${color}"></span>${isNew ? label : "Bearbeiten"}</h2>
+          <h2 id="sheet-title"><span class="choice__dot" data-dot></span>${isNew ? "Termin" : "Bearbeiten"}</h2>
           <button type="submit" class="link-btn link-btn--strong">Sichern</button>
         </div>
         ${cancelled ? `<p class="notice">Am ${fmtDate(date)} abgesagt – das Zeitfenster ist frei.</p>` : ""}
 
         <div class="form-group">
-          <input class="title-input" name="title" placeholder="Titel, z. B. ${isFest ? "Vorlesung Statik" : "Zahnarzt"}" value="${esc(entry.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
+          <input class="title-input" name="title" placeholder="Titel, z. B. Vorlesung Statik oder Zahnarzt" value="${esc(entry.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
           <input name="location" placeholder="Ort / Raum (optional)" value="${esc(entry.location)}" autocomplete="off">
         </div>
 
-        ${repeatPart}
-
-        <div class="form-group" data-show="times">
-          <label class="row"><span>Beginn</span><input type="time" name="start" value="${esc(entry.start)}"></label>
-          <label class="row"><span>Ende</span><input type="time" name="end" value="${esc(entry.end)}"></label>
-          <p class="hint" data-night-hint hidden>Endet am nächsten Tag (über Mitternacht).</p>
-          <label class="row"><span>Puffer davor/danach</span>
-            <select name="bufferMin">${BUFFERS.map((b) => `<option value="${b}" ${entry.bufferMin === b ? "selected" : ""}>${b ? b + " Min." : "keiner"}</option>`).join("")}</select>
-          </label>
-        </div>
-
+        <!-- Wann? (Aufräumen C: erst die Zeit, dann die Wiederholung) -->
         <div class="form-group">
-          <div class="row row--stack">
-            <span>Priorität <small class="muted">1 = darf am ehesten weichen · 5 = sehr wichtig</small></span>
-            <div class="segmented">${prio}</div>
+          <label class="row" data-show="once"><span>Datum</span><input type="date" name="date" value="${esc(baseDate)}"></label>
+          <label class="row" data-show="once"><span>Ganztägig <small class="muted">z. B. Urlaub</small></span><input type="checkbox" name="allDay" class="switch" ${entry.allDay ? "checked" : ""}></label>
+          <label class="row" data-show="allday"><span>Bis</span><input type="date" name="endDate" value="${esc(entry.endDate || "")}"></label>
+          <label class="row" data-show="allday"><span>Feste Termine fallen aus <small class="muted">z. B. Arbeit, Uni im Urlaub</small></span><input type="checkbox" name="cancelFixed" class="switch" ${entry.cancelFixed ? "checked" : ""}></label>
+          <label class="row" data-show="times"><span>Beginn</span><input type="time" name="start" value="${esc(entry.start)}"></label>
+          <label class="row" data-show="times"><span>Ende</span><input type="time" name="end" value="${esc(entry.end)}"></label>
+          <p class="hint" data-night-hint hidden>Endet am nächsten Tag (über Mitternacht).</p>
+          <label class="row"><span>Wiederholen</span>
+            <select name="freq">
+              <option value="nie" ${freqNow === "nie" ? "selected" : ""}>nie (einmalig)</option>
+              <option value="woechentlich" ${freqNow === "woechentlich" ? "selected" : ""}>jede Woche</option>
+              <option value="zweiwoechentlich" ${freqNow === "zweiwoechentlich" ? "selected" : ""}>alle 2 Wochen</option>
+              <option value="monatlich" ${freqNow === "monatlich" ? "selected" : ""}>jeden Monat</option>
+            </select>
+          </label>
+          <div class="row row--stack" data-show="monthly">
+            <span>Monatlich am</span>
+            <div class="segmented">
+              <label class="seg"><input type="radio" name="monthlyMode" value="datum" ${rec.monthlyMode !== "wochentag" ? "checked" : ""}><span>Datum</span></label>
+              <label class="seg"><input type="radio" name="monthlyMode" value="wochentag" ${rec.monthlyMode === "wochentag" ? "checked" : ""}><span>Wochentag</span></label>
+            </div>
+          </div>
+          <label class="row" data-show="monthly-datum"><span>Jeden … des Monats</span>
+            <input type="number" name="dayOfMonth" min="1" max="31" inputmode="numeric" value="${esc(rec.dayOfMonth || S.parseDate(baseDate).getDate())}">
+          </label>
+          <label class="row" data-show="monthly-wochentag"><span>Welche Woche</span>
+            <select name="nthWeek">
+              ${[[1, "1."], [2, "2."], [3, "3."], [4, "4."], [-1, "letzter"]].map(([v, t]) => `<option value="${v}" ${rec.nthWeek === v ? "selected" : ""}>${t}</option>`).join("")}
+            </select>
+          </label>
+          <div class="row row--stack" data-show="weekdays">
+            <span data-wd-label>Wochentage</span>
+            <div class="chips">${weekdayChips}</div>
           </div>
         </div>
 
-        <div class="form-group">
-          <textarea name="notes" rows="3" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
-        </div>
-
-        ${isBauEntry ? `
-        <div class="form-group">
-          <label class="row"><span>Auch im Wochenplan anzeigen <small class="muted">erscheint dann in deinem privaten Plan und blockiert dort die Zeit</small></span>
-            <input type="checkbox" class="switch" name="showInPrivate" ${entry.showInPrivate ? "checked" : ""}></label>
-        </div>` : ""}
+        <!-- Seltenes eingeklappt (Aufräumen C) -->
+        <details class="more" ${moreOpen ? "open" : ""}>
+          <summary>Mehr Optionen <small>Puffer, Priorität, Notiz${isBauEntry ? ", Wochenplan" : ""}</small></summary>
+          <div class="form-group">
+            <label class="row" data-show="times"><span>Puffer davor/danach <small class="muted">z. B. Weg dorthin</small></span>
+              <select name="bufferMin">${BUFFERS.map((b) => `<option value="${b}" ${entry.bufferMin === b ? "selected" : ""}>${b ? b + " Min." : "keiner"}</option>`).join("")}</select>
+            </label>
+            <div class="row row--stack">
+              <span>Priorität <small class="muted">1 = darf am ehesten weichen · 5 = sehr wichtig</small></span>
+              <div class="segmented">${prio}</div>
+            </div>
+          </div>
+          <div class="form-group" data-show="repeat">
+            <label class="row"><span>Uni-Veranstaltung <small class="muted">findet nur in der Vorlesungszeit statt</small></span>
+              <input type="checkbox" class="switch" name="uni" ${entry.uni ? "checked" : ""}></label>
+            <p class="hint" data-uni-hint></p>
+            <label class="row"><span>Wiederholen ab</span><input type="date" name="from" value="${esc(rec.from || "")}"></label>
+            <label class="row"><span>Wiederholen bis</span><input type="date" name="until" value="${esc(rec.until || "")}"></label>
+            <p class="hint">Optional, z. B. bis Semesterende. Leer = unbegrenzt.</p>
+          </div>
+          <div class="form-group">
+            <textarea name="notes" rows="3" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
+          </div>
+          ${isBauEntry ? `
+          <div class="form-group">
+            <label class="row"><span>Auch im Wochenplan anzeigen <small class="muted">erscheint dann in deinem privaten Plan und blockiert dort die Zeit</small></span>
+              <input type="checkbox" class="switch" name="showInPrivate" ${entry.showInPrivate ? "checked" : ""}></label>
+          </div>` : ""}
+        </details>
 
         <div class="form-warn" role="alert" hidden></div>
         <p class="form-error" role="alert" hidden></p>
@@ -260,20 +253,26 @@ const Editor = (() => {
     function updateVisibility() {
       const v = (sel) => form.querySelector(sel);
       const set = (key, on) => form.querySelectorAll(`[data-show="${key}"]`).forEach((el) => { el.hidden = !on; });
-      if (isFest) {
-        const freq = v('[name="freq"]').value;
-        const mode = v('[name="monthlyMode"]:checked').value;
-        const monthly = freq === "monatlich";
-        set("monthly", monthly);
-        set("monthly-datum", monthly && mode === "datum");
-        set("monthly-wochentag", monthly && mode === "wochentag");
-        set("weekdays", !monthly || mode === "wochentag");
-        form.querySelector("[data-wd-label]").textContent = monthly ? "Wochentag (einer)" : "Wochentage";
-        set("times", true);
-      } else {
-        const allDay = v('[name="allDay"]').checked;
-        set("allday", allDay);
-        set("times", !allDay);
+      const freq = v('[name="freq"]').value;
+      const repeat = freq !== "nie";
+      const mode = v('[name="monthlyMode"]:checked').value;
+      const monthly = repeat && freq === "monatlich";
+      const allDay = !repeat && v('[name="allDay"]').checked;
+      set("once", !repeat);
+      set("repeat", repeat);
+      set("allday", allDay);
+      set("times", !allDay);
+      set("monthly", monthly);
+      set("monthly-datum", monthly && mode === "datum");
+      set("monthly-wochentag", monthly && mode === "wochentag");
+      set("weekdays", repeat && (!monthly || mode === "wochentag"));
+      form.querySelector("[data-wd-label]").textContent = monthly ? "Wochentag (einer)" : "Wochentage";
+      form.querySelector("[data-dot]").style.background = repeat ? "var(--cat-fest)" : "var(--cat-einmalig)";
+      // Wochentag vorbelegen, wenn auf "wiederholen" umgestellt wird
+      if (repeat && !form.querySelector('[name="wd"]:checked')) {
+        const d = form.elements.date.value ? S.parseDate(form.elements.date.value).getDay() : new Date().getDay();
+        const cb = form.querySelector(`[name="wd"][value="${d}"]`);
+        if (cb) cb.checked = true;
       }
       errorEl.hidden = true;
     }
@@ -306,7 +305,7 @@ const Editor = (() => {
 
     // Beim monatlichen Wochentag darf nur EIN Tag gewählt sein
     form.addEventListener("change", (e) => {
-      if (!isFest || e.target.name !== "wd" || !e.target.checked) return;
+      if (e.target.name !== "wd" || !e.target.checked) return;
       const monthly = form.querySelector('[name="freq"]').value === "monatlich";
       if (monthly) form.querySelectorAll('[name="wd"]').forEach((cb) => { if (cb !== e.target) cb.checked = false; });
     });
@@ -315,7 +314,7 @@ const Editor = (() => {
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const result = readForm(form, entry, isFest);
+      const result = readForm(form, entry, form.elements.freq.value !== "nie");
       if (result.error) {
         errorEl.textContent = result.error;
         errorEl.hidden = false;
@@ -340,7 +339,7 @@ const Editor = (() => {
         close();
         // Bestätigte Blöcke (Aufgaben/Ziele) im Weg? Nur nach Rückfrage verschieben
         for (const x of found.overlap.filter((o) => o.slotId)) {
-          if (confirm(`„${x.title}“ ist ein bestätigter Block (${fmtDate(x.date)}, ${x.start}–${x.end}).\n\nNeu einplanen?`)) {
+          if (confirm(`„${x.title}“ ist schon fest geplant (${fmtDate(x.date)}, ${x.start}–${x.end}).\n\nNeu einplanen?`)) {
             await Planner.releaseSlot(x.id, x.slotId, x.subgoalId);
           }
         }
@@ -354,7 +353,7 @@ const Editor = (() => {
     form.querySelectorAll("[data-action]").forEach((btn) => {
       btn.onclick = async () => {
         if (btn.dataset.action === "delete") {
-          const q = isFest ? `„${entry.title}“ an allen Tagen löschen?` : `„${entry.title}“ löschen?`;
+          const q = storedFest ? `„${entry.title}“ an allen Tagen löschen?` : `„${entry.title}“ löschen?`;
           if (!confirm(q)) return;
           const orig = await Store.get(entry.id); // für "Rückgängig"
           await Store.remove(entry.id);
@@ -394,7 +393,10 @@ const Editor = (() => {
   // Formular auslesen und prüfen
   function readForm(form, entry, isFest) {
     const val = (n) => (form.elements[n] ? form.elements[n].value.trim() : "");
-    const out = { ...entry };
+    // Typ ergibt sich aus "Wiederholen" – fest ⇄ einmalig umstellen ist möglich (gleiche ID)
+    const out = { ...(isFest ? Model.neuerFesterTermin() : Model.neuerEinmaligerTermin()), ...entry, type: isFest ? T.FEST : T.EINMALIG };
+    if (isFest) { delete out.date; delete out.allDay; delete out.endDate; delete out.cancelFixed; out.exceptions = entry.exceptions || []; }
+    else { delete out.recurrence; delete out.exceptions; out.uni = false; }
 
     out.title = val("title");
     out.location = val("location");
@@ -403,7 +405,7 @@ const Editor = (() => {
     out.bufferMin = Number(val("bufferMin") || 0);
     out.start = val("start");
     out.end = val("end");
-    if (form.elements.uni) out.uni = form.elements.uni.checked;
+    if (form.elements.uni && isFest) out.uni = form.elements.uni.checked;
     if (form.elements.showInPrivate) out.showInPrivate = form.elements.showInPrivate.checked;
 
     if (!out.title) return { error: "Bitte gib einen Titel ein.", field: "title" };
@@ -413,7 +415,8 @@ const Editor = (() => {
       const monthlyMode = (form.querySelector('[name="monthlyMode"]:checked') || {}).value || "datum";
       const weekdays = [...form.querySelectorAll('[name="wd"]:checked')].map((cb) => Number(cb.value));
       out.recurrence = {
-        ...entry.recurrence,
+        ...Model.neuerFesterTermin().recurrence,
+        ...(entry.recurrence || {}),
         freq,
         weekdays,
         monthlyMode,
@@ -471,14 +474,16 @@ const Editor = (() => {
 
         <div class="form-group">
           <input class="title-input" name="title" placeholder="Titel, z. B. Reisepass beantragen" value="${esc(entry.title)}" autocomplete="off" ${isNew ? "autofocus" : ""}>
-          <textarea name="notes" rows="2" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
         </div>
 
         <div class="form-group">
-          <label class="row"><span>Deadline</span><input type="date" name="deadline" value="${esc(entry.deadline || "")}"></label>
-          <label class="row"><span>Wiederholung</span>
+          <label class="row"><span>Bis wann? <small class="muted">Deadline, optional</small></span><input type="date" name="deadline" value="${esc(entry.deadline || "")}"></label>
+          <label class="row"><span>Wie lange dauert es?</span>
+            <select name="durationMin">${durations.map((d) => `<option value="${d}" ${entry.durationMin === d ? "selected" : ""}>${fmtDuration(d)}</option>`).join("")}</select>
+          </label>
+          <label class="row"><span>Wiederholen</span>
             <select name="freq">
-              <option value="einmalig" ${rec.freq === "einmalig" ? "selected" : ""}>einmalig</option>
+              <option value="einmalig" ${rec.freq === "einmalig" ? "selected" : ""}>nie (einmalig)</option>
               <option value="woechentlich" ${rec.freq === "woechentlich" ? "selected" : ""}>jede Woche</option>
               <option value="zweiwoechentlich" ${rec.freq === "zweiwoechentlich" ? "selected" : ""}>alle 2 Wochen</option>
               <option value="monatlich" ${rec.freq === "monatlich" ? "selected" : ""}>jeden Monat</option>
@@ -487,19 +492,23 @@ const Editor = (() => {
           <p class="hint" data-repeat-hint></p>
         </div>
 
-        <div class="form-group">
-          <label class="row"><span>Dauer (geschätzt)</span>
-            <select name="durationMin">${durations.map((d) => `<option value="${d}" ${entry.durationMin === d ? "selected" : ""}>${fmtDuration(d)}</option>`).join("")}</select>
-          </label>
-          <div class="row row--stack">
-            <span>Priorität <small class="muted">1 = kann warten · 5 = sehr wichtig</small></span>
-            <div class="segmented">${prio}</div>
+        <!-- Seltenes eingeklappt (Aufräumen C) -->
+        <details class="more" ${!isNew && (entry.priority !== 3 || entry.notes) ? "open" : ""}>
+          <summary>Mehr Optionen <small>Priorität, Farbe, Notiz</small></summary>
+          <div class="form-group">
+            <div class="row row--stack">
+              <span>Priorität <small class="muted">1 = kann warten · 5 = sehr wichtig</small></span>
+              <div class="segmented">${prio}</div>
+            </div>
+            <div class="row row--stack">
+              <span>Farbe</span>
+              <div class="swatches">${colors}</div>
+            </div>
           </div>
-          <div class="row row--stack">
-            <span>Farbe</span>
-            <div class="swatches">${colors}</div>
+          <div class="form-group">
+            <textarea name="notes" rows="2" placeholder="Notiz (optional)">${esc(entry.notes)}</textarea>
           </div>
-        </div>
+        </details>
 
         <p class="form-error" role="alert" hidden></p>
         ${isNew ? "" : `

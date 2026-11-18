@@ -6,7 +6,7 @@
 // WICHTIG: Bei jeder Änderung an den App-Dateien die Versionsnummer
 // erhöhen, sonst sehen Handys weiter die alte Version.
 // ============================================================
-const CACHE = "workflow-v39";
+const CACHE = "workflow-v40";
 
 const FILES = [
   "./",
@@ -31,6 +31,8 @@ const FILES = [
   "./netzplan.js",
   "./balkenplan.js",
   "./vorlagen.js",
+  "./demo.js",
+  "./hilfe.js",
   "./app.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",

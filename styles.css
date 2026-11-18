@@ -200,6 +200,8 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .menu__list a:active { background: var(--surface-2); }
 /* "Erledigt" wird ganz nach unten geschoben */
 .menu__list--bottom { margin-top: auto; }
+.menu__hint { margin: 6px 12px 14px; font-size: 0.8rem; color: var(--text-2); }
+.menu__list a small { display: block; font-size: 0.78rem; font-weight: 400; color: var(--text-2); }
 .menu__list + .menu__list--bottom { margin-top: auto; padding-top: 0; }
 .menu > .menu__list:not(.menu__list--bottom):last-of-type { margin-bottom: 24px; }
 
@@ -1272,3 +1274,58 @@ body.no-scroll { overflow: hidden; }
 .menu > * { flex-shrink: 0; }
 
 .wl-time small { margin-left: 2px; color: var(--text-3); font-size: 0.7rem; vertical-align: super; }
+
+/* ---------- Einklappbare Abschnitte (Aufräumen H) ---------- */
+.fold { margin: 0 0 10px; border-radius: var(--radius); background: var(--surface); }
+.fold > .form-group, .fold > .wl, .fold > h3 { margin-left: 0; margin-right: 0; }
+.fold__head {
+  display: flex; flex-direction: column; gap: 2px; padding: 12px 40px 12px 14px;
+  list-style: none; cursor: pointer; position: relative;
+}
+.fold__head::-webkit-details-marker { display: none; }
+.fold__head::after {
+  content: "›"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%) rotate(90deg);
+  color: var(--text-3); font-size: 1.3rem; transition: transform 0.15s;
+}
+.fold:not([open]) > .fold__head::after { transform: translateY(-50%); }
+.fold__head small { color: var(--text-2); font-size: 0.8rem; }
+.fold[open] { padding-bottom: 4px; }
+.fold .form-group { background: var(--surface-2); }
+
+/* ---------- Erster Start + Beispiel (Aufräumen A) ---------- */
+.welcome { margin: 0 0 14px; padding: 16px; border-radius: var(--radius); background: var(--surface); }
+.welcome h2 { margin: 0 0 6px; font-size: 1.15rem; }
+.welcome p { margin: 0 0 10px; color: var(--text-2); font-size: 0.92rem; }
+.welcome ol { margin: 0 0 14px; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
+.welcome__btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.demo-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 0 0 12px; padding: 8px 12px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface)); font-size: 0.88rem;
+}
+
+/* ---------- "Mehr Optionen" in Formularen (Aufräumen C) ---------- */
+.more { margin: 0 0 14px; }
+.more > summary {
+  display: flex; align-items: baseline; gap: 8px; padding: 10px 4px; cursor: pointer;
+  list-style: none; color: var(--accent); font-weight: 600;
+}
+.more > summary::-webkit-details-marker { display: none; }
+.more > summary::before { content: "›"; display: inline-block; transition: transform 0.15s; }
+.more[open] > summary::before { transform: rotate(90deg); }
+.more > summary small { color: var(--text-2); font-weight: 400; font-size: 0.8rem; }
+
+/* ---------- "?"-Hilfe (Aufräumen I) ---------- */
+.help-btn { font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+.help-body { padding: 4px 4px 16px; font-size: 0.95rem; line-height: 1.5; }
+.help-body .help-legend { margin-top: 14px; }
+.help-body .hint { margin-top: 12px; }
+.help-legend { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem; }
+.help-legend li { display: flex; align-items: center; gap: 10px; }
+.help-key { flex: none; width: 28px; height: 16px; border-radius: 4px; border: 2px solid var(--c, var(--text-3)); background: color-mix(in srgb, var(--c, var(--text-3)) 25%, transparent); }
+.help-key--dashed { border-style: dashed; background: transparent; }
+.help-key--hatch { border-color: var(--text-3); background: repeating-linear-gradient(45deg, var(--text-3) 0 2px, transparent 2px 6px); }
+.help-key--now { height: 0; border: 0; border-top: 2px solid #ff3b30; border-radius: 0; background: none; }
+.help-key--crit { border-color: #ff3b30; background: transparent; }
+.help-key--warn { border-color: #ef9f27; background: transparent; }
+.help-key--main { border-color: var(--text-2); border-width: 3px; background: transparent; }

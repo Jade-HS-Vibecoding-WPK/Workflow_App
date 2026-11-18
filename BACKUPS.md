@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-18-1043
+- **Zeit:** Mi 18.11.2026, 10:43 Uhr
+- **Zustand der App:** aufgeräumt (A–I): Willkommen + Beispiel, ein „Termin“-Formular, Mehr Optionen, ruhigere Ziel-Seite, Hilfe „?“, Menü/Einstellungen geordnet. Im Browser getestet, lauffähig.
+- **Zuletzt gemacht:** Aufräumen A–I.
+- **Als Nächstes:** Azure Stufe 1 (Login + Abgleich).
+
 ## backup-2026-11-18-1036
 - **Zeit:** Mi 18.11.2026, 10:36 Uhr
 - **Zustand der App:** alles bis Testrunde 3 (alle 11 Ideen), lauffähig. Bestandsaufnahme „Aufräumen“ in PLAN.md.

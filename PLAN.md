@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026. Neue Etappe: App aufräumen/intuitiver (läuft: Bestandsaufnahme), danach Azure (Login + Abgleich). Siehe Entscheidung in CLAUDE.md.*
+*Stand: Mi 18.11.2026, 10:43 Uhr. Aufräumen A–I fertig, Sicherungspunkt `backup-2026-11-18-1043`. Als Nächstes: Azure Stufe 1.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -15,7 +15,7 @@
   - **Regel A** (`Planner.notBefore`): Vorschlag erst in der zweiten Hälfte des Abstands (jede Woche → ab 4 Tage vor der Deadline, alle 2 Wochen → 7, monatlich → 15). Passt es dort nicht (z. B. Urlaub), plant die App früher.
   - **Erinnerung** (`Tasks.reminders`, Box „Zur Erinnerung“ oben auf Heute): offene Aufgaben mit Deadline (ab übermorgen), die nicht heute/morgen eingeplant sind – mit „fällig in X Tagen · geplant …“. Erscheint **alle 2 Tage**: „Okay“ blendet sie 2 Tage aus (Einstellung `erinnerungOk`), nach dem Abhaken ebenfalls 2 Tage Ruhe. Antippen öffnet die Aufgabe. Höchstens 3 Zeilen.
 
-### ➜ Aufräumen / intuitiver (Bestandsaufnahme Claude, Mi 18.11.) – Niklas entscheidet
+### ✅ Aufräumen / intuitiver (Mi 18.11.) – alle Punkte A–I umgesetzt (Entscheidung Niklas: alle)
 Rückmeldung Testpersonen: „schwer zu durchschauen, nicht intuitiv“. Ziel: einfacher, ohne Funktionen zu verlieren.
 
 | # | Bereich | Was stört | Vorschlag |
@@ -29,6 +29,8 @@ Rückmeldung Testpersonen: „schwer zu durchschauen, nicht intuitiv“. Ziel: e
 | G | Menü | Wiederholt die 5 Ansichten der Leiste unten; Privat/Baustelle versteckt; „Erledigt“ einsam unten | Menü nur: Bereich, Erledigt, Sperrzeiten, Tagesnotizen, Daten sichern, Einstellungen |
 | H | Einstellungen | Sehr lang (6 Abschnitte), Baustelle/Semester auch wenn ungenutzt | Abschnitte einklappbar, Fortgeschrittenes zu |
 | I | Hilfe | Keine Erklärung, was gestrichelt/rot/orange bedeutet | Kleine „?“-Hilfe pro Ansicht (Legende in 2–3 Sätzen) |
+
+Umsetzung: A `demo.js` (Beispieldaten mit `demo: true`, „Beispiel entfernen“), beim allerersten Start nur die Willkommens-Karte · B Auswahl „Termin“, Typ fest/einmalig ergibt sich aus „Wiederholen“ (Umstellen in beide Richtungen, gleiche ID) · C Termin: Titel → Datum/Zeit → Wiederholen, „Mehr Optionen“ (Puffer, Priorität, Uni, Ab/Bis, Notiz); Aufgabe: Bis wann → Dauer → Wiederholen, „Mehr Optionen“ (Priorität, Farbe, Notiz) · D „Zeitplan-Details“ eingeklappt · E Unterziel-Zeile: Fortschritt + eine Statuszeile (zu spät / überfällig / wartet auf / spätestens fertig), „Hauptpfad“ nur noch in Netz-/Balkenplan · F „Vorschlag“ ↔ „geplant“, „Übernehmen“ statt „Bestätigen“ · G Menü ohne die 5 Ansichten, mit Kurzerklärungen · H Einstellungen als Klapp-Abschnitte (nur „Planung“ offen) · I „?“ oben: Hilfe + Legende je Ansicht (`hilfe.js`).
 
 ### Testrunde 3 (Mi 18.11.) – alle 11 Ideen umgesetzt (Entscheidung Niklas: alle)
 1. **Pause** nach 3 Std. Arbeit am Stück, auch über verschiedene Posten hinweg (`chainBefore/After` in `planer.js`).
@@ -134,7 +136,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ README neu geschrieben (Mi 18.11.): Ansichten, Einträge, Planer, CPM inkl. Auslastung, Netz-/Balkenplan, Baustelle + Vorlagen, Sonstiges, Dateiliste vollständig, Ausblick aktualisiert (erledigte Punkte raus).
 - ✅ Testrunde 3 (Claude, Mi 18.11.): Alltag Student + Baustelle im Handy-Format, alle Ansichten und Abläufe. 1 Fehler behoben (Tippfehler-Warnung über Mitternacht), 11 Ideen – inzwischen alle umgesetzt (siehe oben).
 - ✅ Alle 11 Ideen aus Testrunde 3 umgesetzt (Mi 18.11.), im Browser getestet (Handy-Format; Planer stabil, Urlaub hin und zurück → Plan wie vorher).
-- ⏳ Als Nächstes (Entscheidung 18.11.): 1) App aufräumen und intuitiver machen – Bestandsaufnahme als neuer Nutzer, dann Vorschlagsliste für Niklas. 2) Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ✅ Aufräumen A–I umgesetzt und im Browser getestet (Mi 18.11.).
+- ⏳ Als Nächstes: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 

@@ -126,6 +126,7 @@ function closeMenu() {
 
 menuBtn.addEventListener("click", openMenu);
 // "+"-Knopf: neuen Eintrag für heute anlegen
+document.getElementById("help-btn").addEventListener("click", () => Help.open(currentRoute().name));
 document.getElementById("add-btn").addEventListener("click", () => {
   // In der Aufgaben-Ansicht direkt eine Aufgabe anlegen, sonst Auswahl zeigen
   const { name, param } = currentRoute();

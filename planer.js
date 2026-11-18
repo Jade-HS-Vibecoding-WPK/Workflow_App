@@ -566,7 +566,7 @@ const Planner = (() => {
       <div class="sheet sheet--small" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
         <div class="sheet__head">
           <button class="link-btn" data-close>Schließen</button>
-          <h2 id="sheet-title">${slot.confirmed ? "Fester Block" : "Vorschlag"}</h2>
+          <h2 id="sheet-title">${slot.confirmed ? "Geplant" : "Vorschlag"}</h2>
           <span class="sheet__spacer"></span>
         </div>
         <div class="slot-card ${slot.confirmed ? "" : "slot-card--option"}" style="--c:${entry.color || "var(--accent)"}">
@@ -578,9 +578,9 @@ const Planner = (() => {
         <div class="form-group form-actions">
           ${slot.confirmed ? `
             ${isTask ? `<button class="action" data-a="done">Erledigt abhaken</button>` : `<button class="action" data-a="progress">Fortschritt eintragen</button>`}
-            <button class="action" data-a="option">Wieder zum Vorschlag machen</button>
-            <button class="action action--danger" data-a="release">Block entfernen und neu einplanen</button>` : `
-            <button class="action" data-a="confirm"><b>Bestätigen</b></button>
+            <button class="action" data-a="option">Wieder zum Vorschlag machen (darf verschoben werden)</button>
+            <button class="action action--danger" data-a="release">Hier nicht – neu einplanen</button>` : `
+            <button class="action" data-a="confirm"><b>Übernehmen</b></button>
             <button class="action" data-a="decline">Anderer Zeitpunkt</button>`}
           <button class="action" data-a="open">${isTask ? "Aufgabe öffnen" : "Ziel öffnen"}</button>
         </div>
@@ -591,7 +591,7 @@ const Planner = (() => {
       btn.onclick = async () => {
         const a = btn.dataset.a;
         Editor.close();
-        if (a === "confirm") { await confirmSlot(entryId, slotId, subId); Toast.show("Bestätigt – fester Block"); }
+        if (a === "confirm") { await confirmSlot(entryId, slotId, subId); Toast.show("Übernommen – jetzt fest geplant"); }
         if (a === "decline") { await decline(entryId, slotId, subId); Toast.show("Die App sucht einen anderen Zeitpunkt"); }
         if (a === "option") await makeOption(entryId, slotId, subId);
         if (a === "release") await releaseSlot(entryId, slotId, subId);

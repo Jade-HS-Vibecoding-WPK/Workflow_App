@@ -217,7 +217,11 @@ const Goals = (() => {
     if (!res || res.cycle || !res.nodes[sg.id] || sg.done) return "";
     const n = res.nodes[sg.id];
     const d = (iso) => esc(S.parseDate(iso).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" }));
+    // Aufräumen D: Fachwerte eingeklappt, oben nur die Kurzfassung
+    const short = res.bau ? `${d(n.startDate)} – ${d(n.endDate)}` : `frühestens fertig ${d(n.endDate)}, spätestens ${d(n.latestEnd)}`;
     return `
+      <details class="more">
+        <summary>Zeitplan-Details <small>${short}</small></summary>
       <div class="form-group">
         <div class="row row--stack">
           <span>Zeitplan ${GoalMath.levelBadges(n)}</span>
@@ -233,7 +237,8 @@ const Goals = (() => {
           </dl>
         </div>
         <p class="hint">${res.bau ? "Baustelle: Arbeitstage Mo–Fr, Feiertage frei. Kein Puffer = kritisch, bis 3 Tage Puffer = eng." : `Auslastung = nötige Stunden (dieses Unterziel und alles davor) ÷ freie Zeit bis zum spätesten Ende. Ab 50 % „eng“, ab 80 % „kritisch“. Gerechnet mit Ø ${GoalMath.fmtHours(res.cap)} freier Zeit pro Tag.`}</p>
-      </div>`;
+      </div>
+      </details>`;
   }
 
   // Häufige Gewerke als Vorschlagsliste (frei eintippbar)
@@ -543,22 +548,23 @@ const ZielDetailView = (() => {
     const rest = sg.mode !== "dauer" ? Model.restzeitStunden(sg) : null;
     const overdue = !sg.done && sg.deadline && sg.deadline < S.isoDate(new Date());
     const waits = (sg.dependencies || []).map((d) => byId[d.fromId]).filter(Boolean).map((x) => x.title);
+    // Aufräumen E: pro Zeile nur Fortschritt + EINE Statuszeile; Details beim Antippen
+    const openPreds = (sg.dependencies || []).map((d) => byId[d.fromId]).filter((x) => x && !x.done).map((x) => x.title);
+    const dShort = (iso) => esc(inline(S.deadlineLabel(iso)));
+    let status = "";
+    if (sg.done) status = "erledigt";
+    else if (n && n.behind) status = `<span class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</span>`;
+    else if (overdue) status = `<span class="meta--warn">überfällig (${esc(S.deadlineLabel(sg.deadline))})</span>`;
+    else if (openPreds.length) status = `wartet auf ${esc(openPreds.length === 1 ? openPreds[0] : openPreds.length + " Schritte")}`;
+    else if (bau && n) status = `${esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(n.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}`;
+    else if (n) status = `spätestens fertig ${dShort(n.latestEnd)}`;
     const meta = [
-      sg.done ? `<span>erledigt</span>` : `<span>${sg.progressPercent} %</span>`,
-      !sg.done && rest != null ? `<span>noch ca. ${GoalMath.fmtHours(rest)}</span>` : "",
+      sg.done ? "" : `<span>${sg.progressPercent} %${rest != null ? ` · noch ca. ${GoalMath.fmtHours(rest)}` : sg.mode === "dauer" ? ` · ${String(sg.durationDays).replace(".", ",")} ${bau ? "Arbeitstage" : "Tage"}` : ""}</span>`,
       gewerk ? `<span><b>${esc(gewerk)}</b></span>` : "",
-      sg.mode === "dauer" ? `<span>${String(sg.durationDays).replace(".", ",")} ${bau ? "Arbeitstage" : "Tage Dauer"}</span>` : "",
-      bau && n && !sg.done ? `<span>${esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(n.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}</span>` : "",
-      GoalMath.workedHours(sg) ? `<span>${GoalMath.fmtHours(GoalMath.workedHours(sg))} gearbeitet</span>` : "",
-      sg.deadline ? `<span class="${overdue ? "meta--warn" : ""}">${overdue ? "" : "bis "}${esc(S.deadlineLabel(sg.deadline))}</span>` : "",
-      waits.length ? `<span>wartet auf: ${esc(waits.join(", "))}</span>` : "",
-      n && !sg.done && !bau ? `<span>fertig frühestens ${esc(inline(S.deadlineLabel(n.endDate)))}</span>` : "",
-      n && !sg.done ? (n.behind
-        ? `<span class="meta--warn">${GoalMath.fmtDays(-n.TF)} zu spät</span>`
-        : `<span>Puffer ${GoalMath.fmtDays(GoalMath.shownTF(n, res))}</span>`) : "",
-      n && !sg.done && n.neededHours > 0 && n.level ? `<span class="${n.level === "kritisch" ? "meta--warn" : ""}">${pct(n.utilization)} der freien Zeit</span>` : "",
+      status ? `<span>${status}</span>` : "",
     ].filter(Boolean).join("");
-    const badge = levelBadges(n);
+    // In der Liste nur eng/kritisch – "Hauptpfad" steht im Netzplan/Balkenplan
+    const badge = levelBadges(n).replace(/<span class="badge badge--main"[^>]*>Hauptpfad<\/span>/, "");
     return `
       <li class="task ${sg.done ? "task--done" : ""}" style="--c:${goal.color}">
         <button class="task__check" data-progress="${esc(sg.id)}" aria-label="${esc(sg.title)}: Fortschritt eintragen"></button>
@@ -609,7 +615,7 @@ const ZielDetailView = (() => {
       const which = tight("eng");
       return `<div class="advice advice--warn"><b>Es wird eng.</b>
         ${res.utilization >= 0.5
-          ? "Mehr als die Hälfte deiner freien Zeit bis zur Deadline geht dafür drauf – bleib am Hauptpfad dran."
+          ? "Mehr als die Hälfte deiner freien Zeit bis zur Deadline geht dafür drauf – bleib dran und nimm die Vorschläge an."
           : `Eng wird es bei ${which.join(", ")} – dafür brauchst du einen großen Teil deiner freien Zeit.`}
         Voraussichtlich fertig ${end}${end.endsWith(".") ? "" : "."}
         ${calc}</div>`;

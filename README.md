@@ -24,8 +24,8 @@ Projekt der Vibecoding KI-Werkstatt (WPK) an der Jade Hochschule, November 2026.
 
 | Art | Was die App kann |
 |---|---|
-| **Feste Termine** | jede Woche, alle 2 Wochen oder monatlich (Datum oder z. B. „1. Montag“), Zeitraum ab/bis, einzelne Tage absagen („fällt heute aus“), auch **über Mitternacht**, optional „Uni-Veranstaltung“ (nur in der Vorlesungszeit) |
-| **Einmalige Termine** | mit Uhrzeit oder ganztägig/mehrtägig (z. B. Urlaub = keine freie Zeit, optional fallen feste Termine wie Arbeit aus), Puffer vor/nach dem Termin |
+| **Termine** | ein Formular für alle: „Wiederholen: nie“ = einmalig, sonst fester Termin – jede Woche, alle 2 Wochen oder monatlich (Datum oder z. B. „1. Montag“), Zeitraum ab/bis, einzelne Tage absagen („fällt heute aus“), auch **über Mitternacht**, optional „Uni-Veranstaltung“ (nur in der Vorlesungszeit) |
+| **Einmalig** | mit Uhrzeit oder ganztägig/mehrtägig (z. B. Urlaub = keine freie Zeit, optional fallen feste Termine wie Arbeit aus), Puffer vor/nach dem Termin |
 | **Aufgaben** | optionale Deadline, geschätzte Dauer, eigene Farbe, wiederkehrend (z. B. „jede Woche Wäsche“) – abhaken mit „Rückgängig“ |
 | **Ziele** | Deadline + Unterziele mit Aufwand (Std.) oder Dauer (Tage), Zwischen-Deadlines, Abhängigkeiten, Fortschritt eintragen („heute 2 Std., 20 % geschafft“) → **Restzeit-Schätzung** |
 | **Sperrzeiten** | eigene Zeit blockieren (z. B. Schlafen 23–7 Uhr, Training), pausierbar; die App warnt, wenn ein Termin hineinfällt |
@@ -65,6 +65,8 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 
 ### Sonstiges
 
+- **Leicht zu starten:** Willkommens-Karte beim ersten Start, Knopf **„Beispiel ansehen“** (erfundene Beispieldaten, mit einem Tipp wieder weg), **„?“** oben erklärt jede Ansicht samt Legende, Seltenes in Formularen unter „Mehr Optionen“.
+
 - **Feiertage** werden automatisch geladen (Bundesland wählbar, Standard Niedersachsen); feste Termine können an Feiertagen ausfallen.
 - **Semesterzeiten:** Uni-Veranstaltungen finden nur in der Vorlesungszeit statt.
 - **Erledigt-Ordner:** abgehakte Aufgaben und Ziele bleiben 6 Monate, mit Wochenrückblick und „Wie gut passen meine Schätzungen?“.
@@ -80,7 +82,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 2. **Installieren:**
    - **iPhone (Safari):** Teilen-Symbol → „Zum Home-Bildschirm“
    - **Android (Chrome):** Menü ⋮ → „App installieren“
-3. Die App startet **leer**. Über **„+“** oben legst du Termine, Aufgaben, Ziele und Tagesnotizen an; Sperrzeiten, Einstellungen und Datensicherung findest du im **Menü ☰**.
+3. Die App startet **leer** mit einer kurzen Erklärung – oder tippe auf **„Beispiel ansehen“**. Über **„+“** oben legst du Termine, Aufgaben, Ziele und Tagesnotizen an; Sperrzeiten, Einstellungen und Datensicherung findest du im **Menü ☰**.
 4. Einträge antippen = bearbeiten, Kreise antippen = abhaken bzw. Fortschritt eintragen, gestrichelte Vorschläge antippen = bestätigen oder verschieben.
 
 ---
@@ -112,6 +114,7 @@ Beim Speichern warnt die App bei **Überschneidungen**, **Sperrzeiten** und wahr
 | `editor.js` | Formulare für Termine und Aufgaben |
 | `verwalten.js` | Sperrzeiten, Tagesnotizen, Daten sichern |
 | `vorlagen.js` | Vorlagen (Einfamilienhaus, Uni-Abgabe, eigene) |
+| `demo.js`, `hilfe.js` | Beispiel ansehen, „?“-Hilfe |
 | `netzplan.js`, `balkenplan.js` | Netzplan (DIN 69900) und Balkenplan im Ziel |
 | `statistik.js` | Wochenrückblick und Schätzgenauigkeit |
 | `heute.js`, `woche.js`, `kalender.js`, `aufgaben.js`, `ziele.js`, `erledigt.js`, `einstellungen.js` | die einzelnen Ansichten |
