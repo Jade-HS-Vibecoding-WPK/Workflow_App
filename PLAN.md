@@ -15,6 +15,21 @@
   - **Regel A** (`Planner.notBefore`): Vorschlag erst in der zweiten Hälfte des Abstands (jede Woche → ab 4 Tage vor der Deadline, alle 2 Wochen → 7, monatlich → 15). Passt es dort nicht (z. B. Urlaub), plant die App früher.
   - **Erinnerung** (`Tasks.reminders`, Box „Zur Erinnerung“ oben auf Heute): offene Aufgaben mit Deadline (ab übermorgen), die nicht heute/morgen eingeplant sind – mit „fällig in X Tagen · geplant …“. Erscheint **alle 2 Tage**: „Okay“ blendet sie 2 Tage aus (Einstellung `erinnerungOk`), nach dem Abhaken ebenfalls 2 Tage Ruhe. Antippen öffnet die Aufgabe. Höchstens 3 Zeilen.
 
+### ➜ Aufräumen / intuitiver (Bestandsaufnahme Claude, Mi 18.11.) – Niklas entscheidet
+Rückmeldung Testpersonen: „schwer zu durchschauen, nicht intuitiv“. Ziel: einfacher, ohne Funktionen zu verlieren.
+
+| # | Bereich | Was stört | Vorschlag |
+|---|---|---|---|
+| A | Erster Start | Leere App, vier Nullen, Tagesplan beginnt um 0 Uhr – man weiß nicht, was die App kann | Willkommens-Karte mit 3 Schritten + Knopf „Beispiel ansehen“ (erfundene Daten, mit einem Tipp wieder weg); Plan springt auf 8 Uhr |
+| B | Neuer Eintrag | Man muss vorher wissen, ob „fester“ oder „einmaliger Termin“ | Nur noch „Termin“ mit Feld „Wiederholen: nie / jede Woche / …“ (wie im Kalender) |
+| C | Formulare | Fester Termin ist sehr lang: Wiederholung vor der Uhrzeit, Puffer, Priorität, Uni, Ab/Bis immer sichtbar | Reihenfolge Titel → Wann → Wiederholen; Seltenes unter „Mehr Optionen“ |
+| D | Unterziel-Formular | Komplette Netzplan-Tabelle (FAZ, SAZ, GP …) im Formular | Einklappen: „Zeitplan-Details“ |
+| E | Ziel-Seite | Jedes Unterziel hat 5–6 Zusatzangaben (Hauptpfad, Puffer, wartet auf, fertig frühestens, %) | Pro Zeile nur Fortschritt + eine Statuszeile; Rest beim Antippen |
+| F | Begriffe | „Option/Vorschlag/Block“, „Hauptpfad“, „Puffer“ gemischt | Einheitlich: „Vorschlag“ (gestrichelt) und „geplant“ (fest); Fachbegriffe nur in Netzplan/Balken + kurze Erklärung (ⓘ) |
+| G | Menü | Wiederholt die 5 Ansichten der Leiste unten; Privat/Baustelle versteckt; „Erledigt“ einsam unten | Menü nur: Bereich, Erledigt, Sperrzeiten, Tagesnotizen, Daten sichern, Einstellungen |
+| H | Einstellungen | Sehr lang (6 Abschnitte), Baustelle/Semester auch wenn ungenutzt | Abschnitte einklappbar, Fortgeschrittenes zu |
+| I | Hilfe | Keine Erklärung, was gestrichelt/rot/orange bedeutet | Kleine „?“-Hilfe pro Ansicht (Legende in 2–3 Sätzen) |
+
 ### Testrunde 3 (Mi 18.11.) – alle 11 Ideen umgesetzt (Entscheidung Niklas: alle)
 1. **Pause** nach 3 Std. Arbeit am Stück, auch über verschiedene Posten hinweg (`chainBefore/After` in `planer.js`).
 2. **Gleichmäßig verteilen:** Ziele mit Spielraum (alle Unterziele „im Plan“, Puffer ≥ 7 Tage) bekommen ein Tagespensum = Reststunden ÷ (Werktage bis Deadline × 0,6), mind. 1,5 Std. (`PACE`, `goalCap`). Reihenfolge der Durchgänge: Werktage mit Pensum → auch Wochenende → ohne Pensum. Aufgaben mit ≥ 3 Tagen Spielraum: Werktage zuerst.
