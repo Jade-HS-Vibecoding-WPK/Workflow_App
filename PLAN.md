@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, 11:40 Uhr. Baustellen-Verbesserungen B1–B8 fertig (Sicherungspunkt `backup-2026-11-18-1140`). Freeze Do 19.11. 12–16 Uhr.*
+*Stand: Mi 18.11.2026, 11:40 Uhr. Baustellen-Verbesserungen B1–B8 fertig (Sicherungspunkt `backup-2026-11-18-1140b`). Freeze Do 19.11. 12–16 Uhr.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 

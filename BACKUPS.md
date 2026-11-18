@@ -12,7 +12,7 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
-## backup-2026-11-18-1140
+## backup-2026-11-18-1140b
 - **Zeit:** Mi 18.11.2026, 11:40 Uhr
 - **Zustand der App:** Baustellen-Modus nach DIN 69900 erweitert (B1–B8), aufgeräumt (A–I), Azure-Code vorbereitet (aus). Im Browser getestet, lauffähig.
 - **Zuletzt gemacht:** Baustelle B1–B8.
