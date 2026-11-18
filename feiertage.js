@@ -116,7 +116,7 @@ const Holidays = (() => {
 
   // Nach Import oder Zurücksetzen der Daten neu aufbauen
   Store.subscribe(async (change) => {
-    if (change.action === "importiert" || change.action === "geleert") {
+    if (change.action === "importiert" || change.action === "geleert" || change.action === "abgleich") {
       rebuild(await Store.getSettings());
       refresh(); // fehlende Jahre gleich nachladen (z. B. nach "Alle Daten löschen")
     }

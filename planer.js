@@ -506,7 +506,7 @@ const Planner = (() => {
   Store.subscribe((change) => {
     if (change.source === "planer") return;
     if (change.settings) autoPlan = change.settings.autoPlanen !== false;
-    if (change.action === "importiert" || change.action === "geleert") Store.getSettings().then((st) => { autoPlan = st.autoPlanen !== false; });
+    if (change.action === "importiert" || change.action === "geleert" || change.action === "abgleich") Store.getSettings().then((st) => { autoPlan = st.autoPlanen !== false; });
     schedule();
   });
   Store.getSettings().then((st) => { autoPlan = st.autoPlanen !== false; schedule(); });

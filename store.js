@@ -21,7 +21,9 @@ const Store = (() => {
 
   // ---------- intern: laden und schreiben ----------
   function emptyData() {
-    return { schemaVersion: SCHEMA_VERSION, entries: {}, settings: {} };
+    // deleted: gelöschte IDs mit Zeitpunkt – damit der Abgleich mit anderen
+    // Geräten weiß, dass etwas gelöscht (und nicht nur noch nicht da) ist
+    return { schemaVersion: SCHEMA_VERSION, entries: {}, settings: {}, deleted: {}, settingsUpdatedAt: null };
   }
 
   function load() {
@@ -39,6 +41,8 @@ const Store = (() => {
   function migrate(d) {
     if (!d || typeof d !== "object" || !d.entries) return emptyData();
     d.settings = d.settings || {};
+    d.deleted = d.deleted || {};
+    d.settingsUpdatedAt = d.settingsUpdatedAt || null;
     d.schemaVersion = SCHEMA_VERSION;
     return d;
   }
@@ -61,6 +65,12 @@ const Store = (() => {
   }
 
   const copy = (x) => (x == null ? x : JSON.parse(JSON.stringify(x)));
+  // Zeitstempel einer Änderung: jetzt – aber immer später als der vorige Stand,
+  // auch wenn die Uhr eines anderen Geräts vorging (sonst gewinnt beim Abgleich das Alte)
+  const stampAfter = (prev) => {
+    const now = Date.now(), p = prev ? new Date(prev).getTime() : 0;
+    return new Date(Math.max(now, p + 1)).toISOString();
+  };
 
   // ---------- öffentlich: das darf die App benutzen ----------
 
@@ -95,10 +105,11 @@ const Store = (() => {
   async function save(entry) {
     if (!entry || !entry.id || !entry.type) throw new Error("Eintrag braucht id und type");
     const isNew = !data.entries[entry.id];
-    const stored = { ...copy(entry), updatedAt: new Date().toISOString() };
+    const stored = { ...copy(entry), updatedAt: stampAfter(data.entries[entry.id] && data.entries[entry.id].updatedAt) };
     if (isNew && !entry.areaFixed) stored.area = getArea(); // neue Einträge landen im aktiven Bereich
     delete stored.areaFixed;
     data.entries[stored.id] = stored;
+    delete data.deleted[stored.id]; // z. B. "Rückgängig" nach dem Löschen
     if (!persist()) throw new Error("Speichern fehlgeschlagen");
     notify({ action: isNew ? "neu" : "geändert", entry: copy(stored) });
     return copy(stored);
@@ -111,7 +122,8 @@ const Store = (() => {
     const stamp = new Date().toISOString();
     for (const entry of entries) {
       if (!entry || !entry.id || !entry.type) throw new Error("Eintrag braucht id und type");
-      data.entries[entry.id] = { ...copy(entry), updatedAt: stamp };
+      const prev = data.entries[entry.id] && data.entries[entry.id].updatedAt;
+      data.entries[entry.id] = { ...copy(entry), updatedAt: prev && prev >= stamp ? stampAfter(prev) : stamp };
     }
     if (!persist()) throw new Error("Speichern fehlgeschlagen");
     notify({ action: "mehrere", count: entries.length, ...meta });
@@ -122,6 +134,7 @@ const Store = (() => {
     const entry = data.entries[id];
     if (!entry) return false;
     delete data.entries[id];
+    data.deleted[id] = stampAfter(entry.updatedAt);
     persist();
     notify({ action: "gelöscht", entry: copy(entry) });
     return true;
@@ -133,6 +146,7 @@ const Store = (() => {
   }
   async function saveSettings(patch) {
     data.settings = { ...data.settings, ...copy(patch) };
+    if (Object.keys(patch).some((k) => !LOCAL_SETTINGS.includes(k))) data.settingsUpdatedAt = stampAfter(data.settingsUpdatedAt);
     persist();
     notify({ action: "einstellungen", settings: copy(data.settings) });
     return copy(data.settings);
@@ -160,9 +174,13 @@ const Store = (() => {
     return Object.keys(data.entries).length;
   }
 
-  // Alles löschen (nur zum Testen / Zurücksetzen)
+  // Alles löschen (nur zum Testen / Zurücksetzen) – mit Konto: auch auf den anderen Geräten
   async function clearAll() {
+    const stamp = new Date().toISOString();
+    const deleted = { ...data.deleted };
+    Object.entries(data.entries).forEach(([id, e]) => { deleted[id] = e.updatedAt && e.updatedAt >= stamp ? stampAfter(e.updatedAt) : stamp; });
     data = emptyData();
+    data.deleted = deleted;
     persist();
     notify({ action: "geleert" });
   }
@@ -174,5 +192,36 @@ const Store = (() => {
     notify({ action: "extern" });
   });
 
-  return { list, get, save, saveMany, remove, getArea, setArea, getSettings, saveSettings, subscribe, exportJSON, importJSON, clearAll };
+  // ---------- Abgleich mit dem Konto (Azure, siehe cloud.js) ----------
+  // Diese Einstellungen gehören zum Gerät und werden nicht abgeglichen
+  const LOCAL_SETTINGS = ["bereich", "zoom", "feiertageCache", "letzteSicherung"];
+  const DELETED_KEEP_DAYS = 90;
+
+  // Was an den Server geht: Einträge, Löschungen, geteilte Einstellungen
+  async function syncSnapshot() {
+    const limit = Date.now() - DELETED_KEEP_DAYS * 86400000;
+    for (const [id, at] of Object.entries(data.deleted)) if (new Date(at).getTime() < limit) delete data.deleted[id];
+    const settings = Object.fromEntries(Object.entries(data.settings).filter(([k]) => !LOCAL_SETTINGS.includes(k)));
+    return copy({ entries: data.entries, deleted: data.deleted, settings, settingsUpdatedAt: data.settingsUpdatedAt });
+  }
+
+  // Stand vom Server einarbeiten: pro Eintrag gewinnt die neueste Änderung,
+  // Löschungen gewinnen, wenn sie neuer sind als die letzte Änderung.
+  async function syncMerge(remote) {
+    if (!remote || typeof remote !== "object") return false;
+    const merged = Cloud.merge(await syncSnapshot(), remote);
+    const before = JSON.stringify([data.entries, data.deleted, data.settingsUpdatedAt]);
+    data.entries = merged.entries;
+    data.deleted = merged.deleted;
+    if (merged.settingsUpdatedAt && merged.settingsUpdatedAt !== data.settingsUpdatedAt) {
+      const local = Object.fromEntries(Object.entries(data.settings).filter(([k]) => LOCAL_SETTINGS.includes(k)));
+      data.settings = { ...merged.settings, ...local };
+      data.settingsUpdatedAt = merged.settingsUpdatedAt;
+    }
+    const changed = before !== JSON.stringify([data.entries, data.deleted, data.settingsUpdatedAt]);
+    if (changed) { persist(); notify({ action: "abgleich" }); }
+    return changed;
+  }
+
+  return { syncSnapshot, syncMerge, list, get, save, saveMany, remove, getArea, setArea, getSettings, saveSettings, subscribe, exportJSON, importJSON, clearAll };
 })();

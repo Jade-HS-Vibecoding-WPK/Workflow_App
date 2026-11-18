@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, 10:43 Uhr. Aufräumen A–I fertig, Sicherungspunkt `backup-2026-11-18-1043`. Als Nächstes: Azure Stufe 1.*
+*Stand: Mi 18.11.2026. Aufräumen A–I fertig. Azure Stufe 1: Code fertig und lokal mit nachgespieltem Server getestet – wartet auf Einrichtung im Azure-Portal durch Niklas (Anleitung im Chat).*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -137,7 +137,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Testrunde 3 (Claude, Mi 18.11.): Alltag Student + Baustelle im Handy-Format, alle Ansichten und Abläufe. 1 Fehler behoben (Tippfehler-Warnung über Mitternacht), 11 Ideen – inzwischen alle umgesetzt (siehe oben).
 - ✅ Alle 11 Ideen aus Testrunde 3 umgesetzt (Mi 18.11.), im Browser getestet (Handy-Format; Planer stabil, Urlaub hin und zurück → Plan wie vorher).
 - ✅ Aufräumen A–I umgesetzt und im Browser getestet (Mi 18.11.).
-- ⏳ Als Nächstes: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
+- ✅ Azure Stufe 1 – Code (Mi 18.11.): `cloud.js` (Konto im Menü, Abgleich nach Änderungen/beim Öffnen/jede Minute), `store.js` (Löschliste, `syncSnapshot/syncMerge`, Zeitstempel immer später als der vorige Stand), `api/` (Function `data` GET/POST mit Cosmos DB), `staticwebapp.config.json`. Lokal getestet mit nachgespieltem Server: Hochladen, Holen, Löschen in beide Richtungen, Konflikt (neueste gewinnt), vorgehende Uhr, Zoom bleibt pro Gerät, keine Endlos-Abgleiche.
+- ⏳ Als Nächstes: Niklas richtet Azure ein (Static Web App aus dem Repo, Cosmos DB `workflow`/`userdata` mit Partitionsschlüssel `/userId`, Einstellung `COSMOS_CONNECTION`), dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 

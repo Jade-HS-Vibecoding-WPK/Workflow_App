@@ -6,7 +6,7 @@
 // WICHTIG: Bei jeder Änderung an den App-Dateien die Versionsnummer
 // erhöhen, sonst sehen Handys weiter die alte Version.
 // ============================================================
-const CACHE = "workflow-v40";
+const CACHE = "workflow-v41";
 
 const FILES = [
   "./",
@@ -14,6 +14,7 @@ const FILES = [
   "./styles.css",
   "./model.js",
   "./store.js",
+  "./cloud.js",
   "./schedule.js",
   "./editor.js",
   "./heute.js",
@@ -62,6 +63,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return; // fremde Seiten (z. B. Feiertage-API) nicht anfassen
+  if (url.pathname.startsWith("/.auth/") || url.pathname.startsWith("/api/")) return; // Konto/Abgleich nie zwischenspeichern
 
   event.respondWith(
     fetch(event.request)

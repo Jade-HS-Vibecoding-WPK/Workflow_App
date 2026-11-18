@@ -85,6 +85,8 @@
       <label class="seg"><input type="radio" name="area" value="bau"><span>Baustelle</span></label>
     </div>
     <p class="menu__hint">Baustelle = eigener Bereich für Bauprojekte mit Gewerken (Arbeitstage Mo–Fr).</p>
+    <!-- Konto (nur Online-Version auf Azure, siehe cloud.js) -->
+    <div id="konto" hidden></div>
     <!-- Die Ansichten stehen in der Leiste unten – hier nur, was es sonst nirgends gibt (Aufräumen G) -->
     <ul class="menu__list">
       <li><a href="#erledigt">Erledigt <small>abgehakte Aufgaben und Ziele</small></a></li>
@@ -111,6 +113,7 @@
   <!-- Reihenfolge wichtig: erst Datenmodell, dann Speicher, dann App -->
   <script src="model.js"></script>
   <script src="store.js"></script>
+  <script src="cloud.js"></script>
   <script src="schedule.js"></script>
   <script src="feiertage.js"></script>
   <script src="cpm.js"></script>

@@ -200,7 +200,7 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .menu__list a:active { background: var(--surface-2); }
 /* "Erledigt" wird ganz nach unten geschoben */
 .menu__list--bottom { margin-top: auto; }
-.menu__hint { margin: 6px 12px 14px; font-size: 0.8rem; color: var(--text-2); }
+.menu__hint { margin: 0 32px 6px; font-size: 0.8rem; color: var(--text-2); }
 .menu__list a small { display: block; font-size: 0.78rem; font-weight: 400; color: var(--text-2); }
 .menu__list + .menu__list--bottom { margin-top: auto; padding-top: 0; }
 .menu > .menu__list:not(.menu__list--bottom):last-of-type { margin-bottom: 24px; }
@@ -1329,3 +1329,11 @@ body.no-scroll { overflow: hidden; }
 .help-key--crit { border-color: #ff3b30; background: transparent; }
 .help-key--warn { border-color: #ef9f27; background: transparent; }
 .help-key--main { border-color: var(--text-2); border-width: 3px; background: transparent; }
+
+/* ---------- Konto (Azure) ---------- */
+.konto { margin: 0 16px 4px; padding: 12px 14px; border-radius: var(--radius); background: var(--surface); display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; }
+.konto p { margin: 0; }
+.konto small { color: var(--text-2); }
+.konto__btn { display: block; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); color: var(--accent); font-weight: 600; text-align: center; text-decoration: none; }
+.konto__row { display: flex; justify-content: space-between; }
+.konto__status--fehler { color: var(--warn); }

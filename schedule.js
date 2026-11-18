@@ -44,7 +44,7 @@ const Schedule = (() => {
   Store.getSettings().then(readSemester);
   Store.subscribe((c) => {
     if (c.settings) readSemester(c.settings);
-    else if (c.action === "importiert" || c.action === "geleert") Store.getSettings().then(readSemester);
+    else if (c.action === "importiert" || c.action === "geleert" || c.action === "abgleich") Store.getSettings().then(readSemester);
   });
   // Arbeitszeit der Gewerke auf der Baustelle (Einstellungen → Baustelle)
   let bauZeit = { von: "07:00", bis: "16:00" };
@@ -58,7 +58,7 @@ const Schedule = (() => {
   Store.getSettings().then(readBau);
   Store.subscribe((c) => {
     if (c.settings) readBau(c.settings);
-    else if (c.action === "importiert" || c.action === "geleert") Store.getSettings().then(readBau);
+    else if (c.action === "importiert" || c.action === "geleert" || c.action === "abgleich") Store.getSettings().then(readBau);
   });
 
   // Liegt der Tag in der Vorlesungszeit? (ohne Semester-Angabe: immer ja)

@@ -179,7 +179,7 @@ document.getElementById("zoom-label").addEventListener("click", () => Store.save
 Store.getSettings().then((st) => applyZoom(st.zoom));
 Store.subscribe((change) => {
   if (change.settings) applyZoom(change.settings.zoom);
-  else if (change.action === "importiert" || change.action === "geleert") Store.getSettings().then((st) => applyZoom(st.zoom));
+  else if (change.action === "importiert" || change.action === "geleert" || change.action === "abgleich") Store.getSettings().then((st) => applyZoom(st.zoom));
 });
 
 // ---------- Hell / Dunkel (Einstellungen → Darstellung) ----------
@@ -198,7 +198,7 @@ function applyTheme(mode) {
 Store.getSettings().then((st) => applyTheme(st.farbmodus));
 Store.subscribe((change) => {
   if (change.settings) applyTheme(change.settings.farbmodus);
-  else if (change.action === "importiert" || change.action === "geleert") Store.getSettings().then((st) => applyTheme(st.farbmodus));
+  else if (change.action === "importiert" || change.action === "geleert" || change.action === "abgleich") Store.getSettings().then((st) => applyTheme(st.farbmodus));
 });
 
 // ---------- Start ----------
@@ -210,6 +210,8 @@ render();
 ErledigtView.cleanup();
 // Daten von außen: Feiertage laden (im Hintergrund, mit Zwischenspeicher)
 Holidays.refresh();
+// Konto & Abgleich (nur Online-Version auf Azure; auf GitHub Pages passiert nichts)
+Cloud.init();
 
 // ---------- Offline-Speicher (Service Worker) ----------
 // Sorgt dafür, dass die App installierbar ist und auch ohne Internet startet.

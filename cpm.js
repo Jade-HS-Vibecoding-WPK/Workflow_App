@@ -38,7 +38,7 @@ const CPM = (() => {
   Store.getSettings().then((st) => { cfg = makeCfg(st); });
   Store.subscribe((change) => {
     if (change.settings) cfg = makeCfg(change.settings);
-    else if (change.action === "importiert" || change.action === "geleert") Store.getSettings().then((st) => { cfg = makeCfg(st); });
+    else if (change.action === "importiert" || change.action === "geleert" || change.action === "abgleich") Store.getSettings().then((st) => { cfg = makeCfg(st); });
   });
 
   // ---------- 1. Freie Zeit ----------

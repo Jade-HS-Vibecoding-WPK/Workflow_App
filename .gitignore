@@ -2,3 +2,5 @@
 .env
 .env.*
 .claude/
+node_modules/
+api/local.settings.json

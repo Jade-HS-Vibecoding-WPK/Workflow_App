@@ -1,0 +1,11 @@
+{
+  "name": "workflow-api",
+  "version": "1.0.0",
+  "description": "Server-Funktionen der Workflow-App (Azure Static Web Apps): Konto-Abgleich",
+  "main": "src/index.js",
+  "private": true,
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/functions": "^4.0.0"
+  }
+}
