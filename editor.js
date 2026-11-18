@@ -325,7 +325,7 @@ const Editor = (() => {
       // Sperrzeit oder Überschneidung? Erst warnen, beim zweiten Tippen speichern
       const found = S.conflicts(await Store.list(), result.entry);
       if (!warned) {
-        const html = conflictHtml(found);
+        const html = conflictHtml(found, result.entry);
         if (html) {
           warned = true;
           warnEl.innerHTML = html;
@@ -371,14 +371,20 @@ const Editor = (() => {
   }
 
   // Warntext für Sperrzeiten / Überschneidungen
-  function conflictHtml(c) {
-    if (!c.sperr.length && !c.overlap.length) return "";
+  function conflictHtml(c, entry = {}) {
+    // Ende vor Beginn und sehr lang (über 12 Std.) → wahrscheinlich ein Tippfehler (Testrunde 3)
+    let nightLine = "";
+    if (!entry.allDay && entry.start && entry.end && entry.end !== "00:00" && entry.end < entry.start) {
+      const len = 24 * 60 - S.toMin(entry.start) + S.toMin(entry.end);
+      if (len > 12 * 60) nightLine = `Das Ende liegt vor dem Beginn: Der Termin geht über Mitternacht bis zum nächsten Tag ${entry.end} Uhr (${Math.round(len / 60)} Std.). Tippfehler?`;
+    }
+    if (!c.sperr.length && !c.overlap.length && !nightLine) return "";
     const when = (x) => (x.kind === "fest" || x.kind === "sperr" ? "" : fmtDate(x.date) + ", ") + `${x.start}–${x.end === "24:00" ? "24:00" : x.end}`;
     const list = (arr) => {
       const first = arr.slice(0, 3).map((x) => `„${esc(x.title)}“ (${when(x)})`).join(", ");
       return first + (arr.length > 3 ? ` und ${arr.length - 3} weitere` : "");
     };
-    const lines = [];
+    const lines = nightLine ? [nightLine] : [];
     if (c.sperr.length) lines.push(`Liegt in deiner Sperrzeit ${list(c.sperr)}.`);
     if (c.overlap.length) lines.push(`Überschneidet sich mit ${list(c.overlap)}.`);
     return `<b>Achtung</b>${lines.map((l) => `<span>${l}</span>`).join("")}<small>Tippe noch einmal auf „Sichern“, um trotzdem einzutragen.</small>`;
