@@ -18,7 +18,7 @@ const Toast = (() => {
     if (undo) el.querySelector("button").onclick = () => { hide(); undo(); };
     el.classList.add("toast--show");
     clearTimeout(timer);
-    timer = setTimeout(hide, 4500);
+    timer = setTimeout(hide, undo ? 8000 : 4500); // mit „Rückgängig“ länger sichtbar (Testrunde)
   }
   function hide() { if (el) el.classList.remove("toast--show"); }
   return { show };
