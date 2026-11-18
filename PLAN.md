@@ -3,15 +3,17 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, ~10 Uhr. Sicherungspunkt `backup-2026-11-18-1000`.*
+*Stand: Mi 18.11.2026, ~10:30 Uhr. Sicherungspunkt `backup-2026-11-18-1030`.*
 
-**App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und 3 der 4 Ideen aus Testrunde 2 sind fertig.
+**App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
 ### Ideen aus Testrunde 2 (Entscheidung Niklas, Mi 18.11.)
 - ✅ 1 „Rückgängig“ nach dem Löschen jetzt überall (Termine, Aufgaben, Ziele/Projekte, Unterziele/Vorgänge inkl. Abhängigkeiten, eigene Vorlagen); Sicherheitsfrage bleibt.
 - ✅ 2 Netzplan und Balkenplan behalten die Scrollposition nach Änderungen (gleiches Ziel).
 - ✅ 4 Vorschläge halten mind. 15 Min. Abstand nach Terminen (`GAP_AFTER` in `planer.js`; durch das 30-Min.-Raster beginnt der Vorschlag nach einem 12:00-Termin um 12:30). Alte Vorschläge ziehen still um, ohne Meldung. „Was mache ich jetzt?“ rechnet auch mit dem Abstand.
-- ⏳ 3 Wiederkehrende Aufgaben: NICHT nur in den letzten Tagen vor der Deadline, sondern eine Regel/ein Limit, damit sie nicht so früh/oft auftauchen. Vorschläge an Niklas gemacht, Entscheidung offen.
+- ✅ 3 Wiederkehrende Aufgaben (Entscheidung: Mischung aus Regel A + Erinnerung):
+  - **Regel A** (`Planner.notBefore`): Vorschlag erst in der zweiten Hälfte des Abstands (jede Woche → ab 4 Tage vor der Deadline, alle 2 Wochen → 7, monatlich → 15). Passt es dort nicht (z. B. Urlaub), plant die App früher.
+  - **Erinnerung** (`Tasks.reminders`, Box „Zur Erinnerung“ oben auf Heute): offene Aufgaben mit Deadline (ab übermorgen), die nicht heute/morgen eingeplant sind – mit „fällig in X Tagen · geplant …“. Erscheint **alle 2 Tage**: „Okay“ blendet sie 2 Tage aus (Einstellung `erinnerungOk`), nach dem Abhaken ebenfalls 2 Tage Ruhe. Antippen öffnet die Aufgabe. Höchstens 3 Zeilen.
 
 **Danach:** README ergänzen (alle neuen Funktionen: Planer, Kalender, Netzplan/Balkenplan, Baustelle, Vorlagen, Semester, Zoom …), eventuell weitere Tests. **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
 
@@ -98,7 +100,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   1. Grammatik „Puffer … 18 Tage“ (Baustelle). 2. „+“-Menü auf der Baustelle: „Projekt“. 3. Block-Enden auf 5 Min. gerundet. 4. Abhaken (Aufgabe, Unterziel 100 %, Ziel abschließen) gibt noch kommende Blöcke frei; „Rückgängig“ holt sie zurück. 5. Sinkt die Restzeit, werden Vorschläge gekürzt (Ziele nie unter 1,5 Std., außer der Rest ist kleiner). 6. **Nachrücken**: Vorschläge rutschen automatisch in frühere freie Lücken (ohne andere zu verdrängen, bestätigte Blöcke bleiben). 7. „Was mache ich jetzt?“ während eines Termins: „Danach (ab 12:15 Uhr) hast du … → Für 12:15 Uhr einplanen“. 8. Höchstens 3 Std. am Stück, dann 30 Min. Pause. 9. **Termine über Mitternacht** (Ende vor Beginn = nächster Tag), fest und einmalig; am Folgetag „Fortsetzung von gestern“, Warnungen prüfen beide Teile. 10. Aufgaben ohne Deadline: nur nächste 7 Tage, höchstens 1 Std. pro Tag. 11. Einstellung **„Am Wochenende keine Vorschläge“** (Sa/So zählen dann auch nicht als freie Zeit). 12. Leere App: „Was mache ich jetzt?“/„Neu planen“ erst, wenn es Aufgaben oder Ziele gibt.
 - ✅ Testrunde 2 (Claude, Di 17.11.): Planer stabil (5× hintereinander planen = keine Änderung), Reihenfolge nach Dringlichkeit korrekt; Zusammenspiel Absage/Semester/Feiertag/Baustellen-Termin → Planer reagiert jeweils richtig; wiederkehrende Aufgaben und „Erledigt“ wiederherstellen ok; Dunkelmodus, Zoom 125 % (Ziehen im Netzplan), Kalender, Balkenplan ok; Bearbeiten/Absagen/Löschen ok; Offline-Liste vollständig. Keine Fehler gefunden, 4 Verbesserungsideen offen.
 - ✅ Ideen 1, 2, 4 aus Testrunde 2 umgesetzt (Mi 18.11.), im Browser getestet.
-- ⏳ Als Nächstes: Entscheidung zu Idee 3 (wiederkehrende Aufgaben), dann README ergänzen; Freeze Do 19.11. 12–16 Uhr
+- ✅ Idee 3 umgesetzt (Regel A + Erinnerung alle 2 Tage), im Browser getestet (Handy-Format).
+- ⏳ Als Nächstes: README ergänzen (alle neuen Funktionen inkl. Testrunde 2); Freeze Do 19.11. 12–16 Uhr
 
 ## Entscheidungen
 

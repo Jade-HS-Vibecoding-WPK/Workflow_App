@@ -153,6 +153,20 @@ const HeuteView = (() => {
         <button class="link-btn" data-confirm-tomorrow>Alle bestätigen</button>
       </div>` : "";
 
+    // Erinnerung: offen, aber noch nicht im Plan (alle 2 Tage)
+    const remind = isToday && privat ? Tasks.reminders(entries, await Store.getSettings(), now).slice(0, 3) : [];
+    const daysTo = (iso) => Math.round((Schedule.parseDate(iso) - Schedule.parseDate(Schedule.isoDate(now))) / 86400000);
+    const remindHtml = remind.length ? `
+      <div class="tomorrow remind">
+        <div class="tomorrow__head"><b>Zur Erinnerung</b><span>Noch ist Zeit – nur damit nichts untergeht.</span></div>
+        ${remind.map((e) => `
+          <button class="tomorrow__row" data-remind="${esc(e.id)}" style="--c:${e.color || "var(--accent)"}">
+            <b>${esc(e.title)}</b>
+            <span>fällig in ${daysTo(e.deadline)} Tagen · ${Tasks.nextSlot(e, now) ? "geplant " + esc(Schedule.parseDate(Tasks.nextSlot(e, now).date).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" })) : "noch nicht eingeplant"}</span>
+          </button>`).join("")}
+        <button class="link-btn" data-remind-ok>Okay</button>
+      </div>` : "";
+
     const emptyHint = entries.length === 0
       ? `<p class="plan-hint">Noch keine Einträge. Tippe oben auf „+“, um deinen ersten Termin anzulegen.</p>`
       : "";
@@ -170,6 +184,7 @@ const HeuteView = (() => {
           <button class="pill" data-replan aria-label="Vorschläge neu berechnen">↻ Neu planen</button>
         </div>` : ""}
       ${tomorrowHtml}
+      ${remindHtml}
       <div class="day-nav">
         <a class="icon-btn" href="#heute/${prev}" aria-label="Vorheriger Tag">‹</a>
         <span class="day-nav__label">${esc(day.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" }))}</span>
@@ -213,6 +228,9 @@ const HeuteView = (() => {
     container.querySelectorAll(".tomorrow__row").forEach((el) => {
       el.addEventListener("click", () => Planner.openSlot(el.dataset.id, el.dataset.slot, el.dataset.sub || null));
     });
+    container.querySelectorAll("[data-remind]").forEach((el) => el.addEventListener("click", () => Editor.edit(el.dataset.remind)));
+    const ro = container.querySelector("[data-remind-ok]");
+    if (ro) ro.addEventListener("click", () => Tasks.dismissReminders(remind.map((e) => e.id)));
     const ct = container.querySelector("[data-confirm-tomorrow]");
     if (ct) ct.addEventListener("click", async () => {
       await Planner.confirmDay(tomorrowIso);

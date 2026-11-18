@@ -1014,6 +1014,10 @@ body.no-scroll { overflow: hidden; }
 }
 .tomorrow__row span { color: var(--text-2); font-variant-numeric: tabular-nums; }
 .tomorrow small { color: var(--text-2); }
+/* Erinnerung: kein Vorschlag, deshalb durchgezogener Rand */
+.remind .tomorrow__head { flex-direction: column; gap: 2px; }
+.remind .tomorrow__row { flex-direction: column; gap: 1px; border-style: solid; border-width: 0 0 0 4px; }
+.remind .tomorrow__row span { font-size: 0.8rem; }
 .tomorrow .link-btn { align-self: flex-end; }
 .slot-card {
   display: flex; flex-direction: column; gap: 2px;

@@ -30,6 +30,15 @@ const Planner = (() => {
   const MAX_BLOCK = 180; // höchstens 3 Std. am Stück, danach 30 Min. Pause (Testrunde 1)
   const NODL_DAYS = 7;   // Aufgaben ohne Deadline: nur in den nächsten 7 Tagen …
   const NODL_PER_DAY = 60; // … und höchstens 1 Std. pro Tag (sonst ist alles gestrichelt)
+  const REC_DAYS = { woechentlich: 7, zweiwoechentlich: 14, monatlich: 30 };
+  // Wiederkehrende Aufgaben erst in der zweiten Hälfte des Abstands vorschlagen
+  // (Wäsche jede Woche, fällig Do → frühestens So). Wird es eng, darf es früher sein.
+  function notBefore(e, todayIso) {
+    const days = e.recurrence && REC_DAYS[e.recurrence.freq];
+    if (!days || !e.deadline) return null;
+    const iso = S.isoDate(S.addDays(S.parseDate(e.deadline), -Math.ceil(days / 2)));
+    return iso > todayIso ? iso : null;
+  }
   const GAP_AFTER = 15;  // nach Terminen mind. 15 Min. Luft, bevor ein Vorschlag beginnt (Testrunde 2)
   const up5 = (m) => Math.ceil(m / 5) * 5; // Uhrzeiten auf 5 Minuten runden
   // Mindestlänge eines Blocks für diesen Posten (nie mehr als die ganze Restzeit)
@@ -69,6 +78,7 @@ const Planner = (() => {
           level: slack < 1 ? 0 : slack < 3 ? 1 : 2, prio: e.priority,
           due: e.deadline && e.deadline >= todayIso ? e.deadline : null,
           noDL: !e.deadline, // ohne Deadline: nur sparsam vorschlagen
+          notBefore: notBefore(e, todayIso),
           title: e.title, color: e.color, preds: [],
         });
       }
@@ -329,15 +339,19 @@ const Planner = (() => {
     function placeItem(it) {
       if (placed.has(it.key) || visiting.has(it.key)) return;
       visiting.add(it.key);
-      const start = predEarliest(it);
+      const earliest = predEarliest(it);
+      // Wiederkehrende Aufgabe: erst ab der zweiten Hälfte des Abstands
+      const start = it.notBefore && it.notBefore > earliest.iso ? { iso: it.notBefore, min: 0 } : earliest;
       if (remaining(it) > 0) {
         if (it.due && it.due >= start.iso) {
           fill(it, start, it.due);
           if (remaining(it) > 0 && it.level <= 1 && !noEvict && evictFor(it, start, it.due) > 0) fill(it, start, it.due);
         }
+        // Kein Platz in der zweiten Hälfte → doch früher (vor der Deadline)
+        if (remaining(it) > 0 && start !== earliest && it.due) fill(it, earliest, it.due);
         if (remaining(it) > 0) {
           if (it.due) late.add(it.key);
-          fill(it, start, null);
+          fill(it, earliest, null);
         }
       }
       visiting.delete(it.key);
@@ -668,7 +682,7 @@ const Planner = (() => {
   }
 
   return {
-    sync, computePlan, collectItems, openSlot, confirmDay, optionsOn, releaseSlot, whatNow,
+    sync, computePlan, notBefore, collectItems, openSlot, confirmDay, optionsOn, releaseSlot, whatNow,
     get auto() { return autoPlan; }, STEP, fmtH, ended, nowMin,
   };
 })();

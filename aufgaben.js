@@ -76,7 +76,44 @@ const Tasks = (() => {
     }
   }
 
-  return { toggleDone, dropUpcoming };
+  // Erinnerung (Wunsch Niklas, Mi 18.11.): offene Aufgaben mit Deadline, die noch
+  // nicht im Plan stehen (z. B. wiederkehrende vor ihrer zweiten Hälfte).
+  // Erscheint alle 2 Tage: "Okay" blendet sie für 2 Tage aus; direkt nach dem
+  // Abhaken ebenfalls 2 Tage Ruhe.
+  const REMIND_EVERY = 2;
+  // nächster noch kommender Block einer Aufgabe (oder null)
+  function nextSlot(e, now = new Date()) {
+    const today = S.isoDate(now);
+    const nm = now.getHours() * 60 + now.getMinutes();
+    return (e.slots || []).filter((s) => s.date > today || (s.date === today && S.toMin(s.end) > nm))
+      .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start))[0] || null;
+  }
+  function reminders(entries, settings, now = new Date()) {
+    const today = S.isoDate(now);
+    const tomorrow = S.isoDate(S.addDays(now, 1));
+    const ok = (settings && settings.erinnerungOk) || {};
+    const ago = (iso) => (S.parseDate(today) - S.parseDate(iso)) / 86400000;
+    return entries.filter((e) => {
+      if (e.type !== Model.TYPES.AUFGABE || e.done || !e.deadline || e.deadline <= tomorrow) return false; // Dringendes steht schon anderswo
+      // heute/morgen eingeplant → steht ohnehin sichtbar im Plan bzw. bei "Morgen eingeplant"
+      if (nextSlot(e, now) && nextSlot(e, now).date <= tomorrow) return false;
+      const lastDone = (e.history || []).map((h) => h.doneAt && S.isoDate(new Date(h.doneAt))).filter(Boolean).sort().pop();
+      if (lastDone && ago(lastDone) < REMIND_EVERY) return false;
+      if (ok[e.id] && ago(ok[e.id]) < REMIND_EVERY) return false;
+      return true;
+    }).sort((a, b) => a.deadline.localeCompare(b.deadline));
+  }
+  async function dismissReminders(ids) {
+    const settings = await Store.getSettings();
+    const all = await Store.list(null, { all: true });
+    const alive = new Set(all.map((e) => e.id));
+    const ok = Object.fromEntries(Object.entries(settings.erinnerungOk || {}).filter(([id]) => alive.has(id)));
+    const today = S.isoDate(new Date());
+    ids.forEach((id) => { ok[id] = today; });
+    await Store.saveSettings({ erinnerungOk: ok });
+  }
+
+  return { toggleDone, dropUpcoming, reminders, dismissReminders, nextSlot };
 })();
 
 const AufgabenView = (() => {
