@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026. Aufräumen A–I fertig. Azure Stufe 1: Code fertig und lokal mit nachgespieltem Server getestet – wartet auf Einrichtung im Azure-Portal durch Niklas (Anleitung im Chat).*
+*Stand: Mi 18.11.2026. Azure → Plan C (nach der Abgabe). Jetzt: Baustellen-Modus gegen DIN 69900 prüfen, weiter optimieren.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -140,8 +140,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Azure Stufe 1 – Code (Mi 18.11.): `cloud.js` (Konto im Menü, Abgleich nach Änderungen/beim Öffnen/jede Minute), `store.js` (Löschliste, `syncSnapshot/syncMerge`, Zeitstempel immer später als der vorige Stand), `api/` (Function `data` GET/POST mit Cosmos DB), `staticwebapp.config.json`. Lokal getestet mit nachgespieltem Server: Hochladen, Holen, Löschen in beide Richtungen, Konflikt (neueste gewinnt), vorgehende Uhr, Zoom bleibt pro Gerät, keine Endlos-Abgleiche.
 - ✅ Umstellung (Mi 18.11.): Cosmos DB bietet im Konto „Azure for Students“ nur EUAP-Testregionen → Speicher jetzt Azure Blob Storage (eine JSON-Datei pro Nutzer, Container wird automatisch angelegt). Server-Funktion im Browser mit nachgebauten Azure-Bausteinen getestet (401 ohne Login, Speichern, Löschen, 413 bei zu großen Daten).
 - ⚠️ Azure-Hürde (Mi 18.11.): Das Konto „Azure for Students“ erlaubt nur die Regionen polandcentral, germanywestcentral, austriaeast, norwayeast, belgiumcentral (Richtlinie „Allowed resource deployment regions“). Static Web Apps gibt es dort nicht (nur westeurope, eastus2, centralus, westus2, eastasia) → Erstellen scheitert mit „RequestDisallowedByAzure“. Speicherkonto `workflowdatennb` (Germany West Central, LRS) ist angelegt. GitHub-Freigabe der Organisation für „Azure App Service“ ist erteilt.
-  - Möglichkeiten: Plan B = Web-App (App Service F1) in Germany West Central mit eigener Anmeldung (GitHub-OAuth-App) und kleinem Node-Server statt Static Web App; Plan C = Azure nach der Abgabe, Code bleibt vorbereitet (auf GitHub Pages ausgeschaltet). Entscheidung Niklas offen.
-- ⏳ Als Nächstes: Entscheidung Plan B oder C, dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
+  - Möglichkeiten: Plan B = Web-App (App Service F1) in Germany West Central mit eigener Anmeldung (GitHub-OAuth-App) und kleinem Node-Server statt Static Web App; Plan C = Azure nach der Abgabe, Code bleibt vorbereitet (auf GitHub Pages ausgeschaltet). Entscheidung Niklas (18.11.): **Plan C** – Azure nach der Abgabe.
+- ⏳ Als Nächstes: App optimieren/säubern/bedienungsfreundlicher; Baustellen-Modus fachlich prüfen (DIN 69900) und verbessern – erst Prüfung + Vorschlagsliste, dann Entscheidung Niklas., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
 
