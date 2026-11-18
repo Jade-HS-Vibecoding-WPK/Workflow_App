@@ -200,7 +200,7 @@ const Templates = (() => {
           <button type="submit" class="link-btn link-btn--strong">Anlegen</button>
         </div>
         <div class="form-group">
-          <input class="title-input" name="title" value="${esc(bau ? "Einfamilienhaus Musterweg 1" : tpl.name)}" autocomplete="off">
+          <input class="title-input" name="title" value="${esc(tpl.id === "efh" ? "Einfamilienhaus Musterweg 1" : tpl.name)}" autocomplete="off">
         </div>
         <div class="form-group">
           ${bau ? `<label class="row"><span>Baubeginn</span><input type="date" name="startDate" value="${start}"></label>` : ""}

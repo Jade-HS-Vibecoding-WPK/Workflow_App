@@ -12,6 +12,12 @@ Danach committen. Alle Markierungen anzeigen: `git tag -l "backup-*"`
 
 ---
 
+## backup-2026-11-18-1457
+- **Zeit:** Mi 18.11.2026, 14:57 Uhr
+- **Zustand der App:** Stand nach den Abschluss-Testrunden (5 Runden, keine offenen Fehler). Bereit für den Freeze.
+- **Zuletzt gemacht:** Testrunden, Namensvorschlag der Bau-Vorlagen korrigiert.
+- **Als Nächstes:** Freeze Do 19.11., Poster.
+
 ## backup-2026-11-18-1152
 - **Zeit:** Mi 18.11.2026, 11:52 Uhr
 - **Zustand der App:** Baustellen-Werkzeuge C1–C9 (Soll-Ist, Verzug, Wetter, Bautagebuch, Mängel, Gewerke-Übersicht, MaxZ, 2 neue Vorlagen, CSV), Druckformate, DIN-69900-Rechnung. Im Browser getestet, lauffähig.

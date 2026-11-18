@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, 11:52 Uhr. Baustellen-Werkzeuge C1–C9 fertig (Sicherungspunkt `backup-2026-11-18-1152`). Freeze Do 19.11. 12–16 Uhr.*
+*Stand: Mi 18.11.2026, 14:57 Uhr. Abschluss-Testrunden ohne offene Fehler, Sicherungspunkt `backup-2026-11-18-1457`. Bereit für den Freeze.*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
@@ -150,6 +150,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
   C1 Basisplan festhalten + Soll-Ist (Abweichung in AT, Linie im Balkenplan, Zeilen „X AT später als Basisplan“) · C2 Verzug eintragen (Dauer +X AT mit Grund, zeigt Verschiebung von Fertigstellung/Meilensteinen, Rückgängig) · C3 Wetter-Warnung Open-Meteo (Ort pro Projekt, 7 Tage, Frost ≤ 0 °C / Regen ≥ 10 mm / Wind ≥ 50 km/h für Außenarbeiten, Zwischenspeicher 3 Std.) · C4 Bautagebuch (Wetter + Gewerke vorausgefüllt, CSV) · C5 Mängelliste je Vorgang · C6 „Wer ist wann da?“ (kopierbar) · C7 maximaler Zeitabstand mit Warnung · C8 Vorlagen Badsanierung + Dachsanierung · C9 CSV-Export (Excel, Semikolon + BOM).
   Nebenbei: SEZ fällt nie mehr auf Wochenende/Feiertag.
 - ✅ Poster-Entwurf (Mi 18.11.) im Format der Hochschul-Vorlage (A0, Variante 1) – auf Wunsch von Niklas **nicht im Projekt/auf GitHub gespeichert**, nur im Chat als SVG und PDF übergeben. Offen: Matrikelnummer, Reflexionstext in eigenen Worten, Feinschliff in Illustrator.
+- ✅ Abschluss-Testrunden (Claude, Mi 18.11.), 5 Runden im Browser (Handy-Format, hell/dunkel): erster Start, Beispiel, Hilfe in allen Ansichten, Menü; alle Eintragsarten inkl. wiederkehrend, Urlaub mit Ausfall, Abhaken/Rückgängig, „Was mache ich jetzt?“, Planer stabil (3× planen = gleich); Woche/Kalender/Erledigt/Sperrzeiten/Tagesnotizen/Einstellungen; Baustelle mit allen 3 Vorlagen (kein Doppel-Gewerk, SEZ nie am Wochenende), Basisplan, Verzug, Bautagebuch, Gewerke-Übersicht, CSV, Druck lesbar/zurück, DIN-Kästchen; Sicherung Export/Import, kaputte Datei abgelehnt, HTML im Titel harmlos, kein seitliches Überlaufen, Mitternacht, verpasste Deadline; Offline-Speicher vollständig (33 Dateien). Keine JavaScript-Fehler.
+  Behoben: Bad- und Dachsanierung bekamen als Namensvorschlag „Einfamilienhaus Musterweg 1“.
 - ⏳ Als Nächstes: Handy-Test (Niklas); VOB/C-Nummern prüfen; Freeze Do 19.11. 12–16 Uhr; Poster fertigstellen (Illustrator)., dann Test auf zwei Geräten, README/Datenschutz ergänzen. Danach: Azure Stufe 1 (Login + Daten auf andere Geräte, Azure Static Web Apps, Azure for Students); GitHub Pages bleibt als lokale Version. Freigaben = Stufe 2, eher nach der Abgabe. Freeze Do 19.11. 12–16 Uhr, danach Poster.
 
 ## Entscheidungen
