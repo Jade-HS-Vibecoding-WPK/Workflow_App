@@ -30,6 +30,7 @@ const Planner = (() => {
   const MAX_BLOCK = 180; // höchstens 3 Std. am Stück, danach 30 Min. Pause (Testrunde 1)
   const NODL_DAYS = 7;   // Aufgaben ohne Deadline: nur in den nächsten 7 Tagen …
   const NODL_PER_DAY = 60; // … und höchstens 1 Std. pro Tag (sonst ist alles gestrichelt)
+  const GAP_AFTER = 15;  // nach Terminen mind. 15 Min. Luft, bevor ein Vorschlag beginnt (Testrunde 2)
   const up5 = (m) => Math.ceil(m / 5) * 5; // Uhrzeiten auf 5 Minuten runden
   // Mindestlänge eines Blocks für diesen Posten (nie mehr als die ganze Restzeit)
   const minLenOf = (it, rest) => Math.min(it.kind === "sub" ? MIN_GOAL : STEP, Math.max(rest, STEP));
@@ -110,16 +111,20 @@ const Planner = (() => {
       const to = S.toMin(cfg.workTo);
       if (iso === todayIso) from = Math.max(from, Math.ceil(nowMin(now) / STEP) * STEP);
       const busy = [];
+      const soft = []; // Luft nach Terminen: neue Vorschläge halten Abstand, alte müssen deshalb nicht umziehen
       let load = 0;
       for (const b of plan.timed) {
         if (b.cancelled || b.option) continue;
-        if (b.kind === "fest" || b.kind === "einmalig") busy.push([b.startMin - (b.buffer || 0), b.endMin + (b.buffer || 0)]);
+        if (b.kind === "fest" || b.kind === "einmalig") {
+          busy.push([b.startMin - (b.buffer || 0), b.endMin + (b.buffer || 0)]);
+          if ((b.buffer || 0) < GAP_AFTER) soft.push([b.endMin + (b.buffer || 0), b.endMin + GAP_AFTER]);
+        }
         else if (b.kind === "sperr") busy.push([b.startMin, b.endMin]);
         else if (b.kind === "aufgabe" || b.kind === "ziel") { busy.push([b.startMin, b.endMin]); load += b.endMin - b.startMin; }
       }
       const weekend = d.getDay() === 0 || d.getDay() === 6;
       days[iso] = {
-        iso, from, to, busy, opts: [], load, freeLoad: 0,
+        iso, from, to, busy, soft, opts: [], load, freeLoad: 0,
         // Urlaub (ganztägig) oder Wochenende frei (Einstellung)
         blocked: plan.allDay.some((a) => a.kind !== "feiertag") || (cfg.wochenendeFrei && weekend),
       };
@@ -139,7 +144,7 @@ const Planner = (() => {
     const days = buildDays(entries, now);
     const moved = new Set([...pendingMoved].filter((k) => byKey[k]));
 
-    const isFree = (day, a, b) => !day.busy.some(([x, y]) => overlaps(a, b, x, y)) && !day.opts.some((o) => overlaps(a, b, o.a, o.b));
+    const isFree = (day, a, b) => !day.busy.some(([x, y]) => overlaps(a, b, x, y)) && !day.soft.some(([x, y]) => overlaps(a, b, x, y)) && !day.opts.some((o) => overlaps(a, b, o.a, o.b));
     const declinedHit = (it, iso, a, b) => (it.holder.declined || []).some((x) => x.date === iso && overlaps(a, b, S.toMin(x.start), S.toMin(x.end)));
     const optMinutes = (it) => it.holder.slots.filter((s) => !s.confirmed && !ended(s, todayIso, nm)).reduce((a, s) => a + slotLen(s), 0);
     const remaining = (it) => it.need - optMinutes(it);
@@ -579,7 +584,7 @@ const Planner = (() => {
     let sit = nowSituation(entries, now);
     // Läuft gerade ein Termin? Dann für die Zeit danach vorschlagen (auch bei Terminen direkt hintereinander)
     const runningNow = sit.running;
-    for (let k = 0; k < 5 && sit.running; k++) sit = nowSituation(entries, now, up5(sit.running.endMin + (sit.running.buffer || 0)));
+    for (let k = 0; k < 5 && sit.running; k++) sit = nowSituation(entries, now, up5(sit.running.endMin + Math.max(sit.running.buffer || 0, GAP_AFTER)));
     const later = !!runningNow;
     const cfg = CPM.cfg;
     const weekend = cfg.wochenendeFrei && (now.getDay() === 0 || now.getDay() === 6);

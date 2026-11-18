@@ -355,8 +355,10 @@ const Editor = (() => {
         if (btn.dataset.action === "delete") {
           const q = isFest ? `„${entry.title}“ an allen Tagen löschen?` : `„${entry.title}“ löschen?`;
           if (!confirm(q)) return;
+          const orig = await Store.get(entry.id); // für "Rückgängig"
           await Store.remove(entry.id);
           close();
+          if (orig) Toast.show(`„${orig.title}“ gelöscht`, () => Store.save(orig));
         }
         if (btn.dataset.action === "toggle-cancel") {
           const exceptions = (entry.exceptions || []).filter((x) => x.date !== date);
@@ -569,8 +571,10 @@ const Editor = (() => {
       btn.onclick = async () => {
         if (btn.dataset.action === "delete") {
           if (!confirm(`„${entry.title}“ löschen?`)) return;
+          const orig = await Store.get(entry.id); // für "Rückgängig"
           await Store.remove(entry.id);
           close();
+          if (orig) Toast.show(`„${orig.title}“ gelöscht`, () => Store.save(orig));
         }
         if (btn.dataset.action === "done") {
           close();

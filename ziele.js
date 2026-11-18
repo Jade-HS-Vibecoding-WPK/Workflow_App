@@ -144,9 +144,14 @@ const Goals = (() => {
     }, {
       delete: async () => {
         if (!confirm(`„${goal.title}“ mit allen Unterzielen löschen?`)) return;
+        const orig = await Store.get(goal.id); // für "Rückgängig"
         await Store.remove(goal.id);
         Editor.close();
         location.hash = "#ziele";
+        if (orig) Toast.show(`„${orig.title}“ gelöscht`, async () => {
+          await Store.save(orig);
+          location.hash = "#ziel/" + encodeURIComponent(orig.id);
+        });
       },
       finish: async () => {
         Editor.close();
@@ -335,12 +340,14 @@ const Goals = (() => {
       progress: () => progressForm(goal, sg),
       delete: async () => {
         if (!confirm(`${bau ? "Vorgang" : "Unterziel"} „${sg.title}“ löschen?`)) return;
+        const orig = await Store.get(goal.id); // für "Rückgängig" (inkl. Abhängigkeiten)
         // Abhängigkeiten anderer Unterziele auf dieses Unterziel mit entfernen
         const list = goal.subgoals
           .filter((x) => x.id !== sg.id)
           .map((x) => ({ ...x, dependencies: (x.dependencies || []).filter((d) => d.fromId !== sg.id) }));
         await saveGoal(list);
         Editor.close();
+        if (orig) Toast.show(`${bau ? "Vorgang" : "Unterziel"} „${sg.title}“ gelöscht`, () => Store.save(orig));
       },
       up: async () => { await move(goal, sg.id, -1); Editor.close(); },
       down: async () => { await move(goal, sg.id, +1); Editor.close(); },
@@ -638,6 +645,13 @@ const ZielDetailView = (() => {
     const res = subs.length ? CPM.computeGoal(goal, entries) : null;
     const mode = ["netz", "balken"].includes((await Store.getSettings()).zielAnsicht) ? (await Store.getSettings()).zielAnsicht : "liste";
 
+    // Scrollposition von Netzplan/Balkenplan merken, damit er nach einer
+    // Änderung (z. B. Verbinden) nicht wieder ganz nach links springt
+    const keep = container.dataset.goalId === goal.id
+      ? [".nz-wrap", "[data-gantt]"].map((sel) => { const el = container.querySelector(sel); return el && { sel, x: el.scrollLeft, y: el.scrollTop }; }).filter(Boolean)
+      : [];
+    container.dataset.goalId = goal.id;
+
     container.innerHTML = `
       <a class="back-link" href="#ziele">‹ ${bau ? "Projekte" : "Ziele"}</a>
       <section class="goal-head" style="--c:${goal.color}">
@@ -671,6 +685,7 @@ const ZielDetailView = (() => {
     container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
     if (mode === "netz") Netzplan.wire(container, goal, res);
     if (mode === "balken") Balkenplan.wire(container, goal, res);
+    keep.forEach(({ sel, x, y }) => { const el = container.querySelector(sel); if (el) { el.scrollLeft = x; el.scrollTop = y; } });
 
     container.querySelector("[data-edit-goal]").addEventListener("click", () => Goals.editGoal(goal.id));
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));

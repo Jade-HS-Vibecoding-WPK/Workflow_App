@@ -1,19 +1,17 @@
 # PLAN.md – Aktueller Stand
 
-*Zuletzt aktualisiert: Di 17.11.2026*
+*Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Di 17.11.2026, 11:18 Uhr. Sitzung beendet (Nutzungslimit). Alles gespeichert und online, Sicherungspunkt `backup-2026-11-17-1118`.*
+*Stand: Mi 18.11.2026, ~10 Uhr. Sicherungspunkt `backup-2026-11-18-1000`.*
 
-**App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras und die 12 Verbesserungen aus Testrunde 1 sind fertig. Testrunde 2 ohne Fehler.
+**App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und 3 der 4 Ideen aus Testrunde 2 sind fertig.
 
-### ➜ ALS ERSTES in der neuen Sitzung: Niklas diese 4 Ideen aus Testrunde 2 vorstellen – er entscheidet, welche umgesetzt werden
-| # | Was unpraktisch ist | Vorschlag |
-|---|---|---|
-| 1 | Notizen und Sperrzeiten kann man nach dem Löschen rückgängig machen, Termine, Aufgaben und Ziele nicht (nur Sicherheitsfrage) | Überall „Rückgängig“ nach dem Löschen |
-| 2 | Der Netzplan springt nach jeder Änderung (z. B. Verbinden) wieder ganz nach links – bei breiten Plänen lästig | Scrollposition merken |
-| 3 | Wiederkehrende Aufgaben werden sehr früh eingeplant (Wäsche fällig Do 26.11., Vorschlag schon Sa 21.11.) | Wiederkehrende Aufgaben erst in den letzten 3 Tagen vor der Deadline vorschlagen |
-| 4 | Vorschläge kleben direkt an Terminen ohne Puffer (Vorlesung bis 12:00, Vorschlag ab 12:00) | Vorschläge mit 15 Min. Abstand nach Terminen |
+### Ideen aus Testrunde 2 (Entscheidung Niklas, Mi 18.11.)
+- ✅ 1 „Rückgängig“ nach dem Löschen jetzt überall (Termine, Aufgaben, Ziele/Projekte, Unterziele/Vorgänge inkl. Abhängigkeiten, eigene Vorlagen); Sicherheitsfrage bleibt.
+- ✅ 2 Netzplan und Balkenplan behalten die Scrollposition nach Änderungen (gleiches Ziel).
+- ✅ 4 Vorschläge halten mind. 15 Min. Abstand nach Terminen (`GAP_AFTER` in `planer.js`; durch das 30-Min.-Raster beginnt der Vorschlag nach einem 12:00-Termin um 12:30). Alte Vorschläge ziehen still um, ohne Meldung. „Was mache ich jetzt?“ rechnet auch mit dem Abstand.
+- ⏳ 3 Wiederkehrende Aufgaben: NICHT nur in den letzten Tagen vor der Deadline, sondern eine Regel/ein Limit, damit sie nicht so früh/oft auftauchen. Vorschläge an Niklas gemacht, Entscheidung offen.
 
 **Danach:** README ergänzen (alle neuen Funktionen: Planer, Kalender, Netzplan/Balkenplan, Baustelle, Vorlagen, Semester, Zoom …), eventuell weitere Tests. **Freeze:** Do 19.11. zwischen 12 und 16 Uhr, danach Poster. Abgabe Fr 20.11., 16 Uhr.
 
@@ -99,7 +97,8 @@ Lokal testen: im Projektordner `python3 -m http.server 8765`, dann http://localh
 - ✅ Verbesserungen aus Testrunde 1 (alle 12, Di 17.11.), im Browser getestet:
   1. Grammatik „Puffer … 18 Tage“ (Baustelle). 2. „+“-Menü auf der Baustelle: „Projekt“. 3. Block-Enden auf 5 Min. gerundet. 4. Abhaken (Aufgabe, Unterziel 100 %, Ziel abschließen) gibt noch kommende Blöcke frei; „Rückgängig“ holt sie zurück. 5. Sinkt die Restzeit, werden Vorschläge gekürzt (Ziele nie unter 1,5 Std., außer der Rest ist kleiner). 6. **Nachrücken**: Vorschläge rutschen automatisch in frühere freie Lücken (ohne andere zu verdrängen, bestätigte Blöcke bleiben). 7. „Was mache ich jetzt?“ während eines Termins: „Danach (ab 12:15 Uhr) hast du … → Für 12:15 Uhr einplanen“. 8. Höchstens 3 Std. am Stück, dann 30 Min. Pause. 9. **Termine über Mitternacht** (Ende vor Beginn = nächster Tag), fest und einmalig; am Folgetag „Fortsetzung von gestern“, Warnungen prüfen beide Teile. 10. Aufgaben ohne Deadline: nur nächste 7 Tage, höchstens 1 Std. pro Tag. 11. Einstellung **„Am Wochenende keine Vorschläge“** (Sa/So zählen dann auch nicht als freie Zeit). 12. Leere App: „Was mache ich jetzt?“/„Neu planen“ erst, wenn es Aufgaben oder Ziele gibt.
 - ✅ Testrunde 2 (Claude, Di 17.11.): Planer stabil (5× hintereinander planen = keine Änderung), Reihenfolge nach Dringlichkeit korrekt; Zusammenspiel Absage/Semester/Feiertag/Baustellen-Termin → Planer reagiert jeweils richtig; wiederkehrende Aufgaben und „Erledigt“ wiederherstellen ok; Dunkelmodus, Zoom 125 % (Ziehen im Netzplan), Kalender, Balkenplan ok; Bearbeiten/Absagen/Löschen ok; Offline-Liste vollständig. Keine Fehler gefunden, 4 Verbesserungsideen offen.
-- ⏳ Als Nächstes: Entscheidung zu den 4 Ideen aus Testrunde 2, dann README ergänzen; Freeze Do 12–16 Uhr (alle neuen Funktionen), dann Freeze Do 12–16 Uhr
+- ✅ Ideen 1, 2, 4 aus Testrunde 2 umgesetzt (Mi 18.11.), im Browser getestet.
+- ⏳ Als Nächstes: Entscheidung zu Idee 3 (wiederkehrende Aufgaben), dann README ergänzen; Freeze Do 19.11. 12–16 Uhr
 
 ## Entscheidungen
 

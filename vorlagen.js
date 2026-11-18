@@ -118,8 +118,10 @@ const Templates = (() => {
       b.onclick = async () => {
         const t = mine.find((x) => x.id === b.dataset.del);
         if (!t || !confirm(`Vorlage „${t.name}“ löschen?`)) return;
-        await Store.saveSettings({ vorlagen: (await own()).filter((x) => x.id !== t.id) });
+        const before = await own(); // für "Rückgängig"
+        await Store.saveSettings({ vorlagen: before.filter((x) => x.id !== t.id) });
         choose();
+        Toast.show(`Vorlage „${t.name}“ gelöscht`, async () => { await Store.saveSettings({ vorlagen: before }); if (document.querySelector(".sheet-layer")) choose(); });
       };
     });
   }

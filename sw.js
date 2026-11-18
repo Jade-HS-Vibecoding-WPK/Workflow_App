@@ -6,7 +6,7 @@
 // WICHTIG: Bei jeder Änderung an den App-Dateien die Versionsnummer
 // erhöhen, sonst sehen Handys weiter die alte Version.
 // ============================================================
-const CACHE = "workflow-v35";
+const CACHE = "workflow-v36";
 
 const FILES = [
   "./",
