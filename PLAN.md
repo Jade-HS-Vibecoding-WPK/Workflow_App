@@ -3,7 +3,7 @@
 *Zuletzt aktualisiert: Mi 18.11.2026*
 
 ## Hier weitermachen
-*Stand: Mi 18.11.2026, ~11:30 Uhr. Testrunde 3 fertig, Ergebnisse warten auf Entscheidung von Niklas.*
+*Stand: Mi 18.11.2026, ~11:30 Uhr. Niklas will alle 11 Ideen aus Testrunde 3 – Umsetzung läuft (Sicherungspunkt davor: `backup-2026-11-18-1140`).*
 
 **App:** https://jade-hs-vibecoding-wpk.github.io/Workflow_App/ – alle Etappen 1–4, Extras, 12 Verbesserungen aus Testrunde 1 und alle 4 Ideen aus Testrunde 2 sind fertig.
 
