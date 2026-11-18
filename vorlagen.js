@@ -18,29 +18,41 @@ const Templates = (() => {
   const BUILTIN = [
     {
       id: "efh", area: "bau", name: "Einfamilienhaus – Bauablauf", color: "#d85a30",
-      text: "21 Vorgänge vom Baustelleneinrichten bis zur Übergabe, mit Gewerken, Aushärte- und Trockenzeiten.",
+      text: "26 Vorgänge und 3 Meilensteine vom Baustelleneinrichten bis zur Übergabe – Gewerke nach VOB/C, mit Aushärte- und Trockenzeiten.",
+      // Dauern in Arbeitstagen, Zeitabstände (dritter Wert) in Kalendertagen. Alles Faustwerte für ein
+      // einfaches EFH – nach der Vorlage frei anpassen. Gewerke-Namen nach VOB/C (ATV DIN 18299 ff.).
       items: [
-        { k: "einr", t: "Baustelleneinrichtung", g: "Bauleitung", d: 2 },
-        { k: "erd", t: "Erdarbeiten / Aushub", g: "Tiefbau", d: 3, after: [["einr"]] },
-        { k: "bpl", t: "Fundamente und Bodenplatte", g: "Rohbau", d: 5, after: [["erd"]] },
-        { k: "meg", t: "Mauerwerk EG", g: "Rohbau", d: 10, after: [["bpl", EA, 7]] }, // Bodenplatte aushärten
-        { k: "deg", t: "Decke über EG", g: "Rohbau", d: 4, after: [["meg"]] },
-        { k: "mdg", t: "Mauerwerk DG", g: "Rohbau", d: 7, after: [["deg", EA, 3]] },
-        { k: "dst", t: "Dachstuhl", g: "Zimmerei", d: 4, after: [["mdg"]] },
-        { k: "dach", t: "Dacheindeckung", g: "Dachdecker", d: 5, after: [["dst"]] },
-        { k: "fen", t: "Fenster und Außentüren", g: "Fensterbauer", d: 3, after: [["dach"]] },
-        { k: "elr", t: "Elektro-Rohinstallation", g: "Elektro", d: 6, after: [["fen"]] },
-        { k: "shk", t: "Sanitär/Heizung-Rohinstallation", g: "Sanitär/Heizung (SHK)", d: 8, after: [["elr", AA, 2]] },
-        { k: "fas", t: "Fassade / Außenputz", g: "Putzer", d: 8, after: [["fen"]] },
-        { k: "ipu", t: "Innenputz", g: "Putzer", d: 8, after: [["elr"], ["shk"]] },
-        { k: "est", t: "Estrich", g: "Estrichleger", d: 3, after: [["ipu", EA, 2]] },
-        { k: "tro", t: "Trockenbau DG", g: "Trockenbau", d: 6, after: [["ipu"]] },
-        { k: "fli", t: "Fliesen", g: "Fliesenleger", d: 6, after: [["est", EA, 21]] }, // Estrich trocknen (Belegreife)
-        { k: "mal", t: "Malerarbeiten", g: "Maler", d: 5, after: [["tro"], ["fli"]] },
-        { k: "bod", t: "Bodenbeläge", g: "Bodenleger", d: 4, after: [["mal"]] },
-        { k: "end", t: "Endmontage Elektro und Sanitär", g: "Elektro", d: 4, after: [["bod"]] },
-        { k: "aus", t: "Außenanlagen", g: "Garten- und Landschaftsbau", d: 8, after: [["fas"]] },
-        { k: "abn", t: "Abnahme und Übergabe", g: "Bauleitung", d: 1, after: [["end"], ["aus"]] },
+        { k: "einr", t: "Baustelleneinrichtung", g: "Baustelleneinrichtung", d: 2 },
+        { k: "erd", t: "Erdarbeiten / Aushub", g: "Erdarbeiten (DIN 18300)", d: 3, after: [["einr"]] },
+        { k: "bpl", t: "Fundamente und Bodenplatte", g: "Betonarbeiten (DIN 18331)", d: 5, after: [["erd"]] },
+        { k: "meg", t: "Mauerwerk EG", g: "Mauerarbeiten (DIN 18330)", d: 10, after: [["bpl", EA, 7]] }, // Bodenplatte erhärten
+        { k: "deg", t: "Decke über EG", g: "Betonarbeiten (DIN 18331)", d: 4, after: [["meg"]] },
+        { k: "ger", t: "Gerüst stellen", g: "Gerüstarbeiten (DIN 18451)", d: 1, after: [["deg"]] },
+        { k: "mdg", t: "Mauerwerk DG", g: "Mauerarbeiten (DIN 18330)", d: 7, after: [["deg", EA, 3], ["ger"]] },
+        { k: "dst", t: "Dachstuhl", g: "Zimmer- und Holzbauarbeiten (DIN 18334)", d: 4, after: [["mdg"]] },
+        { k: "richt", t: "Richtfest", g: "Bauleitung", d: 0, after: [["dst"]] }, // Meilenstein
+        { k: "dach", t: "Dacheindeckung", g: "Dachdeckungsarbeiten (DIN 18338)", d: 5, after: [["dst"]] },
+        { k: "kle", t: "Dachrinnen und Fallrohre", g: "Klempnerarbeiten (DIN 18339)", d: 2, after: [["dach"]] },
+        { k: "fen", t: "Fenster und Außentüren", g: "Tischlerarbeiten (DIN 18355)", d: 3, after: [["dach"]] },
+        { k: "dicht", t: "Rohbau dicht", g: "Bauleitung", d: 0, after: [["fen"], ["kle"]] }, // Meilenstein
+        { k: "elr", t: "Elektro-Rohinstallation", g: "Elektroanlagen (DIN 18382)", d: 6, after: [["dicht"]] },
+        { k: "shk", t: "Sanitär/Heizung-Rohinstallation", g: "Gas-, Wasser- und Entwässerungsanlagen (DIN 18381)", d: 8, after: [["elr", AA, 2]] },
+        { k: "fas", t: "Fassade / Außenputz", g: "Putz- und Stuckarbeiten (DIN 18350)", d: 8, after: [["dicht"]] },
+        { k: "gab", t: "Gerüst abbauen", g: "Gerüstarbeiten (DIN 18451)", d: 1, after: [["fas"]] },
+        { k: "ipu", t: "Innenputz", g: "Putz- und Stuckarbeiten (DIN 18350)", d: 8, after: [["elr"], ["shk"], ["fas"]] },
+        { k: "est", t: "Estrich", g: "Estricharbeiten (DIN 18353)", d: 3, after: [["ipu", EA, 2]] },
+        { k: "tro", t: "Trockenbau DG", g: "Trockenbauarbeiten (DIN 18340)", d: 6, after: [["ipu"]] },
+        // Estrich trocknen: Faustwert für Zementestrich ca. 1 Woche je cm (bis 4 cm) → 28 Kalendertage;
+        // vor dem Belegen Belegreife per CM-Messung prüfen
+        { k: "fli", t: "Fliesen", g: "Fliesen- und Plattenarbeiten (DIN 18352)", d: 6, after: [["est", EA, 28]] },
+        { k: "mal", t: "Malerarbeiten", g: "Maler- und Lackierarbeiten (DIN 18363)", d: 5, after: [["tro"], ["fli"]] },
+        { k: "bod", t: "Bodenbeläge", g: "Bodenbelagarbeiten (DIN 18365)", d: 4, after: [["mal"]] },
+        { k: "tis", t: "Innentüren und Treppe", g: "Tischlerarbeiten (DIN 18355)", d: 3, after: [["bod"]] },
+        { k: "ende", t: "Endmontage Elektro", g: "Elektroanlagen (DIN 18382)", d: 2, after: [["bod"]] },
+        { k: "ends", t: "Endmontage Sanitär/Heizung", g: "Gas-, Wasser- und Entwässerungsanlagen (DIN 18381)", d: 3, after: [["bod"]] },
+        { k: "aus", t: "Außenanlagen", g: "Landschaftsbauarbeiten (DIN 18320)", d: 8, after: [["gab"]] },
+        { k: "rein", t: "Bauendreinigung", g: "Bauleitung", d: 1, after: [["tis"], ["ende"], ["ends"]] },
+        { k: "abn", t: "Abnahme und Übergabe", g: "Bauleitung", d: 0, after: [["rein"], ["aus"]] }, // Meilenstein
       ],
     },
     {
@@ -70,7 +82,7 @@ const Templates = (() => {
     const subgoals = tpl.items.map((it, i) => Model.neuesUnterziel({
       id: ids[it.k], title: it.t, order: i,
       mode: bau || it.d ? "dauer" : "aufwand",
-      durationDays: it.d || 1, estimateHours: it.h || 1,
+      durationDays: it.d != null ? it.d : 1, estimateHours: it.h || 1, // d: 0 = Meilenstein
       assignee: it.g || Model.OWNER_LOCAL,
       dependencies: (it.after || []).filter(([k]) => ids[k]).map(([k, type, lag]) => ({ fromId: ids[k], type: type || EA, lagDays: lag || 0 })),
     }));
@@ -100,7 +112,7 @@ const Templates = (() => {
   // ---------- Auswahl ----------
   async function choose() {
     const area = Store.getArea();
-    const mine = (await own()).filter((t) => t.area === area);
+    const mine = (await own()).filter((t) => t.area === area && Array.isArray(t.items)); // beschädigte Vorlagen überspringen
     const list = [...BUILTIN.filter((t) => t.area === area), ...mine];
     Editor.show(`
       <div class="sheet sheet--small" role="dialog" aria-modal="true" aria-labelledby="sheet-title">

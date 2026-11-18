@@ -110,7 +110,8 @@ const Goals = (() => {
       <div class="form-group">
         ${bau ? `<label class="row"><span>Baubeginn</span><input type="date" name="startDate" value="${esc(goal.startDate || "")}"></label>` : ""}
         <label class="row"><span>${bau ? "Fertigstellung bis" : "Deadline"}</span><input type="date" name="deadline" value="${esc(goal.deadline || "")}"></label>
-        ${bau ? `<p class="hint">Die Gewerke arbeiten Mo–Fr, Feiertage sind frei. Ohne Baubeginn rechnet die App ab heute.</p>` : ""}
+        ${bau ? `<label class="row"><span>Samstag ist Arbeitstag <small class="muted">sonst Mo–Fr</small></span><input type="checkbox" class="switch" name="samstag" ${goal.samstag ? "checked" : ""}></label>
+        <p class="hint">Feiertage und die Winterpause (Einstellungen) sind frei. Ohne Baubeginn rechnet die App ab heute.</p>` : ""}
       </div>
       <div class="form-group">
         <div class="row row--stack">
@@ -136,6 +137,7 @@ const Goals = (() => {
       out.notes = form.elements.notes.value.trim();
       out.deadline = form.elements.deadline.value || null;
       if (form.elements.startDate) out.startDate = form.elements.startDate.value || null;
+      if (form.elements.samstag) out.samstag = form.elements.samstag.checked;
       out.priority = Number((form.querySelector('[name="priority"]:checked') || {}).value || 3);
       out.color = (form.querySelector('[name="color"]:checked') || {}).value || goal.color;
       if (!out.title) return fail("Bitte gib einen Titel ein.", "title");
@@ -175,10 +177,11 @@ const Goals = (() => {
 
   // ===== Unterziel anlegen / bearbeiten =====
   const DEP_LABELS = {
-    "ende-anfang": "Ende → Anfang (erst fertig, dann starten)",
-    "anfang-anfang": "Anfang → Anfang (gleichzeitig starten)",
-    "ende-ende": "Ende → Ende (gleichzeitig fertig)",
-    "anfang-ende": "Anfang → Ende (erst wenn A startet, darf B enden)",
+    // Anordnungsbeziehungen nach DIN 69900
+    "ende-anfang": "NF Normalfolge: Ende → Anfang (erst fertig, dann starten)",
+    "anfang-anfang": "AF Anfangsfolge: Anfang → Anfang (zusammen starten)",
+    "ende-ende": "EF Endfolge: Ende → Ende (zusammen fertig)",
+    "anfang-ende": "SF Sprungfolge: Anfang → Ende (Start des einen erlaubt Ende des anderen)",
   };
 
   function depsHtml(goal, sg, subs) {
@@ -194,21 +197,21 @@ const Goals = (() => {
           <label class="dep-check"><input type="checkbox" name="dep" value="${esc(x.id)}" ${d ? "checked" : ""}><span>${esc(x.title)}</span></label>
           ${bau ? `
             <div class="dep-extra">
-              <select name="depType-${esc(x.id)}" aria-label="Art der Abhängigkeit">
+              <select name="depType-${esc(x.id)}" aria-label="Anordnungsbeziehung">
                 ${Object.entries(DEP_LABELS).map(([v, l]) => `<option value="${v}" ${(d ? d.type : "ende-anfang") === v ? "selected" : ""}>${l}</option>`).join("")}
               </select>
-              <span class="unit-input">Wartezeit <input type="number" name="depLag-${esc(x.id)}" step="0.5" inputmode="decimal" value="${d ? d.lagDays || 0 : 0}"> Tage</span>
+              <span class="unit-input">Zeitabstand <input type="number" name="depLag-${esc(x.id)}" step="1" inputmode="numeric" value="${d ? d.lagDays || 0 : 0}"> Kal.-Tage</span>
             </div>` : ""}
         </div>`;
     }).join("");
     return `
       <div class="form-group">
         <div class="row row--stack">
-          <span>${bau ? "Abhängigkeiten" : "Startet erst, wenn fertig ist:"}</span>
+          <span>${bau ? "Vorgänger · Anordnungsbeziehung (DIN 69900)" : "Startet erst, wenn fertig ist:"}</span>
           <div class="dep-list">${rows}</div>
         </div>
         <p class="hint">${bau
-          ? (isBauGoal(goal) ? "Wartezeit in Kalendertagen, läuft auch am Wochenende (z. B. Estrich trocknen). Negative Wartezeit = Überlappung." : "Baumanagement-Modus: Art der Abhängigkeit und Wartezeit wählbar. Negative Wartezeit = Überlappung (z. B. −2 = darf 2 Tage früher starten).")
+          ? (isBauGoal(goal) ? "Haken = dieser Vorgang hängt vom anderen ab. Meist NF (erst fertig, dann starten). Zeitabstand in Kalendertagen – läuft auch am Wochenende (z. B. Estrich trocknen +28). Negativ = Überlappung (z. B. −2 = 2 Tage früher anfangen)." : "Baumanagement-Modus: Anordnungsbeziehung (NF/AF/EF/SF) und Zeitabstand wählbar. Negativ = Überlappung (z. B. −2 = darf 2 Tage früher starten).")
           : "Für den kritischen Pfad. Weitere Arten und Wartezeiten gibt es im Baumanagement-Modus (Einstellungen)."}</p>
       </div>`;
   }
@@ -242,8 +245,16 @@ const Goals = (() => {
   }
 
   // Häufige Gewerke als Vorschlagsliste (frei eintippbar)
-  const GEWERKE = ["Bauleitung", "Tiefbau", "Rohbau", "Zimmerei", "Dachdecker", "Fensterbauer", "Elektro", "Sanitär/Heizung (SHK)",
-    "Putzer", "Estrichleger", "Trockenbau", "Fliesenleger", "Maler", "Bodenleger", "Schreiner", "Garten- und Landschaftsbau"];
+  // Gewerke nach VOB/C (ATV DIN 18299 ff.) – frei eintippbar, die Liste ist nur ein Vorschlag
+  const GEWERKE = [
+    "Bauleitung", "Baustelleneinrichtung", "Erdarbeiten (DIN 18300)", "Landschaftsbauarbeiten (DIN 18320)",
+    "Mauerarbeiten (DIN 18330)", "Betonarbeiten (DIN 18331)", "Zimmer- und Holzbauarbeiten (DIN 18334)",
+    "Dachdeckungsarbeiten (DIN 18338)", "Klempnerarbeiten (DIN 18339)", "Trockenbauarbeiten (DIN 18340)",
+    "Wärmedämm-Verbundsysteme (DIN 18345)", "Putz- und Stuckarbeiten (DIN 18350)", "Fliesen- und Plattenarbeiten (DIN 18352)",
+    "Estricharbeiten (DIN 18353)", "Tischlerarbeiten (DIN 18355)", "Metallbauarbeiten (DIN 18360)",
+    "Maler- und Lackierarbeiten (DIN 18363)", "Bodenbelagarbeiten (DIN 18365)", "Heizanlagen (DIN 18380)",
+    "Gas-, Wasser- und Entwässerungsanlagen (DIN 18381)", "Elektroanlagen (DIN 18382)", "Gerüstarbeiten (DIN 18451)",
+  ];
 
   function subgoalForm(goal, sg, isNew, res = null) {
     const subs = [...goal.subgoals].sort((a, b) => a.order - b.order);
@@ -277,12 +288,14 @@ const Goals = (() => {
       </div>
       ${bau ? `
       <div class="form-group">
-        <label class="row"><span>Dauer</span>
-          <span class="unit-input"><input type="number" name="workdays" min="1" step="1" inputmode="numeric" value="${Math.max(1, Math.round(sg.durationDays))}"> Arbeitstage</span>
+        <label class="row"><span>Meilenstein <small class="muted">Ereignis ohne Dauer, z. B. Richtfest, Abnahme</small></span>
+          <input type="checkbox" class="switch" name="milestone" ${isNew ? "" : Number(sg.durationDays) === 0 ? "checked" : ""}></label>
+        <label class="row" data-ms-hide><span>Dauer</span>
+          <span class="unit-input"><input type="number" name="workdays" min="1" step="1" inputmode="numeric" value="${Math.max(1, Math.round(sg.durationDays) || 1)}"> Arbeitstage</span>
         </label>
-        <p class="hint">Mo–Fr, Feiertage zählen nicht.</p>
-        <label class="row"><span>Arbeitszeit von <small class="muted">leer = Standard ${esc(Schedule.bauZeit.von)}</small></span><input type="time" name="workFrom" value="${esc(sg.workFrom || "")}"></label>
-        <label class="row"><span>Arbeitszeit bis <small class="muted">leer = Standard ${esc(Schedule.bauZeit.bis)}</small></span><input type="time" name="workTo" value="${esc(sg.workTo || "")}"></label>
+        <p class="hint" data-ms-hide>${goal.samstag ? "Mo–Sa" : "Mo–Fr"}, Feiertage zählen nicht.</p>
+        <label class="row" data-ms-hide><span>Arbeitszeit von <small class="muted">leer = Standard ${esc(Schedule.bauZeit.von)}</small></span><input type="time" name="workFrom" value="${esc(sg.workFrom || "")}"></label>
+        <label class="row" data-ms-hide><span>Arbeitszeit bis <small class="muted">leer = Standard ${esc(Schedule.bauZeit.bis)}</small></span><input type="time" name="workTo" value="${esc(sg.workTo || "")}"></label>
       </div>` : ""}
       <div class="form-group">
         <label class="row"><span>Zwischen-Deadline</span><input type="date" name="deadline" value="${esc(sg.deadline || "")}" max="${esc(goal.deadline || "")}"></label>
@@ -300,6 +313,7 @@ const Goals = (() => {
     const update = () => {
       const mode = form.querySelector('[name="mode"]:checked').value;
       if (!bau) form.querySelectorAll("[data-show]").forEach((el) => { el.hidden = el.dataset.show !== mode; });
+      if (bau) { const ms = form.elements.milestone.checked; form.querySelectorAll("[data-ms-hide]").forEach((el) => { el.hidden = ms; }); }
       form.querySelector("[data-mode-hint]").textContent = mode === "aufwand"
         ? "Eigene Arbeitszeit. Die App plant sie später in freie Zeit ein."
         : "Kalenderzeit, die vergeht, egal wie viel du daran arbeitest (z. B. „Rohbau 3 Wochen“).";
@@ -317,18 +331,19 @@ const Goals = (() => {
       out.durationDays = Number(form.elements.durationDays.value);
       if (bau) {
         out.mode = "dauer";
-        out.durationDays = Math.round(Number(form.elements.workdays.value));
+        const ms = form.elements.milestone.checked; // Meilenstein = Dauer 0 (DIN 69900: Ereignis)
+        out.durationDays = ms ? 0 : Math.round(Number(form.elements.workdays.value));
         out.assignee = form.elements.gewerk.value.trim() || Model.OWNER_LOCAL;
         out.workFrom = form.elements.workFrom.value || null;
         out.workTo = form.elements.workTo.value || null;
         const wf = out.workFrom || Schedule.bauZeit.von, wt = out.workTo || Schedule.bauZeit.bis;
         if (Schedule.toMin(wt) <= Schedule.toMin(wf)) return fail("Das Ende der Arbeitszeit muss nach dem Beginn liegen.", "workTo");
-        if (!(out.durationDays >= 1)) return fail("Gib mindestens 1 Arbeitstag ein.", "workdays");
+        if (!ms && !(out.durationDays >= 1)) return fail("Gib mindestens 1 Arbeitstag ein.", "workdays");
       }
       out.deadline = form.elements.deadline.value || null;
       if (!out.title) return fail("Bitte gib einen Titel ein.", "title");
       if (out.mode === "aufwand" && !(out.estimateHours > 0)) return fail("Gib einen Aufwand größer als 0 ein.", "estimateHours");
-      if (out.mode === "dauer" && !(out.durationDays > 0)) return fail("Gib eine Dauer größer als 0 ein.", "durationDays");
+      if (out.mode === "dauer" && !(out.durationDays > 0) && !(bau && out.durationDays === 0)) return fail("Gib eine Dauer größer als 0 ein.", "durationDays");
       if (out.deadline && goal.deadline && out.deadline > goal.deadline) return fail("Die Zwischen-Deadline liegt nach der Deadline des Ziels.", "deadline");
       // Abhängigkeiten auslesen (nur IDs, siehe CLAUDE.md)
       const fullDeps = CPM.cfg.bau || bau;
@@ -559,7 +574,8 @@ const ZielDetailView = (() => {
     else if (bau && n) status = `${esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}–${esc(S.parseDate(n.endDate).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }))}`;
     else if (n) status = `spätestens fertig ${dShort(n.latestEnd)}`;
     const meta = [
-      sg.done ? "" : `<span>${sg.progressPercent} %${rest != null ? ` · noch ca. ${GoalMath.fmtHours(rest)}` : sg.mode === "dauer" ? ` · ${String(sg.durationDays).replace(".", ",")} ${bau ? "Arbeitstage" : "Tage"}` : ""}</span>`,
+      sg.done ? "" : bau && Number(sg.durationDays) === 0 ? `<span>◆ Meilenstein${n ? " · " + esc(S.parseDate(n.startDate).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" })) : ""}</span>`
+        : `<span>${sg.progressPercent} %${rest != null ? ` · noch ca. ${GoalMath.fmtHours(rest)}` : sg.mode === "dauer" ? ` · ${String(sg.durationDays).replace(".", ",")} ${bau ? "Arbeitstage" : "Tage"}` : ""}</span>`,
       gewerk ? `<span><b>${esc(gewerk)}</b></span>` : "",
       status ? `<span>${status}</span>` : "",
     ].filter(Boolean).join("");
@@ -580,20 +596,28 @@ const ZielDetailView = (() => {
   // Baustelle: Einschätzung in Arbeitstagen und Kalendertagen
   function bauAdviceHtml(goal, res) {
     const end = esc(S.parseDate(res.projectEndDate).toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "numeric" }));
-    const crit = (goal.subgoals || []).filter((x) => res.nodes[x.id] && res.nodes[x.id].critical && !x.done).map((x) => `„${esc(x.title)}“`);
+    const crit = (goal.subgoals || []).filter((x) => res.nodes[x.id] && res.nodes[x.id].critical && !x.done).sort((a, b) => res.nodes[a.id].ES - res.nodes[b.id].ES).map((x) => `„${esc(x.title)}“`);
     const tf = res.minTF;
     const days = (d) => `${Math.abs(d)} ${Math.abs(d) === 1 ? "Arbeitstag" : "Arbeitstage"}`;
+    const calc = `<small class="advice__calc">Arbeitstage ${goal.samstag ? "Mo–Sa" : "Mo–Fr"}, Feiertage${S.bauZeit.pauseVon ? " und Winterpause" : ""} frei · Zeitabstände in Kalendertagen · nach DIN 69900</small>`;
+    // Gewerke doppelt eingeplant (gleiches Gewerk, gleiche Zeit)
+    const byId = Object.fromEntries((goal.subgoals || []).map((x) => [x.id, x]));
+    const dd = (iso) => esc(S.parseDate(iso).toLocaleDateString("de-DE", { day: "numeric", month: "numeric" }));
+    const clashes = (res.clashes || []).slice(0, 3).map((c) =>
+      `<li><span class="advice__strong">${esc(c.gewerk)}</span>: „${esc(byId[c.a].title)}“ und „${esc(byId[c.b].title)}“ gleichzeitig (${dd(c.from)}${c.from !== c.to ? "–" + dd(c.to) : ""}, ${days(c.days)})</li>`).join("");
+    const clashHtml = clashes ? `<div class="advice advice--warn"><b>Gewerk doppelt eingeplant</b><ul class="advice__list">${clashes}</ul>
+      <small class="advice__calc">Geht das mit zwei Kolonnen? Sonst nacheinander legen (NF) oder Dauern anpassen.</small></div>` : "";
     if (res.status === "hinterher") {
       return `<div class="advice advice--crit"><b>Verzug: ca. ${days(tf)}.</b>
-        So wird das Projekt erst ${end} fertig. Kritisch: ${crit.slice(0, 4).join(", ")}. Prüfe Dauern, Überlappungen (negative Wartezeit) oder mehr Kolonnen.
-        <small class="advice__calc">Arbeitstage Mo–Fr, Feiertage frei · Wartezeiten in Kalendertagen</small></div>`;
+        So wird das Projekt erst ${end} fertig. Kritischer Weg: ${crit.slice(0, 4).join(" → ")}. Prüfe Dauern, Überlappungen (negativer Zeitabstand) oder mehr Kolonnen.
+        ${calc}</div>${clashHtml}`;
     }
     const cls = res.status === "ok" ? "advice--ok" : res.status === "kritisch" ? "advice--crit" : "advice--warn";
     const head = res.status === "ok" ? "Im Plan." : res.status === "kritisch" ? "Kein Puffer mehr." : "Es wird eng.";
     return `<div class="advice ${cls}"><b>${head}</b>
       Voraussichtlich fertig ${end}, Puffer bis zur Fertigstellung ${days(tf)}.
-      ${crit.length ? `Kritischer Weg (DIN 69900): ${crit.slice(0, 5).join(" → ")}${crit.length > 5 ? " …" : ""}.` : ""}
-      <small class="advice__calc">Arbeitstage Mo–Fr, Feiertage frei · Wartezeiten in Kalendertagen</small></div>`;
+      ${crit.length ? `Kritischer Weg: ${crit.slice(0, 5).join(" → ")}${crit.length > 5 ? " …" : ""}.` : ""}
+      ${calc}</div>${clashHtml}`;
   }
 
   function adviceHtml(goal, res, entries) {
@@ -693,6 +717,7 @@ const ZielDetailView = (() => {
         <p class="plan-hint">Teile dein Ziel in Schritte auf, z. B. Grundriss, Lageplan, Details. Schätze für jeden den Aufwand.</p>`}
       <button class="add-row" data-add><span class="add-row__plus">+</span> ${bau ? "Vorgang" : "Unterziel"}</button>
       <button class="add-row" data-save-template><span class="add-row__plus add-row__plus--alt">▤</span> Als Vorlage speichern</button>
+      ${subs.length ? `<button class="add-row" data-print><span class="add-row__plus add-row__plus--alt">⎙</span> ${mode === "balken" ? (bau ? "Bauzeitenplan" : "Balkenplan") : mode === "netz" ? "Netzplan" : "Übersicht"} drucken / als PDF</button>` : ""}
       ${mode === "liste" ? `<p class="plan-hint plan-hint--small">Kreis antippen = Fortschritt eintragen · Zeile antippen = bearbeiten</p>` : ""}`;
     container.querySelectorAll('[name="zmode"]').forEach((r) => r.addEventListener("change", () => Store.saveSettings({ zielAnsicht: r.value })));
     if (mode === "netz") Netzplan.wire(container, goal, res);
@@ -702,6 +727,8 @@ const ZielDetailView = (() => {
     container.querySelector("[data-edit-goal]").addEventListener("click", () => Goals.editGoal(goal.id));
     container.querySelector("[data-add]").addEventListener("click", () => Goals.newSubgoal(goal.id));
     container.querySelector("[data-save-template]").addEventListener("click", () => Templates.saveFromGoal(goal));
+    const pr = container.querySelector("[data-print]");
+    if (pr) pr.addEventListener("click", () => (mode === "balken" ? Balkenplan.printPlan(container, goal, res) : window.print()));
     container.querySelectorAll("[data-progress]").forEach((b) => b.addEventListener("click", () => Goals.openProgress(goal.id, b.dataset.progress)));
     container.querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", () => Goals.editSubgoal(goal.id, b.dataset.sub)));
     container.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => Editor.edit(b.dataset.open, b.dataset.date)));

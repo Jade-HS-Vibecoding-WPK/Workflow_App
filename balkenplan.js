@@ -13,13 +13,15 @@
 const Balkenplan = (() => {
   const S = Schedule;
   const esc = (s) => Editor.esc(s);
-  const DAY = 26;    // Breite eines Tages
+  const DAY0 = 26;   // Breite eines Tages (beim Drucken kleiner, damit alles auf die Seite passt)
   const LABEL = 136; // Breite der Namensspalte
   const MAX_DAYS = 400;
 
   const dayDiff = (a, b) => Math.round((S.parseDate(b) - S.parseDate(a)) / 86400000);
 
-  function html(goal, res) {
+  function html(goal, res, opts = {}) {
+    const DAY = opts.dayW || DAY0;
+    const tiny = DAY < 18; // Druck: Tageszahlen weglassen, nur Monate
     const subs = [...goal.subgoals].sort((a, b) => a.order - b.order);
     if (!subs.length) return `<p class="plan-hint">Noch keine Unterziele – lege welche an, dann entsteht hier der Balkenplan.</p>`;
     if (res && res.cycle) return `<div class="advice advice--crit">Die Abhängigkeiten bilden einen Kreis – so lässt sich kein Balkenplan zeichnen.</div>`;
@@ -47,10 +49,11 @@ const Balkenplan = (() => {
       const wd = d.getDay();
       const hol = typeof Holidays !== "undefined" && Holidays.on(iso);
       if (i === 0 || d.getDate() === 1) months.push({ i, label: d.toLocaleDateString("de-DE", { month: "long", year: "numeric" }) });
-      days.push(`<span class="gt-day ${wd === 0 || wd === 6 ? "gt-day--we" : ""} ${hol ? "gt-day--hol" : ""} ${iso === today ? "gt-day--today" : ""}" ${hol ? `title="${esc(hol)}"` : ""}>
-        <small>${"SMDMDFS"[wd]}</small>${d.getDate()}</span>`);
+      days.push(`<span class="gt-day ${wd === 0 || wd === 6 ? "gt-day--we" : ""} ${hol ? "gt-day--hol" : ""} ${iso === today ? "gt-day--today" : ""}" style="width:${DAY}px" ${hol ? `title="${esc(hol)}"` : ""}>
+        ${tiny ? (wd === 1 ? `<small>${d.getDate()}.</small>` : "") : `<small>${"SMDMDFS"[wd]}</small>${d.getDate()}`}</span>`);
       const pause = bau && S.inBauPause(iso); // Winterpause der Baustelle
-      if (wd === 0 || wd === 6 || hol || pause) shade.push(`<i class="gt-shade ${hol ? "gt-shade--hol" : ""}" style="left:${i * DAY}px" ${pause ? 'title="Winterpause"' : ""}></i>`);
+      const off = wd === 0 || (wd === 6 && !(bau && goal.samstag)); // Samstag kann Arbeitstag sein
+      if (off || hol || pause) shade.push(`<i class="gt-shade ${hol ? "gt-shade--hol" : ""}" style="left:${i * DAY}px;width:${DAY}px" ${pause ? 'title="Winterpause"' : ""}></i>`);
     }
     const monthHtml = months.map((m, k) => {
       const next = months[k + 1] ? months[k + 1].i : n;
@@ -61,7 +64,10 @@ const Balkenplan = (() => {
       const nd = nodes[s.id];
       const gewerk = bau && s.assignee && s.assignee !== Model.OWNER_LOCAL ? s.assignee : "";
       let bars = "";
-      if (nd && !s.done) {
+      if (nd && !s.done && bau && Number(s.durationDays) === 0) {
+        // Meilenstein (DIN 69900: Ereignis ohne Dauer) als Raute
+        bars = `<button class="gt-ms ${nd.level ? "gt-ms--" + nd.level : ""}" data-node="${esc(s.id)}" style="left:${x(nd.startDate) + DAY / 2 - 8}px" aria-label="${esc(s.title)}: Meilenstein ${esc(nd.startDate)}">◆</button>`;
+      } else if (nd && !s.done) {
         const left = x(nd.startDate);
         const w = (dayDiff(nd.startDate, nd.endDate) + 1) * DAY;
         const slackLeft = left + w;
@@ -116,7 +122,7 @@ const Balkenplan = (() => {
         <span><i class="gt-key-slack"></i>Puffer</span>
         <span><i class="gt-key-now"></i>heute</span>
         <span><i class="gt-key-dl"></i>${bau ? "Fertigstellung" : "Deadline"}</span>
-        <span>◆ Zwischen-Deadline</span>
+        <span>◆ ${bau ? "Meilenstein / " : ""}Zwischen-Deadline</span>
         ${bau ? "" : `<span><i class="gt-slot gt-slot--key"></i>Arbeit eingeplant</span>`}
       </p>
       <p class="plan-hint plan-hint--small">Balken = frühester Anfang bis frühestes Ende${bau ? " (Arbeitstage, Wochenende/Feiertage grau)" : " · Punkte = Tage mit eingeplanter Arbeit (gefüllt = bestätigt)"} · antippen = alle Werte</p>`;
@@ -127,8 +133,29 @@ const Balkenplan = (() => {
     // Beim Öffnen zu "heute" scrollen (etwas Vorlauf lassen)
     const wrap = container.querySelector("[data-gantt]");
     const now = wrap && wrap.querySelector(".gt-day--today");
-    if (wrap && now) wrap.scrollLeft = Math.max(0, now.offsetLeft - LABEL - 3 * DAY);
+    if (wrap && now) wrap.scrollLeft = Math.max(0, now.offsetLeft - LABEL - 3 * DAY0);
   }
 
-  return { html, wire };
+  // Drucken / als PDF (B6): Balkenplan so schmal zeichnen, dass er auf A4 quer passt
+  function printPlan(container, goal, res) {
+    const wrap = container.querySelector("[data-gantt]");
+    if (!wrap) { window.print(); return; }
+    const before = wrap.outerHTML;
+    const days = wrap.querySelectorAll(".gt-day").length || 1;
+    const dayW = Math.max(3, Math.min(DAY0, Math.floor((1000 - LABEL) / days)));
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html(goal, res, { dayW });
+    wrap.replaceWith(tmp.querySelector("[data-gantt]"));
+    document.body.classList.add("printing");
+    const restore = () => {
+      const cur = container.querySelector("[data-gantt]");
+      if (cur) { const t2 = document.createElement("div"); t2.innerHTML = before; cur.replaceWith(t2.firstElementChild); wire(container, goal, res); }
+      document.body.classList.remove("printing");
+      window.removeEventListener("afterprint", restore);
+    };
+    window.addEventListener("afterprint", restore);
+    window.print();
+  }
+
+  return { html, wire, printPlan };
 })();

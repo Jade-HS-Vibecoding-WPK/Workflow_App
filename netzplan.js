@@ -110,6 +110,7 @@ const Netzplan = (() => {
     if (sg.done) return "erledigt";
     if (bau) {
       const g = sg.assignee && sg.assignee !== Model.OWNER_LOCAL ? sg.assignee + " · " : "";
+      if (Number(sg.durationDays) === 0) return `${g}◆ Meilenstein`; // DIN 69900: Ereignis ohne Dauer
       return `${g}${n ? n.D : sg.durationDays} AT`; // AT = Arbeitstage
     }
     if (sg.mode === "dauer") return GoalMath.fmtDays(n ? n.D : sg.durationDays);
@@ -193,7 +194,7 @@ const Netzplan = (() => {
     const boxes = subs.map((s, i) => {
       const n = nodes[s.id];
       const p = pos[s.id];
-      const cls = ["nz-node", s.done ? "nz-node--done" : "", n && n.level ? "nz-node--" + n.level : "", n && n.mainPath ? "nz-node--main" : ""].join(" ");
+      const cls = ["nz-node", bau && Number(s.durationDays) === 0 ? "nz-node--ms" : "", s.done ? "nz-node--done" : "", n && n.level ? "nz-node--" + n.level : "", n && n.mainPath ? "nz-node--main" : ""].join(" ");
       const fmtD = (d) => (bau ? `${d} AT` : GoalMath.fmtDays(d)); // AT = Arbeitstage
       const puffer = s.done || !n ? "" : n.behind ? `<b class="meta--warn">${fmtD(-n.TF)} zu spät</b>` : `Puffer ${fmtD(GoalMath.shownTF(n, res))}`;
       return `
@@ -202,7 +203,7 @@ const Netzplan = (() => {
           <span class="nz-title"><span class="nz-num">${i + 1}</span>${s.done ? "✓ " : ""}${esc(s.title)}</span>
           <span class="nz-meta">${esc(durationText(s, n, bau))}</span>
           <span class="nz-meta">${puffer}</span>
-          ${n && !s.done ? `<span class="nz-dates">${dShort(n.startDate)}–${dShort(n.endDate)}</span>` : ""}
+          ${n && !s.done ? `<span class="nz-dates">${n.startDate === n.endDate ? dShort(n.startDate) : `${dShort(n.startDate)}–${dShort(n.endDate)}`}</span>` : ""}
         </button>`;
     }).join("");
 
@@ -263,6 +264,7 @@ const Netzplan = (() => {
       </div>
       <dl class="cpm-values">
         <dt>Freier Puffer (FP)</dt><dd>${goal.area === "bau" ? `${n.FF} AT` : GoalMath.fmtDays(n.FF)}</dd>
+        ${goal.area === "bau" && n.FRP != null ? `<dt>Freier Rückwärtspuffer (FRP)</dt><dd>${n.FRP} AT</dd><dt>Unabhängiger Puffer (UP)</dt><dd>${n.UP} AT</dd>` : ""}
         ${n.neededHours > 0 ? `<dt>Auslastung</dt><dd>${GoalMath.pct(n.utilization)} (${GoalMath.fmtHours(n.neededHours)} von ${GoalMath.fmtHours(n.availableHours)} frei)</dd>` : ""}
         <dt>${sg.mode === "dauer" ? "Dauer" : "Restaufwand"}</dt><dd>${esc(durationText(sg, n, goal.area === "bau"))}</dd>
         ${goal.area === "bau" ? `<dt>Arbeitszeit</dt><dd>${esc(sg.workFrom || Schedule.bauZeit.von)}–${esc(sg.workTo || Schedule.bauZeit.bis)} Uhr, Mo–Fr${sg.workFrom ? "" : " (Standard)"}</dd>` : ""}
@@ -272,12 +274,12 @@ const Netzplan = (() => {
       <div class="sheet sheet--small" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
         <div class="sheet__head">
           <button class="link-btn" data-close>Schließen</button>
-          <h2 id="sheet-title">Vorgang ${idx}</h2>
+          <h2 id="sheet-title">${goal.area === "bau" && Number(sg.durationDays) === 0 ? "Meilenstein" : "Vorgang"} ${idx}</h2>
           <span class="sheet__spacer"></span>
         </div>
         ${box}
         ${deps.length ? `<div class="notice"><b>Wartet auf:</b>${deps.join("")}</div>` : ""}
-        <p class="hint hint--plain">FAZ/FEZ = frühester Anfang/frühestes Ende · SAZ/SEZ = spätester Anfang/spätestes Ende · GP = Gesamtpuffer · FP = freier Puffer (Verzug, ohne den Nachfolger zu verschieben)${goal.area === "bau" ? " · AT = Arbeitstage (Mo–Fr ohne Feiertage), Werte nach DIN 69900" : ""}</p>
+        <p class="hint hint--plain">FAZ/FEZ = frühester Anfang/frühestes Ende · SAZ/SEZ = spätester Anfang/spätestes Ende · GP = Gesamtpuffer · FP = freier Puffer (Verzug, ohne den Nachfolger zu verschieben)${goal.area === "bau" ? " · FRP = so viel früher geht es, auch wenn alle Vorgänger spät liegen · UP = Spielraum, selbst wenn Vorgänger spät und Nachfolger früh liegen · AT = Arbeitstage, Werte nach DIN 69900" : ""}</p>
         <div class="form-group form-actions">
           ${sg.done ? "" : `<button class="action" data-a="progress">Fortschritt eintragen</button>`}
           <button class="action" data-a="edit">Bearbeiten</button>

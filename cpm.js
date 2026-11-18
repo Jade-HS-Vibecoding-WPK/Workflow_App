@@ -107,7 +107,7 @@ const CPM = (() => {
     const isWork = (i) => {
       const d = dayDate(i);
       const wd = d.getDay();
-      if (wd === 0 || wd === 6) return false;
+      if (wd === 0 || (wd === 6 && !goal.samstag)) return false; // Samstag optional Arbeitstag (pro Projekt)
       if (S.inBauPause(S.isoDate(d))) return false; // Winterpause
       return !(typeof Holidays !== "undefined" && Holidays.on(S.isoDate(d)));
     };
@@ -203,6 +203,34 @@ const CPM = (() => {
       }
       n.FF = Math.min(ff, n.TF);
     }
+    // DIN 69900, weitere Pufferzeiten (Arbeitstage):
+    //  FRP freie Rückwärtspufferzeit: Spielraum nach vorn, wenn alle Vorgänger so
+    //      spät wie möglich liegen
+    //  UP  unabhängige Pufferzeit: Spielraum, wenn die Vorgänger so spät und die
+    //      Nachfolger so früh wie möglich liegen (nie negativ)
+    for (const n of Object.values(nodes)) {
+      let es2 = start0;
+      for (const d of n.preds) {
+        const p = nodes[d.fromId], lag = Number(d.lagDays) || 0, t = d.type || DEP.EA;
+        if (t === DEP.EA) es2 = Math.max(es2, p.LF + lag);
+        if (t === DEP.AA) es2 = Math.max(es2, p.LS + lag);
+        if (t === DEP.EE) es2 = Math.max(es2, subW(p.LF + lag, n.D));
+        if (t === DEP.AE) es2 = Math.max(es2, subW(p.LS + lag, n.D));
+      }
+      es2 = n.D > 0 ? nextWork(es2) : es2;
+      let lf2 = n.succs.length ? Infinity : deadlineEx, ls2 = Infinity;
+      for (const s of n.succs) {
+        const x = nodes[s.toId];
+        if (s.type === DEP.EA) lf2 = Math.min(lf2, x.ES - s.lag);
+        if (s.type === DEP.EE) lf2 = Math.min(lf2, x.EF - s.lag);
+        if (s.type === DEP.AA) ls2 = Math.min(ls2, x.ES - s.lag);
+        if (s.type === DEP.AE) ls2 = Math.min(ls2, x.EF - s.lag);
+      }
+      let lsFromSuccs = lf2 === Infinity ? Infinity : n.D > 0 ? subW(lf2, n.D) : lf2;
+      if (ls2 < lsFromSuccs) lsFromSuccs = n.D > 0 ? prevWork(ls2) : ls2;
+      n.FRP = Math.max(0, wdBetween(es2, n.LS));
+      n.UP = lsFromSuccs === Infinity ? n.FRP : Math.max(0, wdBetween(es2, lsFromSuccs));
+    }
     const minTF = open.length ? Math.min(...open.map((n) => n.TF)) : 0;
     // Kritischer Weg (DIN 69900: Weg mit der kleinsten Gesamtpufferzeit = längster Weg).
     // Weil Dauern in Arbeitstagen und Zeitabstände in Kalendertagen laufen, wird er
@@ -228,15 +256,31 @@ const CPM = (() => {
       n.endDate = S.isoDate(dayDate(Math.max(n.EF - 1, n.ES)));
       n.latestStart = S.isoDate(dayDate(n.LS));
       n.latestEnd = S.isoDate(dayDate(Math.max(n.LF - 1, n.LS)));
+      if (n.D === 0 && n.preds.length) {
+        // Meilenstein = Zeitpunkt, an dem der Vorgänger fertig ist (Ende des letzten Arbeitstags davor)
+        const at = (i) => S.isoDate(dayDate(i > start0 ? prevWork(i - 1) : i));
+        n.startDate = n.endDate = at(n.ES);
+        n.latestStart = n.latestEnd = at(n.LS);
+      }
       n.workdays = n.D;
     }
+    // Gewerke doppelt eingeplant? (gleiches Gewerk, überlappende Arbeitstage)
+    const clashes = [];
+    const busy = open.filter((n) => n.D > 0 && byId[n.id].assignee && byId[n.id].assignee !== Model.OWNER_LOCAL);
+    for (let i = 0; i < busy.length; i++) for (let j = i + 1; j < busy.length; j++) {
+      const a = busy[i], b = busy[j];
+      if (byId[a.id].assignee.trim().toLowerCase() !== byId[b.id].assignee.trim().toLowerCase()) continue;
+      const from = Math.max(a.ES, b.ES), to = Math.min(a.EF, b.EF); // Ende exklusiv
+      if (from < to && wdBetween(from, to) > 0) clashes.push({ gewerk: byId[a.id].assignee, a: a.id, b: b.id, from: S.isoDate(dayDate(from)), to: S.isoDate(dayDate(to - 1)), days: wdBetween(from, to) });
+    }
+
     let status = "ok";
     if (!open.length) status = "fertig";
     else if (minTF < 0) status = "hinterher";
     else if (minTF === 0 && goal.deadline) status = "kritisch";
     else if (minTF <= BAU_ENG_TAGE) status = "knapp";
     return {
-      cycle: false, bau: true, cap: 1, nodes, projectEnd, deadlineDays: deadlineEx, minTF, slack: minTF, status,
+      cycle: false, bau: true, cap: 1, nodes, projectEnd, clashes, deadlineDays: deadlineEx, minTF, slack: minTF, status,
       utilization: 0, neededHours: 0, availableHours: 0, resourceLimited: false, isWork,
       projectEndDate: S.isoDate(dayDate(Math.max(projectEnd - 1, 0))),
     };
